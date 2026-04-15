@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - Maker Trading</title>
+    <style>
+        body { margin: 0; font-family: sans-serif; background: #f3f4f6; }
+        .top-sec { background: #1e3a8a; color: white; padding: 40px 20px; text-align: center; border-radius: 0 0 25px 25px; }
+        .menu-item { background: white; padding: 15px; margin: 10px 15px; border-radius: 10px; display: flex; justify-content: space-between; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .logout { color: red; font-weight: bold; text-align: center; margin-top: 30px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="top-sec">
+        <div style="font-size: 60px;">👤</div>
+        <h3 id="uPhone">Loading...</h3>
+        <p>Verified Member ✅</p>
+        <h2 id="uBal">₹ 0.00</h2>
+    </div>
+
+    <div class="menu-item" onclick="location.href='recharge.html'"><span>Wallet / Recharge</span> <span>></span></div>
+    <div class="menu-item" onclick="location.href='withdraw.html'"><span>Withdraw Money</span> <span>></span></div>
+    <div class="menu-item" onclick="location.href='records.html'"><span>Betting History</span> <span>></span></div>
+    <div class="menu-item" onclick="location.href='kyc.html'"><span>KYC Verification</span> <span>></span></div>
+    <div class="menu-item" onclick="location.href='promotion.html'"><span>Refer & Earn</span> <span>></span></div>
+    
+    <div class="logout" onclick="logout()">LOGOUT</div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCh-1xi3jkIj5hUsmbm3GFGfT_AlWmxYkk",
+            authDomain: "maker-trading-official.firebaseapp.com",
+            databaseURL: "https://maker-trading-official-default-rtdb.firebaseio.com/",
+            projectId: "maker-trading-official",
+            appId: "1:262205995192:web:d7255379855a0fc9489c4d"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const phone = localStorage.getItem("userPhone");
+
+        if(!phone) { window.location.href = "index.html"; }
+        document.getElementById('uPhone').innerText = "+92 " + phone;
+
+        onValue(ref(db, 'users/' + phone), (snapshot) => {
+            if(snapshot.exists()){
+                document.getElementById('uBal').innerText = "₹ " + snapshot.val().balance.toFixed(2);
+            }
+        });
+
+        window.logout = function() {
+            localStorage.clear();
+            window.location.href = "index.html";
+        }
+    </script>
+</body>
+</html>
