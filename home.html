@@ -6,15 +6,19 @@
     <style>
         body { margin: 0; background: #f8f9fa; font-family: sans-serif; padding-bottom: 70px; }
         .header { background: #1e3a8a; color: white; padding: 20px; text-align: center; font-weight: bold; font-size: 20px; }
-        .balance-box { background: linear-gradient(135deg, #1e3a8a, #3b82f6); color: white; margin: 15px; padding: 25px; border-radius: 20px; text-align: center; box-shadow: 0 10px 20px rgba(30,58,138,0.2); }
+        .balance-box { background: linear-gradient(135deg, #1e3a8a, #3b82f6); color: white; margin: 15px; padding: 25px; border-radius: 20px; text-align: center; }
         .game-card { background: white; margin: 15px; padding: 25px; border-radius: 20px; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
-        .timer { font-size: 40px; color: #ef4444; font-weight: bold; margin-bottom: 10px; font-family: 'Courier New', Courier, monospace; }
-        .period-id { color: #666; margin-bottom: 20px; font-size: 14px; }
+        .timer { font-size: 40px; color: #ef4444; font-weight: bold; margin-bottom: 10px; }
         .btns { display: flex; justify-content: space-around; gap: 10px; }
-        .btn { flex: 1; padding: 15px; border: none; border-radius: 12px; color: white; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 16px; }
-        .btn:active { transform: scale(0.95); }
+        .btn { flex: 1; padding: 15px; border: none; border-radius: 12px; color: white; font-weight: bold; cursor: pointer; }
         .g { background: #22c55e; } .v { background: #a855f7; } .r { background: #ef4444; }
-        .nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #ddd; z-index: 1000; }
+        
+        /* Popup Styling */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: none; align-items: center; justifyContent: center; z-index: 10000; }
+        .modal-content { background: white; padding: 30px; border-radius: 20px; width: 80%; max-width: 400px; text-align: center; animation: zoomIn 0.3s ease; }
+        @keyframes zoomIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        
+        .nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #ddd; }
         .nav a { text-decoration: none; color: #666; font-size: 13px; text-align: center; }
     </style>
 </head>
@@ -23,17 +27,37 @@
     
     <div class="balance-box">
         <p style="margin:0; opacity:0.8;">Available Balance</p>
-        <h1 id="userBalance" style="margin:10px 0;">₹ 0.00</h1>
-        <button onclick="location.href='recharge.html'" style="background:white; color:#1e3a8a; border:none; padding:10px 25px; border-radius:30px; font-weight:bold; cursor:pointer;">Recharge</button>
+        <h1 id="userBalance">₹ 0.00</h1>
+        <button onclick="location.href='recharge.html'" style="background:white; color:#1e3a8a; border:none; padding:10px 25px; border-radius:30px; font-weight:bold;">Recharge</button>
     </div>
 
     <div class="game-card">
-        <div class="period-id">Period: <span id="periodId">20260415XXX</span></div>
+        <p>Period: <span id="periodId">...</span></p>
         <div class="timer" id="timer">03:00</div>
         <div class="btns">
-            <button class="btn g" onclick="bet('Green')">Join Green</button>
-            <button class="btn v" onclick="bet('Violet')">Join Violet</button>
-            <button class="btn r" onclick="bet('Red')">Join Red</button>
+            <button class="btn g" onclick="openBetModal('Green')">Join Green</button>
+            <button class="btn v" onclick="openBetModal('Violet')">Join Violet</button>
+            <button class="btn r" onclick="openBetModal('Red')">Join Red</button>
+        </div>
+    </div>
+
+    <div id="betModal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 id="modalTitle">Join Color</h3>
+            <input type="number" id="betAmount" value="100" style="width:90%; padding:10px; margin:20px 0; border:1px solid #ddd; border-radius:10px;">
+            <div style="display:flex; gap:10px;">
+                <button onclick="closeModal()" style="flex:1; padding:10px; border-radius:10px; border:none; background:#eee;">Cancel</button>
+                <button id="confirmBetBtn" style="flex:1; padding:10px; border-radius:10px; border:none; background:#1e3a8a; color:white;">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="resultModal" class="modal-overlay">
+        <div class="modal-content">
+            <h1 id="resIcon" style="font-size:60px; margin:0;">🥳</h1>
+            <h2 id="resTitle">You Won!</h2>
+            <p id="resMsg" style="font-size:18px;"></p>
+            <button onclick="closeResultModal()" style="width:100%; padding:12px; background:#1e3a8a; color:white; border:none; border-radius:10px;">Awesome!</button>
         </div>
     </div>
 
@@ -46,7 +70,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, onValue, set, get, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, onValue, set, get, update, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCh-1xi3jkIj5hUsmbm3GFGfT_AlWmxYkk",
@@ -59,72 +83,68 @@
         const db = getDatabase(app);
         const phone = localStorage.getItem("userPhone");
 
-        if(!phone) { window.location.href = "index.html"; }
+        let selectedColor = "";
 
-        // 1. Get Balance
+        // Get Balance
         onValue(ref(db, 'users/' + phone), (snapshot) => {
+            if(snapshot.exists()) document.getElementById('userBalance').innerText = "₹ " + snapshot.val().balance.toFixed(2);
+        });
+
+        // Check for Results
+        onValue(ref(db, 'results/' + phone), (snapshot) => {
             if(snapshot.exists()){
-                document.getElementById('userBalance').innerText = "₹ " + snapshot.val().balance.toFixed(2);
+                const data = snapshot.val();
+                showResult(data.msg, data.amt);
+                remove(ref(db, 'results/' + phone));
             }
         });
 
-        // 2. Real-time Timer Logic (Every 3 minutes)
-        function startTimer() {
-            setInterval(() => {
-                let now = new Date();
-                let minutes = now.getMinutes();
-                let seconds = now.getSeconds();
-                
-                let remainingMin = 2 - (minutes % 3);
-                let remainingSec = 59 - seconds;
+        // Timer Logic
+        setInterval(() => {
+            let now = new Date();
+            let remMin = 2 - (now.getMinutes() % 3);
+            let remSec = 59 - now.getSeconds();
+            document.getElementById('timer').innerText = `0${remMin}:${remSec < 10 ? '0'+remSec : remSec}`;
+            document.getElementById('periodId').innerText = now.getFullYear().toString() + (now.getMonth()+1) + now.getDate() + (Math.floor((now.getMinutes() + (now.getHours()*60))/3));
+            
+            if(remMin == 0 && remSec <= 30) document.querySelectorAll('.btn').forEach(b => b.disabled = true);
+            else document.querySelectorAll('.btn').forEach(b => b.disabled = false);
+        }, 1000);
 
-                let displayMin = remainingMin < 10 ? "0" + remainingMin : remainingMin;
-                let displaySec = remainingSec < 10 ? "0" + remainingSec : remainingSec;
+        window.openBetModal = (color) => {
+            selectedColor = color;
+            document.getElementById('modalTitle').innerText = "Join " + color;
+            document.getElementById('betModal').style.display = 'flex';
+        };
 
-                document.getElementById('timer').innerText = `${displayMin}:${displaySec}`;
-                
-                // Period ID based on time
-                let pId = now.getFullYear().toString() + (now.getMonth()+1) + now.getDate() + (Math.floor((minutes + (now.getHours()*60))/3));
-                document.getElementById('periodId').innerText = pId;
+        window.closeModal = () => document.getElementById('betModal').style.display = 'none';
 
-                // Disable betting in last 30 seconds
-                if(remainingMin === 0 && remainingSec <= 30) {
-                    document.querySelectorAll('.btn').forEach(b => b.disabled = true);
-                    document.getElementById('timer').style.color = "gray";
+        document.getElementById('confirmBetBtn').onclick = () => {
+            const amt = parseFloat(document.getElementById('betAmount').value);
+            get(ref(db, 'users/' + phone)).then((snap) => {
+                const bal = snap.val().balance;
+                if(amt >= 10 && bal >= amt) {
+                    update(ref(db, 'users/' + phone), { balance: bal - amt });
+                    set(ref(db, 'bets/' + document.getElementById('periodId').innerText + '/' + phone), { amount: amt, choice: selectedColor });
+                    closeModal();
+                    alert("Bet Placed Successfully!");
                 } else {
-                    document.querySelectorAll('.btn').forEach(b => b.disabled = false);
-                    document.getElementById('timer').style.color = "#ef4444";
-                }
-            }, 1000);
-        }
-
-        startTimer();
-
-        // 3. Betting Function
-        window.bet = function(color) {
-            let amount = prompt(`Enter betting amount for ${color}:`, "100");
-            if (amount === null || amount === "") return;
-            amount = parseFloat(amount);
-
-            get(ref(db, 'users/' + phone)).then((snapshot) => {
-                let currentBal = snapshot.val().balance;
-                if(amount > currentBal || amount < 10) {
-                    alert("Insufficient balance or invalid amount!");
-                } else {
-                    let newBal = currentBal - amount;
-                    update(ref(db, 'users/' + phone), { balance: newBal });
-                    
-                    // Save Bet in Database
-                    let pId = document.getElementById('periodId').innerText;
-                    set(ref(db, 'bets/' + pId + '/' + phone), {
-                        amount: amount,
-                        choice: color,
-                        status: "Pending"
-                    });
-                    alert(`Bet of ₹${amount} placed on ${color}!`);
+                    alert("Invalid Amount or Insufficient Balance!");
                 }
             });
         };
+
+        function showResult(type, amt) {
+            const win = type === "WIN";
+            document.getElementById('resIcon').innerText = win ? "🥳" : "💔";
+            document.getElementById('resTitle').innerText = win ? "Congratulations!" : "Better Luck Next Time";
+            document.getElementById('resTitle').style.color = win ? "#22c55e" : "#ef4444";
+            document.getElementById('resMsg').innerText = win ? `You won ₹${amt.toFixed(2)}` : `You lost ₹${amt.toFixed(2)}`;
+            document.getElementById('resultModal').style.display = 'flex';
+        }
+
+        window.closeResultModal = () => document.getElementById('resultModal').style.display = 'none';
     </script>
 </body>
-</html>
+    </html>
+
