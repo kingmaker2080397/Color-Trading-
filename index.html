@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Maker Trading</title>
+    <style>
+        body { font-family: sans-serif; background: #f4f4f4; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 320px; text-align: center; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: #1e3a8a; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2 style="color:#1e3a8a;">👑 Maker Trading</h2>
+        <input type="number" id="loginPhone" placeholder="Mobile Number">
+        <input type="password" id="loginPass" placeholder="Password">
+        <button id="loginBtn">Login</button>
+        <p>New user? <a href="register.html">Register here</a></p>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCh-1xi3jkIj5hUsmbm3GFGfT_AlWmxYkk",
+            authDomain: "maker-trading-official.firebaseapp.com",
+            databaseURL: "https://maker-trading-official-default-rtdb.firebaseio.com/",
+            projectId: "maker-trading-official",
+            storageBucket: "maker-trading-official.firebasestorage.app",
+            messagingSenderId: "262205995192",
+            appId: "1:262205995192:web:d7255379855a0fc9489c4d"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        document.getElementById('loginBtn').onclick = function() {
+            const phone = document.getElementById('loginPhone').value;
+            const pass = document.getElementById('loginPass').value;
+            get(ref(db, 'users/' + phone)).then((snapshot) => {
+                if (snapshot.exists() && snapshot.val().password === pass) {
+                    localStorage.setItem("userPhone", phone);
+                    window.location.href = "home.html";
+                } else { alert("Invalid Credentials!"); }
+            });
+        };
+    </script>
+</body>
+</html>
