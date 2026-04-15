@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Promotion - Maker Trading</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; padding: 20px; background: #fdfdfd; }
+        .invite-box { background: #fff; padding: 30px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); border: 2px solid #1e3a8a; }
+        .code { font-size: 24px; font-weight: bold; color: #1e3a8a; margin: 20px 0; letter-spacing: 2px; }
+        .btn { background: #1e3a8a; color: white; padding: 15px 30px; border: none; border-radius: 30px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="invite-box">
+        <h2>Invite Friends & Earn</h2>
+        <p>Get 10% commission on every recharge of your friend.</p>
+        <div class="code" id="myId">---</div>
+        <button class="btn" onclick="copyLink()">Copy My Invite Link</button>
+    </div>
+
+    <script>
+        const phone = localStorage.getItem("userPhone");
+        document.getElementById('myId').innerText = phone;
+        function copyLink() {
+            const link = "https://kingmaker2080397.github.io/Color-Trading-/?invite=" + phone;
+            navigator.clipboard.writeText(link);
+            alert("Link Copied: " + link);
+        }
+    </script>
+</body>
+</html>
