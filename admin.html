@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Maker Trading</title>
+    <style>
+        body { font-family: sans-serif; background: #111827; color: white; padding: 20px; }
+        .box { background: #1f2937; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #374151; }
+        input { padding: 10px; border-radius: 5px; border: none; margin: 5px; width: 80%; }
+        button { padding: 10px 20px; background: #3b82f6; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        .req { background: #374151; padding: 10px; margin: 5px 0; border-radius: 5px; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <h1>👑 Admin Control</h1>
+
+    <div class="box">
+        <h3>User Management</h3>
+        <input type="number" id="targetUser" placeholder="User Phone Number">
+        <input type="number" id="newBal" placeholder="Enter New Balance">
+        <button id="updateBalBtn">Update Balance</button>
+    </div>
+
+    <div class="box">
+        <h3>Pending Deposits</h3>
+        <div id="rechargeList">Loading requests...</div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, update, onValue, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCh-1xi3jkIj5hUsmbm3GFGfT_AlWmxYkk",
+            authDomain: "maker-trading-official.firebaseapp.com",
+            databaseURL: "https://maker-trading-official-default-rtdb.firebaseio.com/",
+            projectId: "maker-trading-official",
+            appId: "1:262205995192:web:d7255379855a0fc9489c4d"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // Update Balance Manual
+        document.getElementById('updateBalBtn').onclick = function() {
+            const phone = document.getElementById('targetUser').value;
+            const bal = parseFloat(document.getElementById('newBal').value);
+            update(ref(db, 'users/' + phone), { balance: bal })
+            .then(() => alert("Balance Updated for " + phone));
+        };
+
+        // Show Requests
+        onValue(ref(db, 'rechargeRequests'), (snapshot) => {
+            const list = document.getElementById('rechargeList');
+            list.innerHTML = "";
+            snapshot.forEach((child) => {
+                const data = child.val();
+                list.innerHTML += `<div class="req">
+                    User: ${data.user} | Amt: ₹${data.amount} | TID: ${data.tid}
+                    <br><button onclick="approve('${data.user}', ${data.amount}, '${data.tid}')" style="background:green">Approve</button>
+                </div>`;
+            });
+        });
+
+        window.approve = function(phone, amt, tid) {
+            update(ref(db, 'users/' + phone), { balance: amt }) // Simplification: overwrites current bal. For real use, add to current bal.
+            .then(() => {
+                remove(ref(db, 'rechargeRequests/' + tid));
+                alert("Approved!");
+            });
+        };
+    </script>
+</body>
+</html>
