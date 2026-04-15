@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maker Trading - Home</title>
+    <style>
+        body { margin: 0; background: #f8f9fa; font-family: sans-serif; }
+        .header { background: #1e3a8a; color: white; padding: 20px; text-align: center; font-weight: bold; }
+        .balance-box { background: linear-gradient(to right, #1e3a8a, #3b82f6); color: white; margin: 15px; padding: 25px; border-radius: 15px; text-align: center; }
+        .game-card { background: white; margin: 15px; padding: 20px; border-radius: 15px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .timer { font-size: 30px; color: #ef4444; font-weight: bold; margin-bottom: 20px; }
+        .btns { display: flex; justify-content: space-around; }
+        .btn { padding: 15px 25px; border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; }
+        .g { background: #22c55e; } .v { background: #a855f7; } .r { background: #ef4444; }
+        .nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #ddd; }
+        .nav a { text-decoration: none; color: #666; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="header">👑 MAKER TRADING OFFICIAL</div>
+    <div class="balance-box">
+        <p>Available Balance</p>
+        <h1 id="userBalance">₹ 0.00</h1>
+        <button onclick="location.href='recharge.html'" style="background:white; color:#1e3a8a; border:none; padding:8px 20px; border-radius:20px; font-weight:bold;">Recharge</button>
+    </div>
+
+    <div class="game-card">
+        <div class="timer" id="timer">02:00</div>
+        <div class="btns">
+            <button class="btn g">Green</button>
+            <button class="btn v">Violet</button>
+            <button class="btn r">Red</button>
+        </div>
+    </div>
+
+    <div class="nav">
+        <a href="home.html">🏠 Home</a>
+        <a href="records.html">📊 Record</a>
+        <a href="promotion.html">🔗 Invite</a>
+        <a href="profile.html">👤 Profile</a>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCh-1xi3jkIj5hUsmbm3GFGfT_AlWmxYkk",
+            authDomain: "maker-trading-official.firebaseapp.com",
+            databaseURL: "https://maker-trading-official-default-rtdb.firebaseio.com/",
+            projectId: "maker-trading-official",
+            appId: "1:262205995192:web:d7255379855a0fc9489c4d"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const phone = localStorage.getItem("userPhone");
+
+        if(!phone) { window.location.href = "index.html"; }
+
+        onValue(ref(db, 'users/' + phone), (snapshot) => {
+            document.getElementById('userBalance').innerText = "₹ " + snapshot.val().balance.toFixed(2);
+        });
+    </script>
+</body>
+</html>
