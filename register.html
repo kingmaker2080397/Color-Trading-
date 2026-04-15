@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Maker Trading</title>
+    <style>
+        body { font-family: sans-serif; background: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: white; padding: 25px; border-radius: 12px; width: 320px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; }
+        input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: #1e3a8a; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2 style="color:#1e3a8a;">Create Account</h2>
+        <input type="number" id="regPhone" placeholder="Mobile Number">
+        <input type="password" id="regPass" placeholder="Set Password">
+        <input type="text" id="inviteCode" placeholder="Invite Code (Optional)">
+        <button id="regBtn">Register Now</button>
+        <p>Already have an account? <a href="index.html">Login</a></p>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCh-1xi3jkIj5hUsmbm3GFGfT_AlWmxYkk",
+            authDomain: "maker-trading-official.firebaseapp.com",
+            databaseURL: "https://maker-trading-official-default-rtdb.firebaseio.com/",
+            projectId: "maker-trading-official",
+            storageBucket: "maker-trading-official.firebasestorage.app",
+            appId: "1:262205995192:web:d7255379855a0fc9489c4d"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        document.getElementById('regBtn').onclick = function() {
+            const phone = document.getElementById('regPhone').value;
+            const pass = document.getElementById('regPass').value;
+            if(phone.length < 10 || pass == "") { alert("Enter valid details!"); return; }
+            
+            get(ref(db, 'users/' + phone)).then((snapshot) => {
+                if (snapshot.exists()) { alert("Already Registered!"); }
+                else {
+                    set(ref(db, 'users/' + phone), { mobile: phone, password: pass, balance: 0, status: "Verified" })
+                    .then(() => { alert("Done! Now Login."); window.location.href = "index.html"; });
+                }
+            });
+        };
+    </script>
+</body>
+</html>
