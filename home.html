@@ -4,45 +4,49 @@
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Maker Trading - Home</title>
     <style>
-        body { margin: 0; background: #f8f9fa; font-family: sans-serif; }
-        .header { background: #1e3a8a; color: white; padding: 20px; text-align: center; font-weight: bold; }
-        .balance-box { background: linear-gradient(to right, #1e3a8a, #3b82f6); color: white; margin: 15px; padding: 25px; border-radius: 15px; text-align: center; }
-        .game-card { background: white; margin: 15px; padding: 20px; border-radius: 15px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        .timer { font-size: 30px; color: #ef4444; font-weight: bold; margin-bottom: 20px; }
-        .btns { display: flex; justify-content: space-around; }
-        .btn { padding: 15px 25px; border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; }
+        body { margin: 0; background: #f8f9fa; font-family: sans-serif; padding-bottom: 70px; }
+        .header { background: #1e3a8a; color: white; padding: 20px; text-align: center; font-weight: bold; font-size: 20px; }
+        .balance-box { background: linear-gradient(135deg, #1e3a8a, #3b82f6); color: white; margin: 15px; padding: 25px; border-radius: 20px; text-align: center; box-shadow: 0 10px 20px rgba(30,58,138,0.2); }
+        .game-card { background: white; margin: 15px; padding: 25px; border-radius: 20px; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        .timer { font-size: 40px; color: #ef4444; font-weight: bold; margin-bottom: 10px; font-family: 'Courier New', Courier, monospace; }
+        .period-id { color: #666; margin-bottom: 20px; font-size: 14px; }
+        .btns { display: flex; justify-content: space-around; gap: 10px; }
+        .btn { flex: 1; padding: 15px; border: none; border-radius: 12px; color: white; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 16px; }
+        .btn:active { transform: scale(0.95); }
         .g { background: #22c55e; } .v { background: #a855f7; } .r { background: #ef4444; }
-        .nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #ddd; }
-        .nav a { text-decoration: none; color: #666; font-size: 14px; }
+        .nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #ddd; z-index: 1000; }
+        .nav a { text-decoration: none; color: #666; font-size: 13px; text-align: center; }
     </style>
 </head>
 <body>
-    <div class="header">👑 MAKER TRADING OFFICIAL</div>
+    <div class="header">👑 MAKER TRADING</div>
+    
     <div class="balance-box">
-        <p>Available Balance</p>
-        <h1 id="userBalance">₹ 0.00</h1>
-        <button onclick="location.href='recharge.html'" style="background:white; color:#1e3a8a; border:none; padding:8px 20px; border-radius:20px; font-weight:bold;">Recharge</button>
+        <p style="margin:0; opacity:0.8;">Available Balance</p>
+        <h1 id="userBalance" style="margin:10px 0;">₹ 0.00</h1>
+        <button onclick="location.href='recharge.html'" style="background:white; color:#1e3a8a; border:none; padding:10px 25px; border-radius:30px; font-weight:bold; cursor:pointer;">Recharge</button>
     </div>
 
     <div class="game-card">
-        <div class="timer" id="timer">02:00</div>
+        <div class="period-id">Period: <span id="periodId">20260415XXX</span></div>
+        <div class="timer" id="timer">03:00</div>
         <div class="btns">
-            <button class="btn g">Green</button>
-            <button class="btn v">Violet</button>
-            <button class="btn r">Red</button>
+            <button class="btn g" onclick="bet('Green')">Join Green</button>
+            <button class="btn v" onclick="bet('Violet')">Join Violet</button>
+            <button class="btn r" onclick="bet('Red')">Join Red</button>
         </div>
     </div>
 
     <div class="nav">
-        <a href="home.html">🏠 Home</a>
-        <a href="records.html">📊 Record</a>
-        <a href="promotion.html">🔗 Invite</a>
-        <a href="profile.html">👤 Profile</a>
+        <a href="home.html">🏠<br>Home</a>
+        <a href="records.html">📊<br>Record</a>
+        <a href="promotion.html">🔗<br>Invite</a>
+        <a href="profile.html">👤<br>Profile</a>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, onValue, set, get, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCh-1xi3jkIj5hUsmbm3GFGfT_AlWmxYkk",
@@ -57,9 +61,70 @@
 
         if(!phone) { window.location.href = "index.html"; }
 
+        // 1. Get Balance
         onValue(ref(db, 'users/' + phone), (snapshot) => {
-            document.getElementById('userBalance').innerText = "₹ " + snapshot.val().balance.toFixed(2);
+            if(snapshot.exists()){
+                document.getElementById('userBalance').innerText = "₹ " + snapshot.val().balance.toFixed(2);
+            }
         });
+
+        // 2. Real-time Timer Logic (Every 3 minutes)
+        function startTimer() {
+            setInterval(() => {
+                let now = new Date();
+                let minutes = now.getMinutes();
+                let seconds = now.getSeconds();
+                
+                let remainingMin = 2 - (minutes % 3);
+                let remainingSec = 59 - seconds;
+
+                let displayMin = remainingMin < 10 ? "0" + remainingMin : remainingMin;
+                let displaySec = remainingSec < 10 ? "0" + remainingSec : remainingSec;
+
+                document.getElementById('timer').innerText = `${displayMin}:${displaySec}`;
+                
+                // Period ID based on time
+                let pId = now.getFullYear().toString() + (now.getMonth()+1) + now.getDate() + (Math.floor((minutes + (now.getHours()*60))/3));
+                document.getElementById('periodId').innerText = pId;
+
+                // Disable betting in last 30 seconds
+                if(remainingMin === 0 && remainingSec <= 30) {
+                    document.querySelectorAll('.btn').forEach(b => b.disabled = true);
+                    document.getElementById('timer').style.color = "gray";
+                } else {
+                    document.querySelectorAll('.btn').forEach(b => b.disabled = false);
+                    document.getElementById('timer').style.color = "#ef4444";
+                }
+            }, 1000);
+        }
+
+        startTimer();
+
+        // 3. Betting Function
+        window.bet = function(color) {
+            let amount = prompt(`Enter betting amount for ${color}:`, "100");
+            if (amount === null || amount === "") return;
+            amount = parseFloat(amount);
+
+            get(ref(db, 'users/' + phone)).then((snapshot) => {
+                let currentBal = snapshot.val().balance;
+                if(amount > currentBal || amount < 10) {
+                    alert("Insufficient balance or invalid amount!");
+                } else {
+                    let newBal = currentBal - amount;
+                    update(ref(db, 'users/' + phone), { balance: newBal });
+                    
+                    // Save Bet in Database
+                    let pId = document.getElementById('periodId').innerText;
+                    set(ref(db, 'bets/' + pId + '/' + phone), {
+                        amount: amount,
+                        choice: color,
+                        status: "Pending"
+                    });
+                    alert(`Bet of ₹${amount} placed on ${color}!`);
+                }
+            });
+        };
     </script>
 </body>
 </html>
