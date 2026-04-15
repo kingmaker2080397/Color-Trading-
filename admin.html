@@ -2,33 +2,35 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel - Maker Trading</title>
+    <title>Admin - Result Control</title>
     <style>
         body { font-family: sans-serif; background: #111827; color: white; padding: 20px; }
-        .box { background: #1f2937; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #374151; }
-        input { padding: 10px; border-radius: 5px; border: none; margin: 5px; width: 80%; }
-        button { padding: 10px 20px; background: #3b82f6; color: white; border: none; border-radius: 5px; cursor: pointer; }
-        .req { background: #374151; padding: 10px; margin: 5px 0; border-radius: 5px; font-size: 14px; }
+        .card { background: #1f2937; padding: 20px; border-radius: 15px; margin-bottom: 20px; }
+        .btn { padding: 15px; border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; margin: 5px; }
+        .g { background: #22c55e; } .r { background: #ef4444; } .v { background: #a855f7; }
     </style>
 </head>
 <body>
-    <h1>👑 Admin Control</h1>
-
-    <div class="box">
-        <h3>User Management</h3>
-        <input type="number" id="targetUser" placeholder="User Phone Number">
-        <input type="number" id="newBal" placeholder="Enter New Balance">
-        <button id="updateBalBtn">Update Balance</button>
+    <h1>👑 Result Control</h1>
+    
+    <div class="card">
+        <h3>Current Period: <span id="cp">...</span></h3>
+        <p>Announce Winner for this period:</p>
+        <button class="btn g" onclick="announce('Green')">Green Wins</button>
+        <button class="btn v" onclick="announce('Violet')">Violet Wins</button>
+        <button class="btn r" onclick="announce('Red')">Red Wins</button>
     </div>
 
-    <div class="box">
-        <h3>Pending Deposits</h3>
-        <div id="rechargeList">Loading requests...</div>
+    <div class="card">
+        <h3>Manual Recharge</h3>
+        <input type="number" id="uPhone" placeholder="User Phone">
+        <input type="number" id="uAmt" placeholder="Amount">
+        <button class="btn" style="background:#3b82f6" onclick="addBal()">Add Balance</button>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, update, onValue, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, onValue, update, get, remove, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCh-1xi3jkIj5hUsmbm3GFGfT_AlWmxYkk",
@@ -40,32 +42,43 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // Update Balance Manual
-        document.getElementById('updateBalBtn').onclick = function() {
-            const phone = document.getElementById('targetUser').value;
-            const bal = parseFloat(document.getElementById('newBal').value);
-            update(ref(db, 'users/' + phone), { balance: bal })
-            .then(() => alert("Balance Updated for " + phone));
+        // Update Period ID in Admin
+        setInterval(() => {
+            let now = new Date();
+            let pId = now.getFullYear().toString() + (now.getMonth()+1) + now.getDate() + (Math.floor((now.getMinutes() + (now.getHours()*60))/3));
+            document.getElementById('cp').innerText = pId;
+        }, 1000);
+
+        window.announce = function(winColor) {
+            const pId = document.getElementById('cp').innerText;
+            const betsRef = ref(db, 'bets/' + pId);
+            
+            get(betsRef).then((snap) => {
+                if(snap.exists()){
+                    snap.forEach((child) => {
+                        const phone = child.key;
+                        const data = child.val();
+                        if(data.choice === winColor) {
+                            get(ref(db, 'users/'+phone)).then(u => {
+                                update(ref(db, 'users/'+phone), { balance: u.val().balance + (data.amount * 1.9) });
+                                set(ref(db, 'results/'+phone), { msg: "WIN", amt: data.amount * 1.9 });
+                            });
+                        } else {
+                            set(ref(db, 'results/'+phone), { msg: "LOSS", amt: data.amount });
+                        }
+                    });
+                    remove(betsRef);
+                    alert("Result Announced: " + winColor);
+                } else { alert("No bets for this period!"); }
+            });
         };
 
-        // Show Requests
-        onValue(ref(db, 'rechargeRequests'), (snapshot) => {
-            const list = document.getElementById('rechargeList');
-            list.innerHTML = "";
-            snapshot.forEach((child) => {
-                const data = child.val();
-                list.innerHTML += `<div class="req">
-                    User: ${data.user} | Amt: ₹${data.amount} | TID: ${data.tid}
-                    <br><button onclick="approve('${data.user}', ${data.amount}, '${data.tid}')" style="background:green">Approve</button>
-                </div>`;
-            });
-        });
-
-        window.approve = function(phone, amt, tid) {
-            update(ref(db, 'users/' + phone), { balance: amt }) // Simplification: overwrites current bal. For real use, add to current bal.
-            .then(() => {
-                remove(ref(db, 'rechargeRequests/' + tid));
-                alert("Approved!");
+        window.addBal = function() {
+            const p = document.getElementById('uPhone').value;
+            const a = parseFloat(document.getElementById('uAmt').value);
+            get(ref(db, 'users/'+p)).then(s => {
+                update(ref(db, 'users/'+p), { balance: s.val().balance + a });
+                alert("Added!");
             });
         };
     </script>
