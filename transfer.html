@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAKER GOLD - Transfer</title>
+    <style>
+        body { background: #070b14; color: white; font-family: sans-serif; padding: 20px; text-align: center; }
+        .box { background: #1e293b; padding: 30px; border-radius: 20px; border: 1px solid #3b82f6; }
+        input { width: 100%; padding: 15px; margin: 10px 0; border-radius: 10px; border: none; background: #070b14; color: white; box-sizing: border-box; }
+        .btn { width: 100%; padding: 15px; background: #3b82f6; border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h2>🔗 Instant Transfer</h2>
+    <div class="box">
+        <p>Send funds to any user instantly via Phone Number.</p>
+        <input type="number" id="recPhone" placeholder="Receiver Phone Number">
+        <input type="number" id="transAmt" placeholder="Amount to Transfer">
+        <button class="btn" onclick="sendNow()">SEND NOW</button>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = { 
+            apiKey: "AIzaSyCh-1xi3jkIj5hUsmbm3GFGfT_AlWmxYkk",
+            authDomain: "maker-trading-official.firebaseapp.com",
+            databaseURL: "https://maker-trading-official-default-rtdb.firebaseio.com/",
+            projectId: "maker-trading-official",
+            appId: "1:262205995192:web:d7255379855a0fc9489c4d"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const myPhone = localStorage.getItem("userPhone");
+
+        window.sendNow = async () => {
+            const rPhone = document.getElementById('recPhone').value;
+            const amt = parseFloat(document.getElementById('transAmt').value);
+            
+            if(rPhone === myPhone) { alert("You can't send to yourself!"); return; }
+
+            const mySnap = await get(ref(db, 'users/' + myPhone));
+            const rSnap = await get(ref(db, 'users/' + rPhone));
+
+            if(rSnap.exists() && mySnap.val().balance >= amt) {
+                await update(ref(db, 'users/' + myPhone), { balance: mySnap.val().balance - amt });
+                await update(ref(db, 'users/' + rPhone), { balance: (rSnap.val().balance || 0) + amt });
+                alert("Transfer Successful!");
+                location.reload();
+            } else { alert("User not found or Insufficient Balance!"); }
+        };
+    </script>
+</body>
+</html>
