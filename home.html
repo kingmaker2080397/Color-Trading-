@@ -2,13 +2,14 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MAKER GOLD - Home</title>
+    <title>MAKER GOLD - Live Trading</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <style>
         :root { --primary: #1e3a8a; --gold: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c); }
         body { margin: 0; background: #070b14; font-family: 'Poppins', sans-serif; color: white; padding-bottom: 80px; overflow-x: hidden; }
-        .header { background: var(--primary); padding: 15px; text-align: center; font-weight: 700; border-bottom: 2px solid #3b82f6; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
-        .balance-card { background: linear-gradient(135deg, #1e293b, #334155); margin: 15px; padding: 25px; border-radius: 20px; text-align: center; border: 1px solid rgba(255,255,255,0.1); position: relative; }
+        .header { background: var(--primary); padding: 15px; text-align: center; font-weight: 700; border-bottom: 2px solid #3b82f6; }
+        .balance-card { background: linear-gradient(135deg, #1e293b, #334155); margin: 15px; padding: 25px; border-radius: 20px; text-align: center; border: 1px solid rgba(255,255,255,0.1); }
         .balance-amount { font-size: 32px; font-weight: 700; background: var(--gold); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .game-card { background: rgba(255,255,255,0.05); backdrop-filter: blur(15px); margin: 15px; padding: 20px; border-radius: 25px; border: 1px solid rgba(255,255,255,0.1); text-align: center; }
         .timer-3d { font-size: 45px; font-weight: 800; color: #ef4444; text-shadow: 0 0 20px rgba(239, 68, 68, 0.5); margin: 5px 0; font-family: monospace; }
@@ -18,13 +19,16 @@
         .btn-green { background: linear-gradient(180deg, #22c55e, #16a34a); }
         .btn-violet { background: linear-gradient(180deg, #a855f7, #9333ea); }
         .btn-red { background: linear-gradient(180deg, #ef4444, #dc2626); }
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 2000; }
-        .modal-content { background: #1e293b; padding: 25px; border-radius: 25px; width: 85%; max-width: 350px; text-align: center; border: 1px solid #bf953f; animation: zoomIn 0.3s; }
-        @keyframes zoomIn { from {transform: scale(0.7); opacity: 0;} to {transform: scale(1); opacity: 1;} }
-        .ticker { background: rgba(0,0,0,0.4); padding: 8px; font-size: 11px; color: #94a3b8; border-top: 1px solid #1e293b; margin-top: 10px; }
+        
+        /* Result Pop-up Styles */
+        .res-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 9999; }
+        .res-content { padding: 40px; border-radius: 30px; text-align: center; color: white; width: 80%; max-width: 400px; border: 2px solid #bf953f; animation: bounce 0.5s ease; }
+        .win-bg { background: linear-gradient(135deg, #065f46, #059669); box-shadow: 0 0 50px #10b981; }
+        .loss-bg { background: linear-gradient(135deg, #7f1d1d, #dc2626); box-shadow: 0 0 50px #ef4444; }
+        @keyframes bounce { 0% {transform: scale(0.5);} 70% {transform: scale(1.1);} 100% {transform: scale(1);} }
+
         .nav-bar { position: fixed; bottom: 0; width: 100%; background: #111827; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #334155; }
         .nav-bar a { text-decoration: none; color: #64748b; font-size: 12px; text-align: center; }
-        .nav-bar a.active { color: #3b82f6; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -32,45 +36,38 @@
     <div class="header">MAKER TRADING GOLD</div>
 
     <div class="balance-card">
-        <div style="font-size: 11px; color: #94a3b8; letter-spacing: 1px;">TOTAL ASSETS</div>
+        <div style="font-size: 11px; color: #94a3b8;">WALLET BALANCE</div>
         <div class="balance-amount" id="userBalance">₹ 0.00</div>
         <div style="display:flex; justify-content:center; gap:10px; margin-top:10px;">
-            <button onclick="location.href='recharge.html'" style="padding:8px 20px; border-radius:20px; border:none; background:var(--gold); font-weight:700; cursor:pointer;">DEPOSIT</button>
-            <button onclick="location.href='withdraw.html'" style="padding:8px 20px; border-radius:20px; border:1px solid #bf953f; background:transparent; color:#bf953f; font-weight:700; cursor:pointer;">WITHDRAW</button>
+            <button onclick="location.href='deposit.html'" style="padding:8px 20px; border-radius:20px; border:none; background:var(--gold); font-weight:700;">DEPOSIT</button>
+            <button onclick="location.href='withdraw.html'" style="padding:8px 20px; border-radius:20px; border:1px solid #bf953f; background:transparent; color:#bf953f; font-weight:700;">WITHDRAW</button>
         </div>
     </div>
 
     <div class="game-card">
-        <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 5px;">
-            <span>ID: <b id="periodId">...</b></span>
-            <span style="color:#22c55e;">● Server Live</span>
+        <div style="display: flex; justify-content: space-between; font-size: 11px;">
+            <span>Period ID: <b id="periodId">...</b></span>
+            <span style="color:#22c55e;">● Live</span>
         </div>
         <div class="timer-3d" id="timer">00:30</div>
         <div class="btn-grid">
-            <button class="btn-3d btn-green" onclick="openBet('Green')">GREEN</button>
-            <button class="btn-3d btn-violet" onclick="openBet('Violet')">VIOLET</button>
-            <button class="btn-3d btn-red" onclick="openBet('Red')">RED</button>
+            <button class="btn-3d btn-green" onclick="placeBet('Green')">GREEN</button>
+            <button class="btn-3d btn-violet" onclick="placeBet('Violet')">VIOLET</button>
+            <button class="btn-3d btn-red" onclick="placeBet('Red')">RED</button>
         </div>
     </div>
 
-    <div class="ticker">
-        <marquee scrollamount="5">🏆 User 923*** just won ₹14,500 | 🏆 User 917*** withdraw ₹50,000 via Binance | 🏆 New Investment Plan Launched!</marquee>
-    </div>
-
-    <div id="betModal" class="modal">
-        <div class="modal-content">
-            <h3 id="modalTitle" style="color:white; margin:0;">Join Color</h3>
-            <p style="color: #94a3b8; font-size: 12px;">Balance: <span id="modalBal">₹0</span></p>
-            <input type="number" id="betInput" value="100" style="width:100%; padding:15px; margin:15px 0; border-radius:12px; border:none; background:#070b14; color:white; font-size:20px; font-weight:bold; text-align:center;">
-            <div style="display:flex; gap:10px;">
-                <button onclick="closeModal()" style="flex:1; padding:15px; border-radius:12px; border:none; background:#334155; color:white; font-weight:bold;">CANCEL</button>
-                <button id="confirmBetBtn" style="flex:1; padding:15px; border-radius:12px; border:none; background:var(--gold); font-weight:bold; color:#1e293b;">CONFIRM</button>
-            </div>
+    <div id="resultModal" class="res-modal">
+        <div id="resBox" class="res-content">
+            <h1 id="resEmoji" style="font-size:60px;">🎉</h1>
+            <h2 id="resStatus">YOU WON!</h2>
+            <p id="resAmt" style="font-size:28px; font-weight:bold;">₹0.00</p>
+            <button onclick="closeResult()" style="margin-top:20px; padding:10px 30px; border-radius:20px; border:none; background:white; font-weight:bold; cursor:pointer;">CONTINUE</button>
         </div>
     </div>
 
     <div class="nav-bar">
-        <a href="home.html" class="active">🏠<br>Home</a>
+        <a href="home.html" style="color:#3b82f6;">🏠<br>Home</a>
         <a href="investment.html">💰<br>Invest</a>
         <a href="transfer.html">🔗<br>Transfer</a>
         <a href="profile.html">👤<br>Account</a>
@@ -78,7 +75,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, onValue, set, get, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, onValue, set, get, update, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         const firebaseConfig = { 
             apiKey: "AIzaSyCh-1xi3jkIj5hUsmbm3GFGfT_AlWmxYkk",
@@ -93,62 +90,57 @@
 
         if(!phone) window.location.href = "index.html";
 
-        let selectedColor = "";
-
         // Sync Balance
         onValue(ref(db, 'users/' + phone), (snap) => {
-            if(snap.exists()) {
-                const bal = snap.val().balance.toFixed(2);
-                document.getElementById('userBalance').innerText = "₹ " + bal;
-                document.getElementById('modalBal').innerText = "₹ " + bal;
+            if(snap.exists()) document.getElementById('userBalance').innerText = "₹ " + snap.val().balance.toFixed(2);
+        });
+
+        // 30s Timer
+        setInterval(() => {
+            let now = new Date();
+            let remSec = 29 - (now.getSeconds() % 30);
+            document.getElementById('timer').innerText = `00:${remSec < 10 ? '0'+remSec : remSec}`;
+            let pId = now.getFullYear().toString() + (now.getMonth()+1).toString().padStart(2,'0') + now.getDate().toString().padStart(2,'0') + now.getHours().toString().padStart(2,'0') + now.getMinutes().toString().padStart(2,'0') + (Math.floor(now.getSeconds() / 30));
+            document.getElementById('periodId').innerText = pId;
+            
+            if(remSec <= 5) document.querySelectorAll('.btn-3d').forEach(b => b.disabled = true);
+            else document.querySelectorAll('.btn-3d').forEach(b => b.disabled = false);
+        }, 1000);
+
+        // Result Listener
+        onValue(ref(db, 'results/' + phone), (snap) => {
+            if(snap.exists()){
+                const data = snap.val();
+                showResult(data.msg, data.amt);
+                remove(ref(db, 'results/' + phone));
             }
         });
 
-        // 30-Second Timer Logic
-        setInterval(() => {
-            let now = new Date();
-            let seconds = now.getSeconds();
-            let remSec = 29 - (seconds % 30);
-            document.getElementById('timer').innerText = `00:${remSec < 10 ? '0'+remSec : remSec}`;
-            
-            let pId = now.getFullYear().toString() + (now.getMonth()+1).toString().padStart(2,'0') + now.getDate().toString().padStart(2,'0') + now.getHours().toString().padStart(2,'0') + now.getMinutes().toString().padStart(2,'0') + (Math.floor(seconds / 30));
-            document.getElementById('periodId').innerText = pId;
+        function showResult(status, amt) {
+            const box = document.getElementById('resBox');
+            document.getElementById('resStatus').innerText = status === 'WIN' ? 'YOU WON!' : 'YOU LOST';
+            document.getElementById('resEmoji').innerText = status === 'WIN' ? '🎉' : '💔';
+            document.getElementById('resAmt').innerText = "₹" + amt.toFixed(2);
+            box.className = 'res-content ' + (status === 'WIN' ? 'win-bg' : 'loss-bg');
+            document.getElementById('resultModal').style.display = 'flex';
+            if(status === 'WIN') confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+        }
 
-            // Lock in last 5 seconds
-            if(remSec <= 5) {
-                document.querySelectorAll('.btn-3d').forEach(b => b.disabled = true);
-                document.getElementById('timer').style.color = "#475569";
-            } else {
-                document.querySelectorAll('.btn-3d').forEach(b => b.disabled = false);
-                document.getElementById('timer').style.color = "#ef4444";
+        window.closeResult = () => document.getElementById('resultModal').style.display = 'none';
+
+        window.placeBet = (color) => {
+            let amt = prompt("Enter Bet Amount:", "100");
+            if(amt >= 10) {
+                get(ref(db, 'users/' + phone)).then(snap => {
+                    if(snap.val().balance >= amt) {
+                        update(ref(db, 'users/' + phone), { balance: snap.val().balance - amt });
+                        set(ref(db, 'bets/' + document.getElementById('periodId').innerText + '/' + phone), { amount: parseFloat(amt), choice: color });
+                        alert("Bet Placed on " + color);
+                    } else { alert("Insufficient Balance!"); }
+                });
             }
-        }, 1000);
-
-        window.openBet = (c) => {
-            selectedColor = c;
-            document.getElementById('modalTitle').innerText = "Bet on " + c;
-            document.getElementById('betModal').style.display = 'flex';
-        };
-
-        window.closeModal = () => document.getElementById('betModal').style.display = 'none';
-
-        document.getElementById('confirmBetBtn').onclick = () => {
-            const amt = parseFloat(document.getElementById('betInput').value);
-            get(ref(db, 'users/' + phone)).then((snap) => {
-                const bal = snap.val().balance;
-                if(amt >= 10 && bal >= amt) {
-                    update(ref(db, 'users/' + phone), { balance: bal - amt });
-                    set(ref(db, 'bets/' + document.getElementById('periodId').innerText + '/' + phone), { 
-                        amount: amt, 
-                        choice: selectedColor,
-                        time: Date.now() 
-                    });
-                    closeModal();
-                    alert("Bet Successfully Placed!");
-                } else { alert("Insufficient Balance!"); }
-            });
         };
     </script>
 </body>
-                </html>
-    
+    </html>
+            
