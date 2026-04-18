@@ -1,35 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8"><title>MAKER ADMIN - SMART</title>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAKER MASTER ADMIN</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        body { background: #070b14; color: white; font-family: sans-serif; padding: 20px; }
-        .card { background: #1e293b; padding: 20px; border-radius: 15px; border: 1px solid #3b82f6; margin-bottom: 20px; }
-        .btn { padding: 12px 25px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; color: white; margin: 5px; }
-        .win-g { background: #22c55e; } .win-r { background: #ef4444; }
+        body { background: #0f172a; color: white; font-family: 'Poppins', sans-serif; margin: 0; padding: 15px; }
+        .tab-btn { padding: 10px 20px; background: #1e293b; border: 1px solid #3b82f6; color: white; cursor: pointer; border-radius: 10px; margin-right: 5px; }
+        .active-tab { background: #3b82f6; font-weight: bold; }
+        .card { background: #1e293b; padding: 20px; border-radius: 15px; margin-top: 15px; border-bottom: 4px solid #3b82f6; }
+        .req-item { background: #0f172a; padding: 15px; border-radius: 10px; margin-bottom: 10px; border: 1px solid #334155; }
+        .btn-approve { background: #22c55e; border: none; padding: 8px 15px; color: white; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .btn-reject { background: #ef4444; border: none; padding: 8px 15px; color: white; border-radius: 5px; cursor: pointer; font-weight: bold; margin-left: 5px; }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        span.amount { color: #fbbf24; font-weight: bold; }
     </style>
 </head>
 <body>
-    <h2>🚀 SMART ADMIN MONITOR</h2>
 
-    <div class="card">
-        <h3>Live Stats | Period: <span id="cp">...</span></h3>
-        <p style="color:#22c55e;">Green Pool: ₹<span id="gt">0</span></p>
-        <p style="color:#ef4444;">Red Pool: ₹<span id="rt">0</span></p>
-        <p>Timer: <span id="timer">...</span></p>
-        <hr>
-        <p>Current Logic: <b style="color:orange;">AUTO-PROFIT (Lesser Amount Wins)</b></p>
+    <h2 style="color:#fbbf24; text-align:center;">🛠️ MAKER MASTER CONTROL</h2>
+
+    <div style="display: flex; overflow-x: auto; padding-bottom: 10px;">
+        <button class="tab-btn active-tab" onclick="showTab('game')">Game</button>
+        <button class="tab-btn" onclick="showTab('deposit')">Deposits</button>
+        <button class="tab-btn" onclick="showTab('invest')">Invests</button>
     </div>
 
-    <div class="card">
-        <h3>Manual Control</h3>
-        <button class="btn win-g" onclick="manualWin('Green')">FORCE GREEN</button>
-        <button class="btn win-r" onclick="manualWin('Red')">FORCE RED</button>
+    <div id="gameTab" class="card">
+        <h3>Live Pool | Period: <span id="pId">...</span></h3>
+        <div class="stats-grid">
+            <div style="color:#22c55e;">Green: <br>₹<span id="gt">0</span></div>
+            <div style="color:#ef4444;">Red: <br>₹<span id="rt">0</span></div>
+        </div>
+        <p>Timer: <span id="timer" style="color:#fbbf24;">00s</span></p>
+        <button class="btn-approve" style="width:100%; margin-top:10px;" onclick="force('Green')">FORCE GREEN WIN</button>
+        <button class="btn-reject" style="width:100%; margin-top:10px; margin-left:0;" onclick="force('Red')">FORCE RED WIN</button>
+    </div>
+
+    <div id="depositTab" class="card" style="display:none;">
+        <h3>Pending Deposits</h3>
+        <div id="depositList">Loading...</div>
+    </div>
+
+    <div id="investTab" class="card" style="display:none;">
+        <h3>Active Stakings</h3>
+        <div id="investList">Loading...</div>
+        <button class="btn-approve" style="width:100%; margin-top:15px; background:#3b82f6;" onclick="distributeProfit()">DISTRIBUTE DAILY PROFIT</button>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, onValue, get, update, set, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, onValue, get, update, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         const firebaseConfig = { 
             apiKey: "AIzaSyCh-1xi3jkIj5hUsmbm3GFGfT_AlWmxYkk",
@@ -41,19 +62,25 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
+        // Tab Switching
+        window.showTab = (t) => {
+            document.querySelectorAll('.card').forEach(c => c.style.display = 'none');
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active-tab'));
+            document.getElementById(t+'Tab').style.display = 'block';
+            event.target.classList.add('active-tab');
+        };
+
+        // Live Game Timer & Pool
         setInterval(() => {
             let now = new Date();
-            let seconds = now.getSeconds();
-            let remSec = 29 - (seconds % 30);
-            let pId = now.getFullYear().toString() + (now.getMonth()+1).toString().padStart(2,'0') + now.getDate().toString().padStart(2,'0') + now.getHours().toString().padStart(2,'0') + now.getMinutes().toString().padStart(2,'0') + (Math.floor(seconds / 30));
-            
-            document.getElementById('cp').innerText = pId;
+            let remSec = 29 - (now.getSeconds() % 30);
+            let periodId = now.getFullYear().toString() + (now.getMonth()+1).toString().padStart(2,'0') + now.getDate().toString().padStart(2,'0') + now.getHours().toString().padStart(2,'0') + now.getMinutes().toString().padStart(2,'0') + (Math.floor(now.getSeconds() / 30));
+            document.getElementById('pId').innerText = periodId;
             document.getElementById('timer').innerText = remSec + "s";
-
-            // Live Fetching
-            get(ref(db, 'bets/' + pId)).then(snap => {
-                let g = 0, r = 0;
-                if(snap.exists()){
+            
+            get(ref(db, 'bets/' + periodId)).then(snap => {
+                let g=0, r=0;
+                if(snap.exists()) {
                     snap.forEach(c => {
                         if(c.val().choice === 'Green') g += c.val().amount;
                         if(c.val().choice === 'Red') r += c.val().amount;
@@ -61,36 +88,53 @@
                 }
                 document.getElementById('gt').innerText = g;
                 document.getElementById('rt').innerText = r;
-
-                // AT ZERO SECOND - AUTO SETTLE
-                if(remSec === 0) {
-                    let winColor = (g <= r) ? 'Green' : 'Red';
-                    settleGame(pId, winColor);
-                }
             });
         }, 1000);
 
-        function settleGame(pId, winColor) {
-            get(ref(db, 'bets/' + pId)).then(snap => {
-                if(snap.exists()){
-                    snap.forEach(child => {
-                        const phone = child.key;
-                        const bet = child.val();
-                        if(bet.choice === winColor) {
-                            get(ref(db, 'users/' + phone)).then(u => {
-                                update(ref(db, 'users/' + phone), { balance: u.val().balance + (bet.amount * 1.9) });
-                                set(ref(db, 'results/' + phone), { msg: "WIN", amt: bet.amount * 1.9 });
-                            });
-                        } else {
-                            set(ref(db, 'results/' + phone), { msg: "LOSS", amt: bet.amount });
-                        }
-                    });
-                    remove(ref(db, 'bets/' + pId));
+        // Deposit Approval Logic
+        onValue(ref(db, 'deposits'), (snap) => {
+            const list = document.getElementById('depositList');
+            list.innerHTML = "";
+            if(!snap.exists()) list.innerHTML = "No pending deposits.";
+            snap.forEach(child => {
+                const dep = child.val();
+                const utr = child.key;
+                list.innerHTML += `
+                    <div class="req-item">
+                        <p>User: ${dep.phone} | Amt: <span class="amount">₹${dep.amount}</span></p>
+                        <p>UTR: ${utr}</p>
+                        <button class="btn-approve" onclick="approveDep('${dep.phone}', ${dep.amount}, '${utr}')">APPROVE</button>
+                        <button class="btn-reject" onclick="rejectDep('${utr}')">REJECT</button>
+                    </div>
+                `;
+            });
+        });
+
+        window.approveDep = async (uPhone, amt, utr) => {
+            const snap = await get(ref(db, 'users/' + uPhone));
+            if(snap.exists()){
+                await update(ref(db, 'users/' + uPhone), { balance: snap.val().balance + amt });
+                await remove(ref(db, 'deposits/' + utr));
+                alert("Approved! Balance added to " + uPhone);
+            }
+        };
+
+        window.rejectDep = (utr) => remove(ref(db, 'deposits/' + utr));
+
+        // Profit Distribution Logic
+        window.distributeProfit = async () => {
+            const snap = await get(ref(db, 'users'));
+            let count = 0;
+            snap.forEach(u => {
+                const data = u.val();
+                if(data.investment && data.investment.status === "Active") {
+                    let profit = (data.investment.amount * data.investment.dailyRate) / 100;
+                    update(ref(db, 'users/' + u.key), { balance: data.balance + profit });
+                    count++;
                 }
             });
-        }
-
-        window.manualWin = (c) => settleGame(document.getElementById('cp').innerText, c);
+            alert("Profit shared with " + count + " investors!");
+        };
     </script>
 </body>
 </html>
