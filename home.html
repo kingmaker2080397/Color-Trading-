@@ -1,168 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Maker Trading - VIP</title>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAKER GOLD - Home</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --primary: #1e3a8a;
-            --gold: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
-            --glass: rgba(255, 255, 255, 0.1);
-        }
-
-        body {
-            margin: 0;
-            background: #0f172a; /* Dark Blue Theme */
-            font-family: 'Poppins', sans-serif;
-            color: white;
-            padding-bottom: 80px;
-            overflow-x: hidden;
-        }
-
-        /* 3D Header */
-        .header {
-            background: var(--primary);
-            padding: 20px;
-            text-align: center;
-            font-weight: 700;
-            font-size: 22px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
-            border-bottom: 2px solid #3b82f6;
-            letter-spacing: 1px;
-        }
-
-        /* Luxury Balance Card */
-        .balance-card {
-            background: linear-gradient(135deg, #1e293b, #334155);
-            margin: 20px;
-            padding: 30px;
-            border-radius: 25px;
-            text-align: center;
-            position: relative;
-            border: 1px solid rgba(255,255,255,0.1);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
-            overflow: hidden;
-        }
-
-        .balance-card::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(59,130,246,0.1) 0%, transparent 70%);
-        }
-
-        .balance-amount {
-            font-size: 36px;
-            font-weight: 700;
-            background: var(--gold);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin: 10px 0;
-        }
-
-        /* 3D Game Buttons */
-        .game-section {
-            background: var(--glass);
-            backdrop-filter: blur(10px);
-            margin: 15px;
-            padding: 25px;
-            border-radius: 30px;
-            border: 1px solid rgba(255,255,255,0.05);
-        }
-
-        .timer-3d {
-            font-size: 45px;
-            font-weight: 800;
-            color: #ef4444;
-            text-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
-            margin-bottom: 15px;
-        }
-
-        .btn-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .btn-3d {
-            border: none;
-            padding: 20px 10px;
-            border-radius: 15px;
-            font-weight: 700;
-            font-size: 14px;
-            color: white;
-            cursor: pointer;
-            transition: 0.2s;
-            position: relative;
-            box-shadow: 0 8px 0 rgba(0,0,0,0.2);
-        }
-
-        .btn-3d:active {
-            transform: translateY(4px);
-            box-shadow: 0 4px 0 rgba(0,0,0,0.2);
-        }
-
-        .btn-green { background: linear-gradient(180deg, #22c55e, #16a34a); box-shadow: 0 6px 0 #15803d; }
-        .btn-violet { background: linear-gradient(180deg, #a855f7, #9333ea); box-shadow: 0 6px 0 #7e22ce; }
-        .btn-red { background: linear-gradient(180deg, #ef4444, #dc2626); box-shadow: 0 6px 0 #b91c1c; }
-
-        /* Floating Withdrawal/Deposit Buttons */
-        .action-btns {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-top: 20px;
-        }
-
-        .action-btn {
-            background: var(--gold);
-            color: #1e3a8a;
-            padding: 10px 25px;
-            border-radius: 50px;
-            font-weight: 700;
-            border: none;
-            box-shadow: 0 4px 15px rgba(191,149,63,0.4);
-        }
-
-        /* Fake Winnings Ticker */
-        .ticker {
-            background: rgba(0,0,0,0.3);
-            padding: 10px;
-            margin-top: 20px;
-            border-radius: 10px;
-            font-size: 12px;
-            color: #94a3b8;
-        }
-
-        /* Bottom Nav UI */
-        .nav-ui {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            background: #1e293b;
-            display: flex;
-            justify-content: space-around;
-            padding: 15px 0;
-            border-top: 2px solid #334155;
-            box-shadow: 0 -10px 25px rgba(0,0,0,0.3);
-        }
-
-        .nav-ui a {
-            text-decoration: none;
-            color: #94a3b8;
-            font-size: 11px;
-            text-align: center;
-        }
-
-        .nav-ui a.active {
-            color: #3b82f6;
-        }
+        :root { --primary: #1e3a8a; --gold: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c); }
+        body { margin: 0; background: #070b14; font-family: 'Poppins', sans-serif; color: white; padding-bottom: 80px; overflow-x: hidden; }
+        .header { background: var(--primary); padding: 15px; text-align: center; font-weight: 700; border-bottom: 2px solid #3b82f6; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+        .balance-card { background: linear-gradient(135deg, #1e293b, #334155); margin: 15px; padding: 25px; border-radius: 20px; text-align: center; border: 1px solid rgba(255,255,255,0.1); position: relative; }
+        .balance-amount { font-size: 32px; font-weight: 700; background: var(--gold); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .game-card { background: rgba(255,255,255,0.05); backdrop-filter: blur(15px); margin: 15px; padding: 20px; border-radius: 25px; border: 1px solid rgba(255,255,255,0.1); text-align: center; }
+        .timer-3d { font-size: 45px; font-weight: 800; color: #ef4444; text-shadow: 0 0 20px rgba(239, 68, 68, 0.5); margin: 5px 0; font-family: monospace; }
+        .btn-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .btn-3d { border: none; padding: 18px 5px; border-radius: 12px; font-weight: 700; color: white; cursor: pointer; transition: 0.2s; box-shadow: 0 5px 0 rgba(0,0,0,0.3); }
+        .btn-3d:active { transform: translateY(3px); box-shadow: 0 2px 0 rgba(0,0,0,0.3); }
+        .btn-green { background: linear-gradient(180deg, #22c55e, #16a34a); }
+        .btn-violet { background: linear-gradient(180deg, #a855f7, #9333ea); }
+        .btn-red { background: linear-gradient(180deg, #ef4444, #dc2626); }
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 2000; }
+        .modal-content { background: #1e293b; padding: 25px; border-radius: 25px; width: 85%; max-width: 350px; text-align: center; border: 1px solid #bf953f; animation: zoomIn 0.3s; }
+        @keyframes zoomIn { from {transform: scale(0.7); opacity: 0;} to {transform: scale(1); opacity: 1;} }
+        .ticker { background: rgba(0,0,0,0.4); padding: 8px; font-size: 11px; color: #94a3b8; border-top: 1px solid #1e293b; margin-top: 10px; }
+        .nav-bar { position: fixed; bottom: 0; width: 100%; background: #111827; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #334155; }
+        .nav-bar a { text-decoration: none; color: #64748b; font-size: 12px; text-align: center; }
+        .nav-bar a.active { color: #3b82f6; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -170,40 +32,123 @@
     <div class="header">MAKER TRADING GOLD</div>
 
     <div class="balance-card">
-        <div style="font-size: 14px; color: #94a3b8;">VIP WALLET</div>
+        <div style="font-size: 11px; color: #94a3b8; letter-spacing: 1px;">TOTAL ASSETS</div>
         <div class="balance-amount" id="userBalance">₹ 0.00</div>
-        <div class="action-btns">
-            <button class="action-btn" onclick="location.href='recharge.html'">DEPOSIT</button>
-            <button class="action-btn" style="background: white;" onclick="location.href='withdraw.html'">WITHDRAW</button>
+        <div style="display:flex; justify-content:center; gap:10px; margin-top:10px;">
+            <button onclick="location.href='recharge.html'" style="padding:8px 20px; border-radius:20px; border:none; background:var(--gold); font-weight:700; cursor:pointer;">DEPOSIT</button>
+            <button onclick="location.href='withdraw.html'" style="padding:8px 20px; border-radius:20px; border:1px solid #bf953f; background:transparent; color:#bf953f; font-weight:700; cursor:pointer;">WITHDRAW</button>
         </div>
     </div>
 
-    <div class="game-section">
-        <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 13px; color: #64748b;">
-            <span>Period ID: <b id="periodId" style="color:white;">20260415</b></span>
-            <span>🔥 Win Speed</span>
+    <div class="game-card">
+        <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 5px;">
+            <span>ID: <b id="periodId">...</b></span>
+            <span style="color:#22c55e;">● Server Live</span>
         </div>
-        <center>
-            <div class="timer-3d" id="timer">03:00</div>
-        </center>
-        <div class="btn-container">
-            <button class="btn-3d btn-green" onclick="openBetModal('Green')">GREEN</button>
-            <button class="btn-3d btn-violet" onclick="openBetModal('Violet')">VIOLET</button>
-            <button class="btn-3d btn-red" onclick="openBetModal('Red')">RED</button>
+        <div class="timer-3d" id="timer">00:30</div>
+        <div class="btn-grid">
+            <button class="btn-3d btn-green" onclick="openBet('Green')">GREEN</button>
+            <button class="btn-3d btn-violet" onclick="openBet('Violet')">VIOLET</button>
+            <button class="btn-3d btn-red" onclick="openBet('Red')">RED</button>
         </div>
     </div>
 
     <div class="ticker">
-        <marquee>🏆 User 923*** won ₹4,500 on Green | 🏆 User 917*** won ₹12,000 on Red | 🏆 923*** Withdraw ₹50,000 via JazzCash</marquee>
+        <marquee scrollamount="5">🏆 User 923*** just won ₹14,500 | 🏆 User 917*** withdraw ₹50,000 via Binance | 🏆 New Investment Plan Launched!</marquee>
     </div>
 
-    <div class="nav-ui">
+    <div id="betModal" class="modal">
+        <div class="modal-content">
+            <h3 id="modalTitle" style="color:white; margin:0;">Join Color</h3>
+            <p style="color: #94a3b8; font-size: 12px;">Balance: <span id="modalBal">₹0</span></p>
+            <input type="number" id="betInput" value="100" style="width:100%; padding:15px; margin:15px 0; border-radius:12px; border:none; background:#070b14; color:white; font-size:20px; font-weight:bold; text-align:center;">
+            <div style="display:flex; gap:10px;">
+                <button onclick="closeModal()" style="flex:1; padding:15px; border-radius:12px; border:none; background:#334155; color:white; font-weight:bold;">CANCEL</button>
+                <button id="confirmBetBtn" style="flex:1; padding:15px; border-radius:12px; border:none; background:var(--gold); font-weight:bold; color:#1e293b;">CONFIRM</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="nav-bar">
         <a href="home.html" class="active">🏠<br>Home</a>
-        <a href="records.html">📊<br>Activity</a>
-        <a href="promotion.html">💎<br>Promote</a>
+        <a href="investment.html">💰<br>Invest</a>
+        <a href="transfer.html">🔗<br>Transfer</a>
         <a href="profile.html">👤<br>Account</a>
     </div>
 
-    </body>
-    </html>
-                                      
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, onValue, set, get, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = { 
+            apiKey: "AIzaSyCh-1xi3jkIj5hUsmbm3GFGfT_AlWmxYkk",
+            authDomain: "maker-trading-official.firebaseapp.com",
+            databaseURL: "https://maker-trading-official-default-rtdb.firebaseio.com/",
+            projectId: "maker-trading-official",
+            appId: "1:262205995192:web:d7255379855a0fc9489c4d"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const phone = localStorage.getItem("userPhone");
+
+        if(!phone) window.location.href = "index.html";
+
+        let selectedColor = "";
+
+        // Sync Balance
+        onValue(ref(db, 'users/' + phone), (snap) => {
+            if(snap.exists()) {
+                const bal = snap.val().balance.toFixed(2);
+                document.getElementById('userBalance').innerText = "₹ " + bal;
+                document.getElementById('modalBal').innerText = "₹ " + bal;
+            }
+        });
+
+        // 30-Second Timer Logic
+        setInterval(() => {
+            let now = new Date();
+            let seconds = now.getSeconds();
+            let remSec = 29 - (seconds % 30);
+            document.getElementById('timer').innerText = `00:${remSec < 10 ? '0'+remSec : remSec}`;
+            
+            let pId = now.getFullYear().toString() + (now.getMonth()+1).toString().padStart(2,'0') + now.getDate().toString().padStart(2,'0') + now.getHours().toString().padStart(2,'0') + now.getMinutes().toString().padStart(2,'0') + (Math.floor(seconds / 30));
+            document.getElementById('periodId').innerText = pId;
+
+            // Lock in last 5 seconds
+            if(remSec <= 5) {
+                document.querySelectorAll('.btn-3d').forEach(b => b.disabled = true);
+                document.getElementById('timer').style.color = "#475569";
+            } else {
+                document.querySelectorAll('.btn-3d').forEach(b => b.disabled = false);
+                document.getElementById('timer').style.color = "#ef4444";
+            }
+        }, 1000);
+
+        window.openBet = (c) => {
+            selectedColor = c;
+            document.getElementById('modalTitle').innerText = "Bet on " + c;
+            document.getElementById('betModal').style.display = 'flex';
+        };
+
+        window.closeModal = () => document.getElementById('betModal').style.display = 'none';
+
+        document.getElementById('confirmBetBtn').onclick = () => {
+            const amt = parseFloat(document.getElementById('betInput').value);
+            get(ref(db, 'users/' + phone)).then((snap) => {
+                const bal = snap.val().balance;
+                if(amt >= 10 && bal >= amt) {
+                    update(ref(db, 'users/' + phone), { balance: bal - amt });
+                    set(ref(db, 'bets/' + document.getElementById('periodId').innerText + '/' + phone), { 
+                        amount: amt, 
+                        choice: selectedColor,
+                        time: Date.now() 
+                    });
+                    closeModal();
+                    alert("Bet Successfully Placed!");
+                } else { alert("Insufficient Balance!"); }
+            });
+        };
+    </script>
+</body>
+                </html>
+    
