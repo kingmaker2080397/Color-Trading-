@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head><title>Deposit - Maker</title></head>
+<body style="background:#070b14; color:white; font-family:sans-serif; padding:20px; text-align:center;">
+    <h2>📥 ADD FUNDS</h2>
+    <div style="background:#1e293b; padding:20px; border-radius:20px;">
+        <p>Send Payment to UPI ID:</p>
+        <h3 style="color:#fbbf24;">makergold@upi</h3>
+        <input type="number" id="depAmt" placeholder="Enter Amount" style="width:100%; padding:12px; margin:10px 0; border-radius:10px; border:none;">
+        <input type="text" id="utr" placeholder="Enter 12-Digit UTR Number" style="width:100%; padding:12px; margin:10px 0; border-radius:10px; border:none;">
+        <button onclick="submitDep()" style="width:100%; padding:15px; background:#fbbf24; border:none; border-radius:10px; font-weight:bold;">SUBMIT REQUEST</button>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = { /* Your Config */ };
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const phone = localStorage.getItem("userPhone");
+
+        window.submitDep = () => {
+            const amt = document.getElementById('depAmt').value;
+            const utr = document.getElementById('utr').value;
+            if(utr.length === 12) {
+                set(ref(db, 'deposits/' + utr), { phone: phone, amount: parseFloat(amt), status: "Pending" });
+                alert("Request Sent! Admin will verify in 30 mins.");
+            } else { alert("Invalid UTR!"); }
+        };
+    </script>
+</body>
+</html>
