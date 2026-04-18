@@ -1,38 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Result Control</title>
+    <meta charset="UTF-8"><title>MAKER ADMIN - SMART</title>
     <style>
-        body { font-family: sans-serif; background: #111827; color: white; padding: 20px; }
-        .card { background: #1f2937; padding: 20px; border-radius: 15px; margin-bottom: 20px; }
-        .btn { padding: 15px; border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; margin: 5px; }
-        .g { background: #22c55e; } .r { background: #ef4444; } .v { background: #a855f7; }
+        body { background: #070b14; color: white; font-family: sans-serif; padding: 20px; }
+        .card { background: #1e293b; padding: 20px; border-radius: 15px; border: 1px solid #3b82f6; margin-bottom: 20px; }
+        .btn { padding: 12px 25px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; color: white; margin: 5px; }
+        .win-g { background: #22c55e; } .win-r { background: #ef4444; }
     </style>
 </head>
 <body>
-    <h1>👑 Result Control</h1>
-    
+    <h2>🚀 SMART ADMIN MONITOR</h2>
+
     <div class="card">
-        <h3>Current Period: <span id="cp">...</span></h3>
-        <p>Announce Winner for this period:</p>
-        <button class="btn g" onclick="announce('Green')">Green Wins</button>
-        <button class="btn v" onclick="announce('Violet')">Violet Wins</button>
-        <button class="btn r" onclick="announce('Red')">Red Wins</button>
+        <h3>Live Stats | Period: <span id="cp">...</span></h3>
+        <p style="color:#22c55e;">Green Pool: ₹<span id="gt">0</span></p>
+        <p style="color:#ef4444;">Red Pool: ₹<span id="rt">0</span></p>
+        <p>Timer: <span id="timer">...</span></p>
+        <hr>
+        <p>Current Logic: <b style="color:orange;">AUTO-PROFIT (Lesser Amount Wins)</b></p>
     </div>
 
     <div class="card">
-        <h3>Manual Recharge</h3>
-        <input type="number" id="uPhone" placeholder="User Phone">
-        <input type="number" id="uAmt" placeholder="Amount">
-        <button class="btn" style="background:#3b82f6" onclick="addBal()">Add Balance</button>
+        <h3>Manual Control</h3>
+        <button class="btn win-g" onclick="manualWin('Green')">FORCE GREEN</button>
+        <button class="btn win-r" onclick="manualWin('Red')">FORCE RED</button>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, onValue, update, get, remove, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, onValue, get, update, set, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        const firebaseConfig = {
+        const firebaseConfig = { 
             apiKey: "AIzaSyCh-1xi3jkIj5hUsmbm3GFGfT_AlWmxYkk",
             authDomain: "maker-trading-official.firebaseapp.com",
             databaseURL: "https://maker-trading-official-default-rtdb.firebaseio.com/",
@@ -42,45 +41,56 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // Update Period ID in Admin
         setInterval(() => {
             let now = new Date();
-            let pId = now.getFullYear().toString() + (now.getMonth()+1) + now.getDate() + (Math.floor((now.getMinutes() + (now.getHours()*60))/3));
+            let seconds = now.getSeconds();
+            let remSec = 29 - (seconds % 30);
+            let pId = now.getFullYear().toString() + (now.getMonth()+1).toString().padStart(2,'0') + now.getDate().toString().padStart(2,'0') + now.getHours().toString().padStart(2,'0') + now.getMinutes().toString().padStart(2,'0') + (Math.floor(seconds / 30));
+            
             document.getElementById('cp').innerText = pId;
+            document.getElementById('timer').innerText = remSec + "s";
+
+            // Live Fetching
+            get(ref(db, 'bets/' + pId)).then(snap => {
+                let g = 0, r = 0;
+                if(snap.exists()){
+                    snap.forEach(c => {
+                        if(c.val().choice === 'Green') g += c.val().amount;
+                        if(c.val().choice === 'Red') r += c.val().amount;
+                    });
+                }
+                document.getElementById('gt').innerText = g;
+                document.getElementById('rt').innerText = r;
+
+                // AT ZERO SECOND - AUTO SETTLE
+                if(remSec === 0) {
+                    let winColor = (g <= r) ? 'Green' : 'Red';
+                    settleGame(pId, winColor);
+                }
+            });
         }, 1000);
 
-        window.announce = function(winColor) {
-            const pId = document.getElementById('cp').innerText;
-            const betsRef = ref(db, 'bets/' + pId);
-            
-            get(betsRef).then((snap) => {
+        function settleGame(pId, winColor) {
+            get(ref(db, 'bets/' + pId)).then(snap => {
                 if(snap.exists()){
-                    snap.forEach((child) => {
+                    snap.forEach(child => {
                         const phone = child.key;
-                        const data = child.val();
-                        if(data.choice === winColor) {
-                            get(ref(db, 'users/'+phone)).then(u => {
-                                update(ref(db, 'users/'+phone), { balance: u.val().balance + (data.amount * 1.9) });
-                                set(ref(db, 'results/'+phone), { msg: "WIN", amt: data.amount * 1.9 });
+                        const bet = child.val();
+                        if(bet.choice === winColor) {
+                            get(ref(db, 'users/' + phone)).then(u => {
+                                update(ref(db, 'users/' + phone), { balance: u.val().balance + (bet.amount * 1.9) });
+                                set(ref(db, 'results/' + phone), { msg: "WIN", amt: bet.amount * 1.9 });
                             });
                         } else {
-                            set(ref(db, 'results/'+phone), { msg: "LOSS", amt: data.amount });
+                            set(ref(db, 'results/' + phone), { msg: "LOSS", amt: bet.amount });
                         }
                     });
-                    remove(betsRef);
-                    alert("Result Announced: " + winColor);
-                } else { alert("No bets for this period!"); }
+                    remove(ref(db, 'bets/' + pId));
+                }
             });
-        };
+        }
 
-        window.addBal = function() {
-            const p = document.getElementById('uPhone').value;
-            const a = parseFloat(document.getElementById('uAmt').value);
-            get(ref(db, 'users/'+p)).then(s => {
-                update(ref(db, 'users/'+p), { balance: s.val().balance + a });
-                alert("Added!");
-            });
-        };
-    </script>mmmmm
+        window.manualWin = (c) => settleGame(document.getElementById('cp').innerText, c);
+    </script>
 </body>
 </html>
