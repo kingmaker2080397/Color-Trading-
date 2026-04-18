@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAKER GOLD - Investment</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --gold: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c); }
+        body { background: #070b14; color: white; font-family: 'Poppins', sans-serif; margin: 0; padding: 15px; padding-bottom: 80px; }
+        .plan-card { background: #1e293b; border-radius: 20px; padding: 25px; margin-bottom: 20px; border-left: 6px solid #fbbf24; position: relative; box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
+        .plan-title { color: #fbbf24; font-size: 20px; font-weight: bold; margin: 0; }
+        .plan-details { color: #94a3b8; font-size: 13px; margin: 10px 0; }
+        .invest-btn { width: 100%; padding: 12px; background: var(--gold); border: none; border-radius: 12px; font-weight: bold; color: #0f172a; cursor: pointer; }
+        .nav-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: #111827; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #334155; }
+        .nav-bar a { text-decoration: none; color: #64748b; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <h2 style="text-align:center; color:#fbbf24;">💎 Investment Nodes</h2>
+
+    <div class="plan-card">
+        <p class="plan-title">Starter Node</p>
+        <p class="plan-details">Daily Profit: 0.5% | Lock Period: 7 Days</p>
+        <input type="number" id="amt1" placeholder="Min ₹500" style="width:100%; padding:10px; margin-bottom:10px; border-radius:8px; border:none; background:#070b14; color:white;">
+        <button class="invest-btn" onclick="invest(500, 7, 0.5, 'amt1')">ACTIVATE NODE</button>
+    </div>
+
+    <div class="plan-card" style="border-left-color: #f59e0b;">
+        <p class="plan-title">Gold Node (VIP)</p>
+        <p class="plan-details">Daily Profit: 1.2% | Lock Period: 30 Days</p>
+        <input type="number" id="amt2" placeholder="Min ₹10,000" style="width:100%; padding:10px; margin-bottom:10px; border-radius:8px; border:none; background:#070b14; color:white;">
+        <button class="invest-btn" onclick="invest(10000, 30, 1.2, 'amt2')">ACTIVATE NODE</button>
+    </div>
+
+    <div class="nav-bar">
+        <a href="home.html">🏠<br>Home</a>
+        <a href="investment.html" style="color:#3b82f6;">💰<br>Invest</a>
+        <a href="transfer.html">🔗<br>Transfer</a>
+        <a href="profile.html">👤<br>Account</a>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = { 
+            apiKey: "AIzaSyCh-1xi3jkIj5hUsmbm3GFGfT_AlWmxYkk",
+            authDomain: "maker-trading-official.firebaseapp.com",
+            databaseURL: "https://maker-trading-official-default-rtdb.firebaseio.com/",
+            projectId: "maker-trading-official",
+            appId: "1:262205995192:web:d7255379855a0fc9489c4d"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const phone = localStorage.getItem("userPhone");
+
+        window.invest = async (min, days, rate, inpId) => {
+            const amt = parseFloat(document.getElementById(inpId).value);
+            if(amt < min) { alert("Min investment is ₹" + min); return; }
+
+            const snap = await get(ref(db, 'users/' + phone));
+            if(snap.val().balance >= amt) {
+                const lockTime = Date.now() + (days * 24 * 60 * 60 * 1000);
+                await update(ref(db, 'users/' + phone), {
+                    balance: snap.val().balance - amt,
+                    investment: { amount: amt, dailyRate: rate, unlockDate: lockTime, status: "Active" }
+                });
+                alert("Investment Active! Locked for " + days + " days.");
+            } else { alert("Insufficient Balance!"); }
+        };
+    </script>
+</body>
+</html>
