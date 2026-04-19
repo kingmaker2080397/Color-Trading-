@@ -1,49 +1,141 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Maker Trading</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Maker Trading Gold</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        body { font-family: sans-serif; background: #f4f4f4; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 320px; text-align: center; }
-        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; background: #1e3a8a; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            background: #070b14; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0; 
+            color: white;
+        }
+        .card { 
+            background: #1e293b; 
+            padding: 30px; 
+            border-radius: 20px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
+            width: 340px; 
+            text-align: center;
+            border-bottom: 4px solid #fbbf24;
+        }
+        h2 { color: #fbbf24; margin-bottom: 20px; font-weight: 600; }
+        input { 
+            width: 100%; 
+            padding: 14px; 
+            margin: 10px 0; 
+            border: 1px solid #334155; 
+            border-radius: 12px; 
+            box-sizing: border-box; 
+            background: #0f172a; 
+            color: white;
+            outline: none;
+            transition: 0.3s;
+        }
+        input:focus { border-color: #fbbf24; }
+        button { 
+            width: 100%; 
+            padding: 14px; 
+            background: #fbbf24; 
+            color: #070b14; 
+            border: none; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            margin-top: 15px;
+            font-size: 16px;
+            transition: 0.3s;
+        }
+        button:disabled { background: #475569; cursor: not-allowed; }
+        p { color: #94a3b8; margin-top: 20px; font-size: 14px; }
+        a { color: #fbbf24; text-decoration: none; font-weight: bold; }
     </style>
 </head>
 <body>
     <div class="card">
-        <h2 style="color:#1e3a8a;">👑 Maker Trading</h2>
+        <h2>👑 MAKER GOLD</h2>
+        <p style="margin-top: -15px; margin-bottom: 20px;">Welcome Back! Login to Trade</p>
+        
         <input type="number" id="loginPhone" placeholder="Mobile Number">
         <input type="password" id="loginPass" placeholder="Password">
-        <button id="loginBtn">Login</button>
-        <p>New user? <a href="register.html">Register here</a></p>
+        
+        <button id="loginBtn">LOGIN NOW</button>
+        
+        <p>Don't have an account? <br><a href="register.html">Register New Account</a></p>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
+        // Same Config as your other pages
         const firebaseConfig = {
             apiKey: "AIzaSyCh-1xi3jkIj5hUsmbm3GFGfT_AlWmxYkk",
             authDomain: "maker-trading-official.firebaseapp.com",
             databaseURL: "https://maker-trading-official-default-rtdb.firebaseio.com/",
             projectId: "maker-trading-official",
-            storageBucket: "maker-trading-official.firebasestorage.app",
-            messagingSenderId: "262205995192",
             appId: "1:262205995192:web:d7255379855a0fc9489c4d"
         };
+        
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        document.getElementById('loginBtn').onclick = function() {
-            const phone = document.getElementById('loginPhone').value;
-            const pass = document.getElementById('loginPass').value;
-            get(ref(db, 'users/' + phone)).then((snapshot) => {
-                if (snapshot.exists() && snapshot.val().password === pass) {
-                    localStorage.setItem("userPhone", phone);
-                    window.location.href = "home.html";
-                } else { alert("Invalid Credentials!"); }
-            });
+        const loginBtn = document.getElementById('loginBtn');
+
+        loginBtn.onclick = async function() {
+            const phone = document.getElementById('loginPhone').value.trim();
+            const pass = document.getElementById('loginPass').value.trim();
+
+            // Simple Validations
+            if (phone.length < 10) {
+                alert("Please enter a valid mobile number.");
+                return;
+            }
+            if (pass === "") {
+                alert("Please enter password.");
+                return;
+            }
+
+            // Disable button and show loading
+            loginBtn.disabled = true;
+            loginBtn.innerText = "Verifying...";
+
+            try {
+                const userRef = ref(db, 'users/' + phone);
+                const snapshot = await get(userRef);
+
+                if (snapshot.exists()) {
+                    const userData = snapshot.val();
+                    
+                    if (userData.password === pass) {
+                        // Success! Save session
+                        localStorage.setItem("userPhone", phone);
+                        localStorage.setItem("userName", userData.name || "User");
+                        
+                        alert("Login Successful!");
+                        window.location.href = "home.html";
+                    } else {
+                        alert("Incorrect Password!");
+                        loginBtn.disabled = false;
+                        loginBtn.innerText = "LOGIN NOW";
+                    }
+                } else {
+                    alert("Account not found! Please register first.");
+                    loginBtn.disabled = false;
+                    loginBtn.innerText = "LOGIN NOW";
+                }
+            } catch (error) {
+                console.error(error);
+                alert("Connection error! Please check your internet.");
+                loginBtn.disabled = false;
+                loginBtn.innerText = "LOGIN NOW";
+            }
         };
     </script>
 </body>
