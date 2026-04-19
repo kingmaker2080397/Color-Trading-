@@ -1,130 +1,111 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KYC Verification - Maker Gold</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <style>
         body { background: #070b14; color: white; font-family: 'Poppins', sans-serif; padding: 20px; text-align: center; }
-        .card { background: #1e293b; padding: 25px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); border-bottom: 4px solid #3b82f6; }
-        input, select { 
-            width: 100%; padding: 14px; margin: 10px 0; border-radius: 12px; 
-            border: 1px solid #334155; background: #0f172a; color: white; box-sizing: border-box; outline: none;
-        }
-        .btn { 
-            width: 100%; padding: 15px; background: #3b82f6; color: white; 
-            border: none; border-radius: 12px; font-weight: bold; cursor: pointer; transition: 0.3s;
-        }
-        .btn:disabled { background: #475569; }
-        
-        /* Status Cards */
-        .status-card { display: none; padding: 30px; border-radius: 20px; margin-top: 20px; }
-        .verified { background: rgba(34, 197, 94, 0.1); border: 2px solid #22c55e; color: #22c55e; }
-        .pending { background: rgba(251, 191, 36, 0.1); border: 2px solid #fbbf24; color: #fbbf24; }
+        .card { background: #1e293b; padding: 25px; border-radius: 20px; border: 1px solid #fbbf24; max-width: 400px; margin: auto; }
+        input { width: 100%; padding: 14px; margin: 10px 0; border-radius: 12px; border: 1px solid #334155; background: #0f172a; color: white; box-sizing: border-box; }
+        .btn { width: 100%; padding: 15px; background: #fbbf24; color: #070b14; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; }
+        #preview { width: 100%; max-height: 200px; object-fit: contain; margin: 15px 0; border-radius: 10px; display: none; border: 1px dashed #fbbf24; }
+        .status-msg { display: none; padding: 20px; background: rgba(251, 191, 36, 0.1); border-radius: 15px; border: 1px solid #fbbf24; color: #fbbf24; }
     </style>
 </head>
 <body>
 
-    <div id="formBox" class="card">
+    <div id="kycForm" class="card">
         <h2 style="color:#fbbf24;">🆔 Identity Verification</h2>
-        <p style="font-size: 13px; color: #94a3b8; margin-bottom: 20px;">Complete KYC to enable withdrawals</p>
+        <p style="font-size: 13px; color: #94a3b8;">Upload your ID Card to enable withdrawals</p>
         
         <input type="text" id="fullName" placeholder="Full Name (As per ID)">
-        <select id="country">
-            <option value="PK">Pakistan 🇵🇰</option>
-            <option value="IN">India 🇮🇳</option>
-            <option value="BD">Bangladesh 🇧🇩</option>
-            <option value="US">USA 🇺🇸</option>
-        </select>
-        <input type="text" id="idNum" placeholder="CNIC / Aadhar / ID Number">
+        <input type="text" id="idNum" placeholder="ID Card Number">
         
-        <button id="subBtn" class="btn" onclick="submitKYC()">SUBMIT DETAILS</button>
+        <div style="text-align: left; font-size: 12px; color: #fbbf24; margin-left: 5px;">Upload ID Card Front Photo:</div>
+        <input type="file" id="idFile" accept="image/*" onchange="previewImg(event)">
+        <img id="preview">
+
+        <button class="btn" id="subBtn" onclick="submitKYC()">UPLOAD & SUBMIT</button>
     </div>
 
-    <div id="pendingBox" class="status-card pending">
-        <h1 style="font-size:50px; margin:0;">⏳</h1>
-        <h2>KYC PENDING</h2>
+    <div id="pendingBox" class="status-msg">
+        <h1 style="font-size: 50px;">⏳</h1>
+        <h3>KYC PENDING</h3>
         <p>Admin is reviewing your documents. Please wait 24-48 hours.</p>
-    </div>
-
-    <div id="verifiedBox" class="status-card verified">
-        <h1 style="font-size:50px; margin:0;">✅</h1>
-        <h2>VERIFIED</h2>
-        <p>Your identity is confirmed. Withdrawals are now active.</p>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, onValue, update, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, update, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        const firebaseConfig = {
+        const firebaseConfig = { 
             apiKey: "AIzaSyCh-1xi3jkIj5hUsmbm3GFGfT_AlWmxYkk",
-            authDomain: "maker-trading-official.firebaseapp.com",
-            databaseURL: "https://maker-trading-official-default-rtdb.firebaseio.com/",
-            projectId: "maker-trading-official",
-            appId: "1:262205995192:web:d7255379855a0fc9489c4d"
+            databaseURL: "https://maker-trading-official-default-rtdb.firebaseio.com/" 
         };
-        
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const phone = localStorage.getItem("userPhone");
 
-        if(!phone) window.location.href = "login.html";
-
-        // Check Existing KYC Status
+        // Check current status
         onValue(ref(db, 'users/' + phone), (snap) => {
-            if(snap.exists()){
-                const status = snap.val().kycStatus;
-                if(status === "Pending") {
-                    document.getElementById('formBox').style.display = 'none';
-                    document.getElementById('pendingBox').style.display = 'block';
-                } else if(status === "Verified") {
-                    document.getElementById('formBox').style.display = 'none';
-                    document.getElementById('verifiedBox').style.display = 'block';
-                }
+            if(snap.val() && snap.val().kycStatus === "Pending") {
+                document.getElementById('kycForm').style.display = 'none';
+                document.getElementById('pendingBox').style.display = 'block';
             }
         });
 
+        window.previewImg = (e) => {
+            const file = e.target.files[0];
+            if(file) {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    const img = document.getElementById('preview');
+                    img.src = reader.result;
+                    img.style.display = 'block';
+                }
+                reader.readAsDataURL(file);
+            }
+        };
+
         window.submitKYC = async () => {
-            const name = document.getElementById('fullName').value.trim();
-            const id = document.getElementById('idNum').value.trim();
-            const country = document.getElementById('country').value;
+            const file = document.getElementById('idFile').files[0];
+            const name = document.getElementById('fullName').value;
+            const idNo = document.getElementById('idNum').value;
             const btn = document.getElementById('subBtn');
 
-            if(name.length < 3 || id.length < 5) {
-                alert("Please enter valid details!");
-                return;
-            }
+            if(!file || !name || !idNo) return alert("Please fill all details!");
 
             btn.disabled = true;
-            btn.innerText = "SUBMITTING...";
+            btn.innerText = "Uploading to Server...";
 
+            // ImgBB Upload
+            const formData = new FormData();
+            formData.append("image", file);
+            
             try {
-                // 1. Update User Status
-                await update(ref(db, 'users/' + phone), {
-                    kycStatus: "Pending",
-                    fullName: name,
-                    idNumber: id,
-                    country: country
+                const res = await fetch("https://api.imgbb.com/1/upload?key=8730f0f37b6703c530e137682f9d6b7b", {
+                    method: "POST",
+                    body: formData
                 });
+                const data = await res.json();
+                const url = data.data.url;
 
-                // 2. Add to Admin KYC Review List
+                // Save to Firebase
                 await update(ref(db, 'kyc_requests/' + phone), {
-                    phone: phone,
-                    name: name,
-                    idNumber: id,
-                    timestamp: Date.now()
+                    phone: phone, name: name, idNumber: idNo, photoUrl: url, time: Date.now()
                 });
+                await update(ref(db, 'users/' + phone), { kycStatus: "Pending" });
 
-                alert("KYC Submitted Successfully!");
-            } catch (e) {
-                alert("Error! Try again.");
+                alert("Submitted! Wait for approval.");
+                location.reload();
+            } catch (err) {
+                alert("Upload failed! Try again.");
                 btn.disabled = false;
-                btn.innerText = "SUBMIT DETAILS";
+                btn.innerText = "UPLOAD & SUBMIT";
             }
         };
     </script>
 </body>
-        </html>
-        
+    </html>
+    
