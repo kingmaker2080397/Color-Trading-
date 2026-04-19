@@ -1,34 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MAKER GOLD - Live Trading</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <style>
         :root { --primary: #1e3a8a; --gold: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c); }
         body { margin: 0; background: #070b14; font-family: 'Poppins', sans-serif; color: white; padding-bottom: 80px; overflow-x: hidden; }
-        .header { background: var(--primary); padding: 15px; text-align: center; font-weight: 700; border-bottom: 2px solid #3b82f6; }
-        .balance-card { background: linear-gradient(135deg, #1e293b, #334155); margin: 15px; padding: 25px; border-radius: 20px; text-align: center; border: 1px solid rgba(255,255,255,0.1); }
+        .header { background: var(--primary); padding: 15px; text-align: center; font-weight: 700; border-bottom: 2px solid #3b82f6; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
+        
+        /* Balance Section */
+        .balance-card { background: linear-gradient(135deg, #1e293b, #334155); margin: 15px; padding: 25px; border-radius: 20px; text-align: center; border: 1px solid rgba(255,255,255,0.1); position: relative; overflow: hidden; }
+        .balance-card::after { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%); pointer-events: none; }
         .balance-amount { font-size: 32px; font-weight: 700; background: var(--gold); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        
+        /* Game UI */
         .game-card { background: rgba(255,255,255,0.05); backdrop-filter: blur(15px); margin: 15px; padding: 20px; border-radius: 25px; border: 1px solid rgba(255,255,255,0.1); text-align: center; }
-        .timer-3d { font-size: 45px; font-weight: 800; color: #ef4444; text-shadow: 0 0 20px rgba(239, 68, 68, 0.5); margin: 5px 0; font-family: monospace; }
+        .timer-3d { font-size: 45px; font-weight: 800; color: #ef4444; text-shadow: 0 0 20px rgba(239, 68, 68, 0.5); margin: 5px 0; font-family: 'Courier New', monospace; }
         .btn-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 15px; }
         .btn-3d { border: none; padding: 18px 5px; border-radius: 12px; font-weight: 700; color: white; cursor: pointer; transition: 0.2s; box-shadow: 0 5px 0 rgba(0,0,0,0.3); }
-        .btn-3d:active { transform: translateY(3px); box-shadow: 0 2px 0 rgba(0,0,0,0.3); }
+        .btn-3d:disabled { background: #475569 !important; box-shadow: none !important; transform: translateY(3px); opacity: 0.6; cursor: not-allowed; }
         .btn-green { background: linear-gradient(180deg, #22c55e, #16a34a); }
         .btn-violet { background: linear-gradient(180deg, #a855f7, #9333ea); }
         .btn-red { background: linear-gradient(180deg, #ef4444, #dc2626); }
         
-        /* Result Pop-up Styles */
+        /* Modals */
         .res-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 9999; }
-        .res-content { padding: 40px; border-radius: 30px; text-align: center; color: white; width: 80%; max-width: 400px; border: 2px solid #bf953f; animation: bounce 0.5s ease; }
-        .win-bg { background: linear-gradient(135deg, #065f46, #059669); box-shadow: 0 0 50px #10b981; }
-        .loss-bg { background: linear-gradient(135deg, #7f1d1d, #dc2626); box-shadow: 0 0 50px #ef4444; }
-        @keyframes bounce { 0% {transform: scale(0.5);} 70% {transform: scale(1.1);} 100% {transform: scale(1);} }
+        .res-content { padding: 40px; border-radius: 30px; text-align: center; color: white; width: 80%; max-width: 400px; border: 2px solid #bf953f; animation: bounce 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .win-bg { background: linear-gradient(135deg, #065f46, #059669); box-shadow: 0 0 50px rgba(16, 185, 129, 0.6); }
+        .loss-bg { background: linear-gradient(135deg, #7f1d1d, #dc2626); box-shadow: 0 0 50px rgba(239, 68, 68, 0.6); }
+        @keyframes bounce { 0% {transform: scale(0.5); opacity: 0;} 100% {transform: scale(1); opacity: 1;} }
 
-        .nav-bar { position: fixed; bottom: 0; width: 100%; background: #111827; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #334155; }
-        .nav-bar a { text-decoration: none; color: #64748b; font-size: 12px; text-align: center; }
+        .nav-bar { position: fixed; bottom: 0; width: 100%; background: #111827; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #334155; z-index: 1000; }
+        .nav-bar a { text-decoration: none; color: #64748b; font-size: 11px; text-align: center; transition: 0.3s; }
+        .nav-bar a.active { color: #3b82f6; transform: scale(1.1); }
     </style>
 </head>
 <body>
@@ -36,21 +43,21 @@
     <div class="header">MAKER TRADING GOLD</div>
 
     <div class="balance-card">
-        <div style="font-size: 11px; color: #94a3b8;">WALLET BALANCE</div>
+        <div style="font-size: 11px; color: #94a3b8; letter-spacing: 1px;">AVAILABLE BALANCE</div>
         <div class="balance-amount" id="userBalance">₹ 0.00</div>
-        <div style="display:flex; justify-content:center; gap:10px; margin-top:10px;">
-            <button onclick="location.href='deposit.html'" style="padding:8px 20px; border-radius:20px; border:none; background:var(--gold); font-weight:700;">DEPOSIT</button>
-            <button onclick="location.href='withdraw.html'" style="padding:8px 20px; border-radius:20px; border:1px solid #bf953f; background:transparent; color:#bf953f; font-weight:700;">WITHDRAW</button>
+        <div style="display:flex; justify-content:center; gap:10px; margin-top:15px;">
+            <button onclick="location.href='deposit.html'" style="padding:10px 25px; border-radius:20px; border:none; background:var(--gold); font-weight:700; cursor:pointer;">DEPOSIT</button>
+            <button onclick="location.href='withdraw.html'" style="padding:10px 25px; border-radius:20px; border:1px solid #bf953f; background:transparent; color:#bf953f; font-weight:700; cursor:pointer;">WITHDRAW</button>
         </div>
     </div>
 
     <div class="game-card">
-        <div style="display: flex; justify-content: space-between; font-size: 11px;">
-            <span>Period ID: <b id="periodId">...</b></span>
-            <span style="color:#22c55e;">● Live</span>
+        <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 10px;">
+            <span>Period ID: <b id="periodId" style="color: #3b82f6;">...</b></span>
+            <span id="statusIndicator" style="color:#22c55e; animation: pulse 1.5s infinite;">● Live</span>
         </div>
         <div class="timer-3d" id="timer">00:30</div>
-        <div class="btn-grid">
+        <div class="btn-grid" id="betButtons">
             <button class="btn-3d btn-green" onclick="placeBet('Green')">GREEN</button>
             <button class="btn-3d btn-violet" onclick="placeBet('Violet')">VIOLET</button>
             <button class="btn-3d btn-red" onclick="placeBet('Red')">RED</button>
@@ -59,15 +66,15 @@
 
     <div id="resultModal" class="res-modal">
         <div id="resBox" class="res-content">
-            <h1 id="resEmoji" style="font-size:60px;">🎉</h1>
-            <h2 id="resStatus">YOU WON!</h2>
-            <p id="resAmt" style="font-size:28px; font-weight:bold;">₹0.00</p>
-            <button onclick="closeResult()" style="margin-top:20px; padding:10px 30px; border-radius:20px; border:none; background:white; font-weight:bold; cursor:pointer;">CONTINUE</button>
+            <h1 id="resEmoji" style="font-size:60px; margin:0;">🎉</h1>
+            <h2 id="resStatus" style="margin: 10px 0;">YOU WON!</h2>
+            <p id="resAmt" style="font-size:32px; font-weight:bold; margin: 0;">+ ₹0.00</p>
+            <button onclick="closeResult()" style="margin-top:25px; padding:12px 40px; border-radius:25px; border:none; background:white; color: black; font-weight:bold; cursor:pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">CONTINUE</button>
         </div>
     </div>
 
     <div class="nav-bar">
-        <a href="home.html" style="color:#3b82f6;">🏠<br>Home</a>
+        <a href="home.html" class="active">🏠<br>Home</a>
         <a href="investment.html">💰<br>Invest</a>
         <a href="transfer.html">🔗<br>Transfer</a>
         <a href="profile.html">👤<br>Account</a>
@@ -77,6 +84,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, onValue, set, get, update, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
+        // Firebase Config (Keep it updated)
         const firebaseConfig = { 
             apiKey: "AIzaSyCh-1xi3jkIj5hUsmbm3GFGfT_AlWmxYkk",
             authDomain: "maker-trading-official.firebaseapp.com",
@@ -90,57 +98,113 @@
 
         if(!phone) window.location.href = "index.html";
 
-        // Sync Balance
+        // Sync Balance - Using real-time listener
         onValue(ref(db, 'users/' + phone), (snap) => {
-            if(snap.exists()) document.getElementById('userBalance').innerText = "₹ " + snap.val().balance.toFixed(2);
+            if(snap.exists()) {
+                const bal = parseFloat(snap.val().wallet || 0); // Changed 'balance' to 'wallet' for admin sync
+                document.getElementById('userBalance').innerText = "₹ " + bal.toFixed(2);
+            }
         });
 
-        // 30s Timer
+        // Smart 30s Timer with Locking
         setInterval(() => {
             let now = new Date();
             let remSec = 29 - (now.getSeconds() % 30);
             document.getElementById('timer').innerText = `00:${remSec < 10 ? '0'+remSec : remSec}`;
+            
+            // Generate unique Period ID
             let pId = now.getFullYear().toString() + (now.getMonth()+1).toString().padStart(2,'0') + now.getDate().toString().padStart(2,'0') + now.getHours().toString().padStart(2,'0') + now.getMinutes().toString().padStart(2,'0') + (Math.floor(now.getSeconds() / 30));
             document.getElementById('periodId').innerText = pId;
             
-            if(remSec <= 5) document.querySelectorAll('.btn-3d').forEach(b => b.disabled = true);
-            else document.querySelectorAll('.btn-3d').forEach(b => b.disabled = false);
+            // Lock buttons when 5 seconds remaining
+            const btns = document.querySelectorAll('.btn-3d');
+            const indicator = document.getElementById('statusIndicator');
+            
+            if(remSec <= 5) {
+                btns.forEach(b => b.disabled = true);
+                indicator.innerText = "● Locked";
+                indicator.style.color = "#ef4444";
+            } else {
+                btns.forEach(b => b.disabled = false);
+                indicator.innerText = "● Live";
+                indicator.style.color = "#22c55e";
+            }
         }, 1000);
 
-        // Result Listener
+        // Professional Result Listener
         onValue(ref(db, 'results/' + phone), (snap) => {
             if(snap.exists()){
                 const data = snap.val();
-                showResult(data.msg, data.amt);
-                remove(ref(db, 'results/' + phone));
+                if(data.show === true) { // Only show if admin sets show: true
+                    showResult(data.status, parseFloat(data.amount));
+                    // Optional: Remove from DB after showing to avoid double pop-up
+                    remove(ref(db, 'results/' + phone));
+                }
             }
         });
 
         function showResult(status, amt) {
             const box = document.getElementById('resBox');
-            document.getElementById('resStatus').innerText = status === 'WIN' ? 'YOU WON!' : 'YOU LOST';
-            document.getElementById('resEmoji').innerText = status === 'WIN' ? '🎉' : '💔';
-            document.getElementById('resAmt').innerText = "₹" + amt.toFixed(2);
-            box.className = 'res-content ' + (status === 'WIN' ? 'win-bg' : 'loss-bg');
+            const statusText = document.getElementById('resStatus');
+            const amtText = document.getElementById('resAmt');
+            const emoji = document.getElementById('resEmoji');
+
+            if(status === 'WIN') {
+                statusText.innerText = 'YOU WON!';
+                emoji.innerText = '🎉';
+                amtText.innerText = "+ ₹" + amt.toFixed(2);
+                box.className = 'res-content win-bg';
+                confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+            } else {
+                statusText.innerText = 'YOU LOST';
+                emoji.innerText = '💔';
+                amtText.innerText = "- ₹" + amt.toFixed(2);
+                box.className = 'res-content loss-bg';
+            }
             document.getElementById('resultModal').style.display = 'flex';
-            if(status === 'WIN') confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
         }
 
         window.closeResult = () => document.getElementById('resultModal').style.display = 'none';
 
-        window.placeBet = (color) => {
-            let amt = prompt("Enter Bet Amount:", "100");
-            if(amt >= 10) {
-                get(ref(db, 'users/' + phone)).then(snap => {
-                    if(snap.val().balance >= amt) {
-                        update(ref(db, 'users/' + phone), { balance: snap.val().balance - amt });
-                        set(ref(db, 'bets/' + document.getElementById('periodId').innerText + '/' + phone), { amount: parseFloat(amt), choice: color });
-                        alert("Bet Placed on " + color);
-                    } else { alert("Insufficient Balance!"); }
-                });
+        // Secure Bet Placement
+        window.placeBet = async (color) => {
+            let amtInput = prompt("Enter Bet Amount (Min ₹10):", "100");
+            let amt = parseFloat(amtInput);
+
+            if(isNaN(amt) || amt < 10) {
+                alert("Please enter a valid amount (Minimum ₹10)");
+                return;
+            }
+
+            try {
+                const userSnap = await get(ref(db, 'users/' + phone));
+                if(!userSnap.exists()) return;
+
+                let currentBal = parseFloat(userSnap.val().wallet || 0);
+
+                if(currentBal >= amt) {
+                    // 1. Deduct Balance
+                    let newBal = currentBal - amt;
+                    await update(ref(db, 'users/' + phone), { wallet: newBal });
+
+                    // 2. Register Bet in DB
+                    const pId = document.getElementById('periodId').innerText;
+                    await set(ref(db, 'bets/' + pId + '/' + phone), { 
+                        amount: amt, 
+                        choice: color,
+                        timestamp: Date.now()
+                    });
+
+                    alert("Successfully placed bet on " + color);
+                } else {
+                    alert("Insufficient Balance! Please recharge.");
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Error placing bet. Check connection.");
             }
         };
     </script>
 </body>
     </html>
-            
+                
