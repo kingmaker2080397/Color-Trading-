@@ -1,38 +1,84 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MAKER - Staking Nodes</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAKER GOLD - Staking Nodes</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        body { background: #070b14; color: white; font-family: sans-serif; padding: 15px; }
-        .portfolio { background: linear-gradient(135deg, #1e293b, #0f172a); padding: 20px; border-radius: 20px; border: 1px solid #3b82f6; margin-bottom: 20px; }
-        .node-card { background: #1e293b; padding: 20px; border-radius: 20px; margin-bottom: 15px; border-left: 5px solid #fbbf24; }
-        .invest-btn { width: 100%; padding: 12px; background: #fbbf24; border: none; border-radius: 10px; font-weight: bold; }
-        .nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #111827; display: flex; justify-content: space-around; padding: 15px 0; }
+        :root { --primary: #3b82f6; --bg: #070b14; --card: #1e293b; --gold: #fbbf24; }
+        body { background: var(--bg); color: white; font-family: 'Poppins', sans-serif; padding: 15px; margin: 0; padding-bottom: 80px; }
+        
+        .portfolio { 
+            background: linear-gradient(135deg, #1e293b, #0f172a); 
+            padding: 25px; border-radius: 20px; border: 1px solid var(--primary); 
+            margin-bottom: 25px; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+        .staked-amt { font-size: 32px; font-weight: bold; color: var(--primary); margin: 10px 0; }
+        
+        .node-card { 
+            background: var(--card); padding: 20px; border-radius: 20px; 
+            margin-bottom: 15px; border-left: 5px solid var(--gold);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        h4 { margin: 0 0 10px 0; color: var(--gold); letter-spacing: 1px; }
+        
+        input { 
+            width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; 
+            border: 1px solid #334155; background: #0f172a; color: white; outline: none; box-sizing: border-box;
+        }
+        .invest-btn { 
+            width: 100%; padding: 14px; background: var(--gold); border: none; 
+            border-radius: 12px; font-weight: bold; color: #070b14; cursor: pointer; transition: 0.3s;
+        }
+        .invest-btn:active { transform: scale(0.98); }
+
+        .nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #111827; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #334155; }
+        .nav a { color: #94a3b8; text-decoration: none; font-size: 14px; text-align: center; }
+        .nav a.active { color: var(--primary); font-weight: bold; }
     </style>
 </head>
 <body>
+
+    <h2 style="text-align:center; color:var(--gold);">💎 STAKING NODES</h2>
+
     <div class="portfolio">
-        <p style="color:#94a3b8; margin:0;">MY TOTAL STAKED</p>
-        <h2 id="stakedDisplay" style="color:#3b82f6;">₹ 0.00</h2>
-        <p id="lockInfo" style="font-size:12px; color:#fbbf24;">No Active Investment</p>
+        <p style="color:#94a3b8; margin:0; font-size: 12px; letter-spacing: 1px;">TOTAL ASSETS STAKED</p>
+        <div class="staked-amt" id="stakedDisplay">₹ 0.00</div>
+        <p id="lockInfo" style="font-size:12px; color:var(--gold);">Check your active nodes below</p>
     </div>
 
     <h3>Available Nodes</h3>
+    
     <div class="node-card">
-        <h4>Silver Node (0.5% Daily)</h4>
-        <input type="number" id="amt1" placeholder="Min ₹500" style="width:100%; padding:10px; margin-bottom:10px; border-radius:8px; border:none;">
-        <button class="invest-btn" onclick="stake(500, 7, 0.5, 'amt1')">INVEST NOW</button>
+        <h4>SILVER NODE</h4>
+        <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:10px;">
+            <span>Daily Profit: <b style="color:#22c55e;">0.5%</b></span>
+            <span>Duration: <b>7 Days</b></span>
+        </div>
+        <input type="number" id="amt1" placeholder="Minimum ₹500" min="500">
+        <button class="invest-btn" id="btn1" onclick="stake(500, 7, 0.5, 'amt1', 'btn1')">START STAKING</button>
+    </div>
+
+    <div class="node-card" style="border-left-color: #3b82f6;">
+        <h4 style="color:#3b82f6;">GOLD NODE</h4>
+        <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:10px;">
+            <span>Daily Profit: <b style="color:#22c55e;">1.0%</b></span>
+            <span>Duration: <b>15 Days</b></span>
+        </div>
+        <input type="number" id="amt2" placeholder="Minimum ₹5000" min="5000">
+        <button class="invest-btn" id="btn2" style="background:#3b82f6; color:white;" onclick="stake(5000, 15, 1.0, 'amt2', 'btn2')">START STAKING</button>
     </div>
 
     <div class="nav">
-        <a href="home.html" style="color:white; text-decoration:none;">🏠 Home</a>
-        <a href="investment.html" style="color:#3b82f6; text-decoration:none;">💰 Invest</a>
+        <a href="home.html">🏠<br>Home</a>
+        <a href="investment.html" class="active">💰<br>Invest</a>
+        <a href="profile.html">👤<br>Account</a>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, onValue, get, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, onValue, get, update, push } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         const firebaseConfig = { 
             apiKey: "AIzaSyCh-1xi3jkIj5hUsmbm3GFGfT_AlWmxYkk",
@@ -45,27 +91,76 @@
         const db = getDatabase(app);
         const phone = localStorage.getItem("userPhone");
 
-        onValue(ref(db, 'users/' + phone), (snap) => {
-            const d = snap.val();
-            if(d.investment && d.investment.status === "Active") {
-                document.getElementById('stakedDisplay').innerText = "₹ " + d.investment.amount;
-                let daysLeft = Math.ceil((d.investment.unlockDate - Date.now()) / (1000*60*60*24));
-                document.getElementById('lockInfo').innerText = "Unlocks in: " + (daysLeft > 0 ? daysLeft : 0) + " Days";
+        if(!phone) window.location.href = "index.html";
+
+        // Real-time listener for Staked Amount
+        // Note: Hum 'investments' folder se is user ka sara data sum karenge
+        onValue(ref(db, 'investments'), (snap) => {
+            let total = 0;
+            if(snap.exists()) {
+                snap.forEach(child => {
+                    const inv = child.val();
+                    if(inv.phone === phone && inv.status === "Active") {
+                        total += parseFloat(inv.amount);
+                    }
+                });
             }
+            document.getElementById('stakedDisplay').innerText = "₹ " + total.toLocaleString();
         });
 
-        window.stake = async (min, days, rate, inp) => {
+        window.stake = async (min, days, rate, inp, btnId) => {
             const amt = parseFloat(document.getElementById(inp).value);
-            const s = await get(ref(db, 'users/' + phone));
-            if(s.val().balance >= amt && amt >= min) {
-                const unlock = Date.now() + (days * 24 * 60 * 60 * 1000);
-                update(ref(db, 'users/' + phone), {
-                    balance: s.val().balance - amt,
-                    investment: { amount: amt, dailyRate: rate, unlockDate: unlock, status: "Active" }
-                });
-                alert("Staked Successfully!");
-            } else { alert("Check balance/min amount!"); }
+            const btn = document.getElementById(btnId);
+
+            if(isNaN(amt) || amt < min) {
+                alert(`Minimum investment for this node is ₹${min}`);
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = "PROCESSING...";
+
+            try {
+                const userSnap = await get(ref(db, 'users/' + phone));
+                if(!userSnap.exists()) return;
+
+                const currentWallet = parseFloat(userSnap.val().wallet || 0);
+
+                if(currentWallet >= amt) {
+                    const unlockDate = Date.now() + (days * 24 * 60 * 60 * 1000);
+                    
+                    // 1. Wallet se paisa kato
+                    await update(ref(db, 'users/' + phone), {
+                        wallet: currentWallet - amt
+                    });
+
+                    // 2. Naya investment record create karo (push se unique ID milti hai)
+                    const invRef = ref(db, 'investments');
+                    const newInvRef = push(invRef);
+                    await update(newInvRef, {
+                        phone: phone,
+                        amount: amt,
+                        dailyRate: rate,
+                        unlockDate: unlockDate,
+                        startDate: Date.now(),
+                        status: "Active",
+                        nodeType: inp === 'amt1' ? 'Silver' : 'Gold'
+                    });
+
+                    alert("🎉 Investment Successful! Your daily profit will start tomorrow.");
+                    document.getElementById(inp).value = "";
+                } else {
+                    alert("Insufficient Wallet Balance! Please recharge.");
+                }
+            } catch (error) {
+                console.error(error);
+                alert("Something went wrong. Try again.");
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "START STAKING";
+            }
         };
     </script>
 </body>
-</html>
+    </html>
+    
