@@ -1,33 +1,107 @@
 <!DOCTYPE html>
-<html>
-<head><title>Deposit - Maker</title></head>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deposit - Maker Pro</title>
+</head>
 <body style="background:#070b14; color:white; font-family:sans-serif; padding:20px; text-align:center;">
-    <h2>📥 ADD FUNDS</h2>
-    <div style="background:#1e293b; padding:20px; border-radius:20px;">
-        <p>Send Payment to UPI ID:</p>
-        <h3 style="color:#fbbf24;">makergold@upi</h3>
-        <input type="number" id="depAmt" placeholder="Enter Amount" style="width:100%; padding:12px; margin:10px 0; border-radius:10px; border:none;">
-        <input type="text" id="utr" placeholder="Enter 12-Digit UTR Number" style="width:100%; padding:12px; margin:10px 0; border-radius:10px; border:none;">
-        <button onclick="submitDep()" style="width:100%; padding:15px; background:#fbbf24; border:none; border-radius:10px; font-weight:bold;">SUBMIT REQUEST</button>
+
+    <h2 style="margin-bottom: 5px;">📥 ADD FUNDS</h2>
+    <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 20px;">Safe & Instant Verification</p>
+
+    <div style="background:#1e293b; padding:20px; border-radius:20px; border-bottom: 4px solid #fbbf24;">
+        <p style="margin-bottom: 5px; font-size: 0.9rem;">Step 1: Send Payment to UPI</p>
+        <h3 style="color:#fbbf24; background: #0f172a; padding: 15px; border-radius: 10px; border: 1px dashed #fbbf24;">
+            makergold@upi
+        </h3>
+        
+        <div style="margin-top: 20px; text-align: left;">
+            <label style="font-size: 0.8rem; margin-left: 5px;">Step 2: Enter Deposit Details</label>
+            <input type="number" id="depAmt" placeholder="Enter Amount (₹)" style="width:100%; padding:14px; margin:8px 0; border-radius:10px; border:none; box-sizing: border-box; background: #0f172a; color: white;">
+            
+            <input type="text" id="utr" placeholder="Enter 12-Digit UTR Number" style="width:100%; padding:14px; margin:8px 0; border-radius:10px; border:none; box-sizing: border-box; background: #0f172a; color: white;">
+        </div>
+
+        <button id="subBtn" onclick="submitDep()" style="width:100%; padding:15px; background:#fbbf24; border:none; border-radius:10px; font-weight:bold; color: #070b14; margin-top: 10px; cursor: pointer; transition: 0.3s;">
+            SUBMIT REQUEST
+        </button>
+    </div>
+
+    <div style="margin-top: 20px; color: #ef4444; font-size: 0.8rem; padding: 10px;">
+        ⚠️ Note: Multiple wrong UTR submissions will block your account permanently.
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        const firebaseConfig = { /* Your Config */ };
+        // Paste your exact config here
+        const firebaseConfig = { 
+            apiKey: "AIzaSyCh-1xi3jkIj5hUsmbm3GFGfT_AlWmxYkk",
+            authDomain: "maker-trading-official.firebaseapp.com",
+            databaseURL: "https://maker-trading-official-default-rtdb.firebaseio.com/",
+            projectId: "maker-trading-official",
+            appId: "1:262205995192:web:d7255379855a0fc9489c4d"
+        };
+
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
+        
+        // Safety: Get user phone from storage
         const phone = localStorage.getItem("userPhone");
+        if(!phone) {
+            alert("Session expired! Please login again.");
+            window.location.href = "login.html"; // Redirect to login
+        }
 
-        window.submitDep = () => {
+        window.submitDep = async () => {
             const amt = document.getElementById('depAmt').value;
-            const utr = document.getElementById('utr').value;
-            if(utr.length === 12) {
-                set(ref(db, 'deposits/' + utr), { phone: phone, amount: parseFloat(amt), status: "Pending" });
-                alert("Request Sent! Admin will verify in 30 mins.");
-            } else { alert("Invalid UTR!"); }
+            const utr = document.getElementById('utr').value.trim();
+            const btn = document.getElementById('subBtn');
+
+            // Basic Validations
+            if(!amt || parseFloat(amt) < 100) {
+                alert("Minimum deposit is ₹100");
+                return;
+            }
+            if(utr.length !== 12 || isNaN(utr)) {
+                alert("Please enter a valid 12-digit UTR number.");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = "VERIFYING...";
+
+            try {
+                // 1. Check if UTR already exists to prevent spam
+                const checkRef = ref(db, 'deposits/' + utr);
+                const snapshot = await get(checkRef);
+
+                if(snapshot.exists()) {
+                    alert("This UTR has already been submitted!");
+                    btn.disabled = false;
+                    btn.innerText = "SUBMIT REQUEST";
+                } else {
+                    // 2. Submit new request
+                    await set(ref(db, 'deposits/' + utr), {
+                        phone: phone,
+                        amount: parseFloat(amt),
+                        status: "Pending",
+                        timestamp: new Date().getTime()
+                    });
+                    
+                    alert("Request Sent! Admin will verify and add funds within 30 mins.");
+                    window.location.reload(); // Refresh to clear form
+                }
+            } catch (error) {
+                console.error(error);
+                alert("Connection Error! Try again.");
+                btn.disabled = false;
+                btn.innerText = "SUBMIT REQUEST";
+            }
         };
     </script>
 </body>
-</html>
+    </html>
+    
