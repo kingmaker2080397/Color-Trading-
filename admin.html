@@ -1,180 +1,77 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MAKER PRO ADMIN - SECURE</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maker Admin Control</title>
     <style>
-        :root { --primary: #3b82f6; --bg: #0f172a; --card: #1e293b; --success: #22c55e; --danger: #ef4444; --warning: #fbbf24; }
-        body { background: var(--bg); color: white; font-family: 'Poppins', sans-serif; margin: 0; padding: 15px; }
-        .tab-btn { padding: 12px 24px; background: var(--card); border: 1px solid var(--primary); color: white; cursor: pointer; border-radius: 12px; margin-right: 8px; transition: 0.3s; }
-        .active-tab { background: var(--primary); box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4); }
-        .card { background: var(--card); padding: 20px; border-radius: 18px; margin-top: 15px; border-bottom: 4px solid var(--primary); animation: fadeIn 0.5s; }
-        .req-item { background: #161e2d; padding: 15px; border-radius: 12px; margin-bottom: 12px; border: 1px solid #334155; }
-        .btn-approve { background: var(--success); border: none; padding: 10px 20px; color: white; border-radius: 8px; cursor: pointer; font-weight: bold; }
-        .btn-reject { background: var(--danger); border: none; padding: 10px 20px; color: white; border-radius: 8px; cursor: pointer; font-weight: bold; }
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 15px 0; }
-        .stat-box { padding: 15px; border-radius: 10px; text-align: center; font-size: 1.2rem; font-weight: bold; border: 1px solid #334155; }
-        span.amount { color: var(--warning); font-weight: bold; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        body { background: #070b14; color: white; font-family: sans-serif; padding: 20px; }
+        .box { background: #1e293b; padding: 20px; border-radius: 15px; margin-bottom: 20px; border: 1px solid #3b82f6; }
+        .kyc-card { background: #0f172a; padding: 15px; border-radius: 10px; margin-bottom: 10px; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: none; }
+        .btn-green { background: #22c55e; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
+        .btn-red { background: #ef4444; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <h2 style="color:var(--warning); text-align:center;">🛠️ MAKER CONTROL CENTER</h2>
+    <h2>🛠️ ADMIN CONTROL CENTER</h2>
 
-    <div style="display: flex; overflow-x: auto; padding-bottom: 15px; justify-content: center;">
-        <button id="btn-game" class="tab-btn active-tab" onclick="showTab('game')">🎮 Game</button>
-        <button id="btn-deposit" class="tab-btn" onclick="showTab('deposit')">💰 Deposits</button>
-        <button id="btn-invest" class="tab-btn" onclick="showTab('invest')">📈 Staking</button>
+    <div class="box">
+        <h3>💰 Deposit Settings (USDT)</h3>
+        <p style="font-size:12px; color:#94a3b8;">Current address will be shown to users on recharge page.</p>
+        <input type="text" id="newUsdt" placeholder="Enter New USDT TRC20 Address">
+        <button class="btn-green" onclick="updateUSDT()">UPDATE ADDRESS</button>
     </div>
 
-    <div id="gameTab" class="card">
-        <h3>Live Period: <span id="pId" style="color:var(--primary)">...</span></h3>
-        <div class="stats-grid">
-            <div class="stat-box" style="color:var(--success); background: rgba(34, 197, 94, 0.1);">Green Pool<br>₹<span id="gt">0</span></div>
-            <div class="stat-box" style="color:var(--danger); background: rgba(239, 68, 68, 0.1);">Red Pool<br>₹<span id="rt">0</span></div>
-        </div>
-        <p style="text-align:center; font-size: 1.5rem;">Timer: <span id="timer" style="color:var(--warning);">00s</span></p>
-        <div style="display: flex; gap: 10px;">
-            <button class="btn-approve" style="flex:1;" onclick="setForceResult('Green')">FORCE GREEN</button>
-            <button class="btn-reject" style="flex:1;" onclick="setForceResult('Red')">FORCE RED</button>
-        </div>
-    </div>
-
-    <div id="depositTab" class="card" style="display:none;">
-        <h3>Pending Deposits</h3>
-        <div id="depositList">Fetching data...</div>
-    </div>
-
-    <div id="investTab" class="card" style="display:none;">
-        <h3>Profit Distribution</h3>
-        <p>Current Rate: <span class="amount">0.5% Daily</span></p>
-        <button class="btn-approve" style="width:100%; padding: 15px; background: var(--primary);" onclick="distributeProfit()">
-            PROCESS ALL DAILY PROFITS
-        </button>
+    <div class="box">
+        <h3>🆔 Pending KYC Requests</h3>
+        <div id="kycList">Loading...</div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, onValue, get, update, remove, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        // Paste your credentials here
         const firebaseConfig = { 
             apiKey: "AIzaSyCh-1xi3jkIj5hUsmbm3GFGfT_AlWmxYkk",
-            authDomain: "maker-trading-official.firebaseapp.com",
-            databaseURL: "https://maker-trading-official-default-rtdb.firebaseio.com/",
-            projectId: "maker-trading-official",
-            appId: "1:262205995192:web:d7255379855a0fc9489c4d"
+            databaseURL: "https://maker-trading-official-default-rtdb.firebaseio.com/" 
         };
-
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // --- TAB SYSTEM ---
-        window.showTab = (t) => {
-            document.querySelectorAll('.card').forEach(c => c.style.display = 'none');
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active-tab'));
-            document.getElementById(t+'Tab').style.display = 'block';
-            document.getElementById('btn-'+t).classList.add('active-tab');
+        // Update USDT
+        window.updateUSDT = () => {
+            const val = document.getElementById('newUsdt').value;
+            if(!val) return alert("Enter address!");
+            update(ref(db, 'admin_settings'), { usdt_address: val })
+            .then(() => alert("USDT Address Updated!"));
         };
 
-        // --- GAME LOGIC (30 SECONDS) ---
-        setInterval(() => {
-            let now = new Date();
-            let remSec = 29 - (now.getSeconds() % 30);
-            let periodId = now.getFullYear().toString() + (now.getMonth()+1).toString().padStart(2,'0') + now.getDate().toString().padStart(2,'0') + now.getHours().toString().padStart(2,'0') + now.getMinutes().toString().padStart(2,'0') + (Math.floor(now.getSeconds() / 30));
-            
-            document.getElementById('pId').innerText = periodId;
-            document.getElementById('timer').innerText = remSec + "s";
-            
-            // Sync Pool Data
-            get(ref(db, 'bets/' + periodId)).then(snap => {
-                let g=0, r=0;
-                if(snap.exists()) {
-                    snap.forEach(c => {
-                        let b = c.val();
-                        if(b.choice === 'Green') g += parseFloat(b.amount);
-                        if(b.choice === 'Red') r += parseFloat(b.amount);
-                    });
-                }
-                document.getElementById('gt').innerText = g;
-                document.getElementById('rt').innerText = r;
-            });
-        }, 1000);
-
-        window.setForceResult = (result) => {
-            let pId = document.getElementById('pId').innerText;
-            set(ref(db, 'results/' + pId), { winner: result })
-            .then(() => alert("Next result forced: " + result));
-        };
-
-        // --- DEPOSIT SYSTEM ---
-        onValue(ref(db, 'deposits'), (snap) => {
-            const list = document.getElementById('depositList');
+        // Load KYC
+        onValue(ref(db, 'kyc_requests'), (snap) => {
+            const list = document.getElementById('kycList');
             list.innerHTML = "";
             if(!snap.exists()) { list.innerHTML = "No pending requests."; return; }
             
             snap.forEach(child => {
-                const dep = child.val();
-                const utr = child.key;
-                const item = document.createElement('div');
-                item.className = "req-item";
-                item.innerHTML = `
-                    <p>User: <b>${dep.phone}</b></p>
-                    <p>Amount: <span class="amount">₹${dep.amount}</span></p>
-                    <p>UTR: ${utr}</p>
-                    <button class="btn-approve" onclick="approveDep('${utr}', '${dep.phone}', ${dep.amount})">Approve</button>
-                    <button class="btn-reject" onclick="rejectDep('${utr}')">Reject</button>
+                const d = child.val();
+                list.innerHTML += `
+                    <div class="kyc-card">
+                        <p><b>User:</b> ${d.phone} | <b>Name:</b> ${d.name}</p>
+                        <p><b>ID No:</b> ${d.idNumber}</p>
+                        <a href="${d.photoUrl}" target="_blank" style="color:#fbbf24;">[ VIEW ID CARD PHOTO ]</a><br><br>
+                        <button class="btn-green" onclick="actionKYC('${d.phone}', 'Verified')">Approve</button>
+                        <button class="btn-red" onclick="actionKYC('${d.phone}', 'Rejected')">Reject</button>
+                    </div>
                 `;
-                list.appendChild(item);
             });
         });
 
-        window.approveDep = async (utr, phone, amount) => {
-            if(!confirm("Add ₹" + amount + " to user wallet?")) return;
-            
-            const userRef = ref(db, 'users/' + phone);
-            const userSnap = await get(userRef);
-            
-            if(userSnap.exists()) {
-                let currentWallet = parseFloat(userSnap.val().wallet || 0);
-                await update(userRef, { wallet: currentWallet + parseFloat(amount) });
-                await remove(ref(db, 'deposits/' + utr));
-                alert("Success! Wallet updated.");
-            } else {
-                alert("User not found in database.");
-            }
-        };
-
-        window.rejectDep = (utr) => {
-            if(confirm("Delete this request?")) remove(ref(db, 'deposits/' + utr));
-        };
-
-        // --- PROFIT DISTRIBUTION ---
-        window.distributeProfit = async () => {
-            const investSnap = await get(ref(db, 'investments'));
-            if(!investSnap.exists()) return alert("No active stakings found.");
-
-            let count = 0;
-            const updates = {};
-            
-            // Is logic mein hum har investment par 0.5% calculate karke user wallet mein bhejenge
-            for (const [key, data] of Object.entries(investSnap.val())) {
-                let profit = parseFloat(data.amount) * 0.005;
-                const userRef = ref(db, 'users/' + data.phone);
-                const userSnap = await get(userRef);
-                
-                if(userSnap.exists()){
-                    let newBal = parseFloat(userSnap.val().wallet || 0) + profit;
-                    await update(userRef, { wallet: newBal });
-                    count++;
-                }
-            }
-            alert("Profit distributed to " + count + " users.");
+        window.actionKYC = (uPhone, status) => {
+            update(ref(db, 'users/' + uPhone), { kycStatus: status });
+            remove(ref(db, 'kyc_requests/' + uPhone));
+            alert("User " + status);
         };
     </script>
 </body>
-            </html>
-    
+</html>
