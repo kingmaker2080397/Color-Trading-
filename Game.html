@@ -6,33 +6,40 @@
     <style>
         :root { --primary: #3b82f6; --bg: #070b14; --card: #1e293b; --gold: #fbbf24; }
         body { margin: 0; font-family: sans-serif; background: var(--bg); color: white; text-align: center; }
-        .card { background: var(--card); margin: 20px; padding: 25px; border-radius: 25px; border: 1px solid #3b82f6; }
-        .timer { font-size: 35px; color: var(--gold); font-weight: bold; }
-        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 20px; }
-        .btn { padding: 15px; border: none; border-radius: 12px; font-weight: bold; color: white; cursor: pointer; }
-        .green { background: #22c55e; box-shadow: 0 4px 0 #15803d; }
-        .red { background: #ef4444; box-shadow: 0 4px 0 #b91c1c; }
-
-        /* Modern Popup Overlay */
-        #gamePop { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10000; }
-        .pop-content { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #1e293b; width: 280px; padding: 30px; border-radius: 30px; border-top: 5px solid var(--gold); text-align: center; }
-        .pop-btn { background: var(--gold); color: black; border: none; padding: 10px 30px; border-radius: 20px; font-weight: bold; margin-top: 20px; }
+        .card { background: var(--card); margin: 15px; padding: 20px; border-radius: 25px; border-bottom: 4px solid var(--primary); box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
+        .timer { font-size: 40px; color: var(--gold); font-weight: bold; text-shadow: 0 0 10px rgba(251,191,36,0.3); }
+        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 15px; }
+        .btn { padding: 20px; border: none; border-radius: 15px; font-weight: bold; color: white; cursor: pointer; font-size: 16px; transition: 0.2s; }
+        .green { background: linear-gradient(135deg, #22c55e, #16a34a); box-shadow: 0 6px 0 #15803d; }
+        .red { background: linear-gradient(135deg, #ef4444, #dc2626); box-shadow: 0 6px 0 #b91c1c; }
+        .btn:active { transform: translateY(4px); box-shadow: none; }
+        
+        /* Popup System */
+        #gamePop { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 10000; }
+        .pop-content { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #1e293b; width: 280px; padding: 30px; border-radius: 30px; border: 2px solid var(--gold); text-align: center; }
+        .pop-btn { background: var(--gold); border: none; padding: 10px 40px; border-radius: 20px; font-weight: bold; margin-top: 20px; cursor: pointer; }
     </style>
 </head>
 <body>
 
     <div id="gamePop">
         <div class="pop-content">
-            <h1 id="popIcon" style="font-size: 50px; margin: 0;">🏆</h1>
-            <h2 id="popTitle" style="margin: 10px 0;">WINNER!</h2>
-            <p id="popMsg" style="color: #94a3b8;">You won ₹200</p>
+            <h1 id="popIcon" style="font-size: 60px; margin: 0;">🏆</h1>
+            <h2 id="popTitle">RESULT</h2>
+            <p id="popMsg">Checking your trade...</p>
             <button class="pop-btn" onclick="document.getElementById('gamePop').style.display='none'">OK</button>
         </div>
     </div>
 
+    <div style="padding: 20px; background: linear-gradient(180deg, #1e40af, #070b14);">
+        <h2>Win Go 1Min</h2>
+    </div>
+
     <div class="card">
-        <p style="color:#94a3b8;">Period ID: <b id="period">--------</b></p>
-        <div class="timer" id="timer">00:00</div>
+        <div style="display: flex; justify-content: space-between;">
+            <div style="text-align:left;"><small style="color:#94a3b8;">Period ID</small><br><b id="pId" style="color:var(--primary);">--------</b></div>
+            <div style="text-align:right;"><small style="color:#94a3b8;">Timer</small><br><div class="timer" id="timer">00:00</div></div>
+        </div>
     </div>
 
     <div class="btn-grid">
@@ -42,45 +49,35 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, onValue, update, push, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, onValue, set, push } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        const firebaseConfig = { 
-            apiKey: "AIzaSyCh-1xi3jkIj5hUsmbm3GFGfT_AlWmxYkk",
-            databaseURL: "https://maker-trading-official-default-rtdb.firebaseio.com/" 
-        };
+        const firebaseConfig = { apiKey: "AIzaSyCh-1xi3jkIj5hUsmbm3GFGfT_AlWmxYkk", databaseURL: "https://maker-trading-official-default-rtdb.firebaseio.com/" };
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
+        const phone = localStorage.getItem("userPhone");
 
-        // Show Game Popup Function
-        window.gameResultPop = (status, msg) => {
-            const p = document.getElementById('gamePop');
-            document.getElementById('popTitle').innerText = status;
+        window.showPop = (title, msg, icon, color) => {
+            document.getElementById('popTitle').innerText = title;
             document.getElementById('popMsg').innerText = msg;
-            document.getElementById('popIcon').innerText = status === 'WIN' ? '🏆' : '💸';
-            document.getElementById('popTitle').style.color = status === 'WIN' ? '#22c55e' : '#ef4444';
-            p.style.display = 'block';
+            document.getElementById('popIcon').innerText = icon;
+            document.getElementById('popTitle').style.color = color;
+            document.getElementById('gamePop').style.display = 'block';
         };
 
-        window.placeTrade = (color) => {
-            const amt = prompt("Enter Amount:"); // Ye browser ka h, aap chahein to isko b custom bana sakte h
-            if(!amt) return;
-            
-            // Yahan trade lagne ka popup
-            gameResultPop("PENDING", "Trade Placed on " + color);
-            setTimeout(() => { document.getElementById('gamePop').style.display='none'; }, 1500);
-            
-            // Trade logic here... (Firebase set)
-        };
-
-        // Sync Timer
         onValue(ref(db, 'game_state'), (snap) => {
             const d = snap.val();
-            document.getElementById('period').innerText = d.activePeriod;
+            document.getElementById('pId').innerText = d.activePeriod;
             document.getElementById('timer').innerText = "00:" + (d.timer < 10 ? "0"+d.timer : d.timer);
-            
-            // Jab timer khatam ho aur result aaye, toh call karein:
-            // gameResultPop("WIN", "Congratulation! You won ₹400");
         });
+
+        window.placeTrade = (color) => {
+            const amt = prompt("Enter Amount (₹):", "100");
+            if(!amt || amt < 10) return;
+            const period = document.getElementById('pId').innerText;
+            set(push(ref(db, 'bets/' + period)), { user: phone, amount: parseFloat(amt), color: color });
+            showPop("SUCCESS", "Trade Placed on " + color, "✅", "#22c55e");
+            setTimeout(() => { document.getElementById('gamePop').style.display='none'; }, 1500);
+        };
     </script>
 </body>
 </html>
