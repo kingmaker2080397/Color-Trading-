@@ -7,157 +7,39 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <style>
         :root { --blue: #1e3a8a; --bg: #070b14; --card: #1e293b; --gold: #fbbf24; --green: #22c55e; --red: #ef4444; }
-        body { margin: 0; font-family: 'Poppins', sans-serif; background: var(--bg); color: white; text-align: center; padding-bottom: 50px; }
+        body { margin: 0; font-family: 'Poppins', sans-serif; background: var(--bg); color: white; text-align: center; }
         
-        /* Timer & Header */
-        .game-header { background: linear-gradient(180deg, #1e40af, var(--bg)); padding: 30px; font-size: 22px; font-weight: bold; }
-        .timer-card { background: var(--card); margin: -20px 20px 20px 20px; padding: 20px; border-radius: 25px; border-bottom: 4px solid var(--gold); position: relative; z-index: 10; }
-        .timer-val { font-size: 48px; color: var(--gold); font-weight: bold; font-family: monospace; }
+        /* Header & Balance Section */
+        .game-header { background: linear-gradient(180deg, #1e40af, var(--bg)); padding: 30px 20px; }
+        .balance-card { background: rgba(255,255,255,0.05); margin: 0 20px; padding: 15px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); }
         
-        /* Buttons */
-        .btn-box { display: flex; justify-content: center; gap: 15px; margin-top: 20px; }
-        .bet-btn { flex: 1; padding: 18px; border-radius: 15px; border: none; color: white; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.2s; max-width: 150px; }
+        /* Timer Section */
+        .timer-card { background: var(--card); margin: 20px; padding: 25px; border-radius: 30px; border-bottom: 4px solid var(--gold); position: relative; }
+        .timer-val { font-size: 50px; color: var(--gold); font-weight: bold; font-family: 'Courier New', monospace; }
+        .period-info { display: flex; justify-content: space-between; font-size: 13px; color: #94a3b8; margin-bottom: 10px; }
+
+        /* Betting Buttons */
+        .btn-container { display: flex; justify-content: center; gap: 15px; margin: 20px; }
+        .bet-btn { flex: 1; padding: 18px; border-radius: 15px; border: none; color: white; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.2s; }
         .btn-green { background: var(--green); box-shadow: 0 5px 0 #15803d; }
         .btn-red { background: var(--red); box-shadow: 0 5px 0 #991b1b; }
         .bet-btn:active { transform: translateY(3px); box-shadow: none; }
 
-        /* Leaderboard */
-        .leaderboard { background: var(--card); margin: 20px; padding: 15px; border-radius: 20px; border: 1px solid #334155; text-align: left; }
-        .entry { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #0f172a; font-size: 13px; animation: fadeIn 0.5s; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        /* Result Popup */
+        #resPop { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 10000; }
+        .pop-card { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #1e293b; width: 300px; padding: 30px; border-radius: 35px; border: 2px solid var(--gold); text-align: center; }
+        .pop-btn { background: var(--gold); color: black; border: none; padding: 12px 40px; border-radius: 25px; font-weight: bold; margin-top: 20px; cursor: pointer; width: 100%; }
 
-        /* Professional Popup */
-        #resPop { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 10000; }
-        .pop-content { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #1e293b; width: 300px; padding: 30px; border-radius: 35px; border: 2px solid var(--gold); text-align: center; }
-        .pop-btn { background: var(--gold); border: none; padding: 12px 50px; border-radius: 25px; font-weight: bold; margin-top: 20px; cursor: pointer; }
+        /* Leaderboard */
+        .leaderboard { background: var(--card); margin: 20px; padding: 15px; border-radius: 20px; text-align: left; }
+        .l-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #0f172a; font-size: 13px; }
     </style>
 </head>
 <body>
 
     <div id="resPop">
-        <div class="pop-content">
+        <div class="pop-card">
             <h1 id="popEmoji" style="font-size: 70px; margin: 0;">🎉</h1>
-            <h2 id="popTitle" style="font-size: 28px;">YOU WIN!</h2>
-            <p id="popDesc" style="color: #94a3b8;">The winning color was Green</p>
-            <button class="pop-btn" onclick="closePop()">CONTINUE</button>
-        </div>
-    </div>
-
-    <div class="game-header">Win Go 1Min</div>
-
-    <div class="timer-card">
-        <div style="display:flex; justify-content:space-between; font-size:12px; color:#94a3b8; margin-bottom: 5px;">
-            <span>Period: <b id="periodID" style="color:var(--gold)">Loading...</b></span>
-            <span>Timer</span>
-        </div>
-        <div id="timerDisplay" class="timer-val">00:00</div>
-    </div>
-
-    <div class="btn-box">
-        <button class="bet-btn btn-green" onclick="placeBet('Green')">JOIN GREEN</button>
-        <button class="bet-btn btn-red" onclick="placeBet('Red')">JOIN RED</button>
-    </div>
-
-    <div class="leaderboard">
-        <h4 style="margin: 0 0 10px 0; color: var(--gold); display: flex; align-items: center; gap: 8px;">
-            🏆 Live Leaderboard
-        </h4>
-        <div id="boardList">
-            </div>
-    </div>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, onValue, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-
-        const firebaseConfig = { 
-            apiKey: "AIzaSyCh-1xi3jkIj5hUsmbm3GFGfT_AlWmxYkk", 
-            databaseURL: "https://maker-trading-official-default-rtdb.firebaseio.com/" 
-        };
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-
-        let userBet = null;
-        let lastAnnouncedPeriod = "";
-
-        // --- 1. Real-time Timer & Period Logic ---
-        onValue(ref(db, 'game_state'), (snap) => {
-            const data = snap.val();
-            if(!data) return;
-
-            const time = parseInt(data.timer) || 0;
-            const period = data.activePeriod || "---";
-            
-            // Format Timer 00:00
-            const displayTime = `00:${time < 10 ? '0' + time : time}`;
-            document.getElementById('timerDisplay').innerText = displayTime;
-            document.getElementById('periodID').innerText = period;
-
-            // Result Check at 2 seconds
-            if (time === 2 && userBet !== null && period !== lastAnnouncedPeriod) {
-                lastAnnouncedPeriod = period;
-                const winColor = (data.forcedResult === "AUTO" || !data.forcedResult) ? data.lastResult : data.forcedResult;
-                showResult(winColor);
-            }
-        });
-
-        // --- 2. Bet Logic ---
-        window.placeBet = (color) => {
-            userBet = color;
-            // Create a small toast message instead of alert
-            const toast = document.createElement("div");
-            toast.innerText = "Trade Placed on " + color;
-            toast.style = "position:fixed; bottom:80px; left:50%; transform:translateX(-50%); background:#22c55e; color:white; padding:10px 25px; border-radius:30px; font-size:14px; z-index:20000;";
-            document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 2000);
-        };
-
-        // --- 3. Professional Result Popup ---
-        function showResult(winColor) {
-            const pop = document.getElementById('resPop');
-            const title = document.getElementById('popTitle');
-            const emoji = document.getElementById('popEmoji');
-            const desc = document.getElementById('popDesc');
-
-            if (userBet === winColor) {
-                title.innerText = "YOU WIN!";
-                title.style.color = "#22c55e";
-                emoji.innerText = "🎉";
-                desc.innerText = `The color was ${winColor}. Profit added to wallet!`;
-            } else {
-                title.innerText = "SORRY, LOSS";
-                title.style.color = "#ef4444";
-                emoji.innerText = "💔";
-                desc.innerText = `The color was ${winColor}. Better luck next time!`;
-            }
-            pop.style.display = 'block';
-            userBet = null; // Reset for next round
-        }
-
-        window.closePop = () => {
-            document.getElementById('resPop').style.display = 'none';
-        };
-
-        // --- 4. Fake Leaderboard Logic ---
-        const flags = ['🇮🇳','🇵🇰','🇦🇺','🇬🇧','🇺🇸','🇦🇪'];
-        const users = ['Ali','John','Sana','Arjun','Musa','Alex'];
-
-        function addFakeWinner() {
-            const f = flags[Math.floor(Math.random()*flags.length)];
-            const u = users[Math.floor(Math.random()*users.length)] + "***" + Math.floor(Math.random()*99);
-            const amt = (Math.random()*100 + 10).toFixed(2);
-            
-            const div = document.createElement('div');
-            div.className = 'entry';
-            div.innerHTML = `<span>${f} ${u}</span> <span style="color:#22c55e;">+$${amt} Win</span>`;
-            
-            const list = document.getElementById('boardList');
-            list.prepend(div);
-            if(list.children.length > 5) list.lastChild.remove();
-        }
-        setInterval(addFakeWinner, 3000);
-
-    </script>
-</body>
-    </html>
-    
+            <h2 id="popTitle" style="font-size: 28px; margin: 10px 0;">YOU WIN!</h2>
+            <p id="popDesc" style="color: #94a3b8;">Profit added to your
+                
