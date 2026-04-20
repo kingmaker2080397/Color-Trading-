@@ -1,154 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MAKER GOLD - Home</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maker Gold - Home</title>
     <style>
-        :root { --primary: #3b82f6; --gold: #fbbf24; --bg: #070b14; --card: #1e293b; }
-        body { margin: 0; font-family: 'Poppins', sans-serif; background: var(--bg); color: white; }
-
-        /* 1. Fake Payout Patti Style */
-        .ticker-wrap {
-            background: rgba(34, 197, 94, 0.1);
-            border-bottom: 1px solid #22c55e;
-            padding: 10px;
-            overflow: hidden;
-            white-space: nowrap;
-        }
-        .ticker-wrap marquee { color: #22c55e; font-size: 13px; font-weight: bold; }
-
-        /* Header Section */
-        .header { padding: 30px 20px; text-align: center; background: linear-gradient(180deg, #1e3a8a, var(--bg)); }
-        .balance-card { 
-            background: var(--card); padding: 25px; border-radius: 25px; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5); border-bottom: 3px solid var(--gold);
-            margin-top: -40px; position: relative; z-index: 10;
-        }
-        .bal-title { font-size: 12px; color: #94a3b8; letter-spacing: 1px; }
-        .bal-amount { font-size: 32px; color: var(--gold); font-weight: 600; margin: 5px 0; }
-
-        /* Grid Menu */
-        .menu-grid { 
-            display: grid; grid-template-columns: 1fr 1fr; gap: 15px; 
-            padding: 25px 15px; margin-top: 10px;
-        }
-        .menu-item { 
-            background: var(--card); padding: 20px; border-radius: 20px; 
-            text-align: center; cursor: pointer; transition: 0.3s;
-            border: 1px solid rgba(255,255,255,0.05);
-        }
-        .menu-item:active { transform: scale(0.95); }
-        .menu-item i { font-size: 30px; display: block; margin-bottom: 10px; }
-        .menu-item span { font-size: 14px; font-weight: 600; }
-
-        /* Banner */
-        .banner { 
-            margin: 15px; border-radius: 15px; height: 150px; 
-            background: linear-gradient(45deg, #1e3a8a, #3b82f6);
-            display: flex; align-items: center; justify-content: center;
-            font-weight: bold; font-size: 20px; border: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .footer-nav {
-            position: fixed; bottom: 0; width: 100%; background: #0f172a;
-            display: flex; justify-content: space-around; padding: 15px 0;
-            border-top: 1px solid #1e293b;
-        }
-        .nav-link { color: #94a3b8; text-decoration: none; font-size: 12px; }
-        .nav-active { color: var(--gold); }
+        :root { --primary: #3b82f6; --bg: #070b14; --card: #1e293b; --gold: #fbbf24; }
+        body { margin: 0; font-family: sans-serif; background: var(--bg); color: white; }
+        .ticker { background: rgba(34,197,94,0.1); color: #22c55e; padding: 10px; font-size: 12px; font-weight: bold; border-bottom: 1px solid #22c55e; overflow: hidden; white-space: nowrap; }
+        .header { padding: 40px 20px; text-align: center; background: linear-gradient(180deg, #1e40af, var(--bg)); }
+        .bal-card { background: var(--card); width: 85%; margin: -40px auto 20px; padding: 25px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; border-bottom: 3px solid var(--gold); }
+        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 20px; }
+        .menu-item { background: var(--card); padding: 20px; border-radius: 20px; text-align: center; border: 1px solid rgba(255,255,255,0.05); }
+        .footer { position: fixed; bottom: 0; width: 100%; background: #0f172a; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #1e293b; }
+        .nav-link { color: #94a3b8; text-decoration: none; font-size: 11px; text-align: center; }
     </style>
 </head>
 <body>
 
-    <div class="ticker-wrap">
-        <marquee behavior="scroll" direction="left" scrollamount="6">
-            <span id="tickerText"></span>
-        </marquee>
-    </div>
+    <div class="ticker"><marquee id="tickerText">⚡ Loading withdrawals...</marquee></div>
 
     <div class="header">
-        <h2 style="margin: 0; letter-spacing: 2px;">MAKER GOLD</h2>
-        <p style="font-size: 11px; color: #94a3b8;">WORLD CLASS TRADING PLATFORM</p>
+        <h1>MAKER GOLD</h1>
+        <p style="color: #94a3b8; font-size: 11px;">PROFESSIONAL TRADING PLATFORM</p>
     </div>
 
-    <div style="padding: 0 20px;">
-        <div class="balance-card">
-            <div class="bal-title">AVAILABLE BALANCE</div>
-            <div class="bal-amount" id="uBal">₹ 0.00</div>
-            <button onclick="location.href='recharge.html'" style="background: var(--gold); border:none; padding: 8px 20px; border-radius: 20px; font-weight: bold; cursor:pointer;">RECHARGE</button>
-        </div>
-    </div>
-
-    <div class="banner">
-        🚀 WIN UP TO 200% <br> EVERY 1 MINUTE
+    <div class="bal-card">
+        <small style="color: #94a3b8;">TOTAL BALANCE</small>
+        <h2 id="uBal" style="color: var(--gold); margin: 10px 0; font-size: 30px;">₹ 0.00</h2>
+        <button onclick="location.href='deposit.html'" style="background: var(--gold); border: none; padding: 8px 25px; border-radius: 20px; font-weight: bold;">RECHARGE</button>
     </div>
 
     <div class="menu-grid">
-        <div class="menu-item" onclick="location.href='game.html'" style="border: 1px solid #22c55e;">
-            <div style="font-size: 35px;">🎮</div>
-            <span>Win Go Game</span>
-        </div>
-        <div class="menu-item" onclick="location.href='staking.html'" style="border: 1px solid #fbbf24;">
-            <div style="font-size: 35px;">📈</div>
-            <span>Staking Lab</span>
-        </div>
-        <div class="menu-item" onclick="location.href='promotion.html'">
-            <div style="font-size: 35px;">🎁</div>
-            <span>Refer & Earn</span>
-        </div>
-        <div class="menu-item" onclick="location.href='support.html'">
-            <div style="font-size: 35px;">🎧</div>
-            <span>Support</span>
-        </div>
+        <div class="menu-item" onclick="location.href='Game.html'">🎮<br><b>Win Go</b></div>
+        <div class="menu-item" onclick="location.href='investment.html'">📈<br><b>Staking</b></div>
+        <div class="menu-item" onclick="location.href='promotion.html'">🎁<br><b>Invite</b></div>
+        <div class="menu-item" onclick="location.href='support.html'">🎧<br><b>Support</b></div>
     </div>
 
-    <div style="height: 100px;"></div> <nav class="footer-nav">
-        <a href="home.html" class="nav-link nav-active">🏠<br>Home</a>
-        <a href="game.html" class="nav-link">🎮<br>Win Go</a>
+    <div class="footer">
+        <a href="home.html" style="color:var(--gold);" class="nav-link">🏠<br>Home</a>
+        <a href="Game.html" class="nav-link">🎮<br>Win Go</a>
         <a href="promotion.html" class="nav-link">🎁<br>Invite</a>
         <a href="profile.html" class="nav-link">👤<br>Mine</a>
-    </nav>
+    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        const firebaseConfig = { 
-            apiKey: "AIzaSyCh-1xi3jkIj5hUsmbm3GFGfT_AlWmxYkk",
-            databaseURL: "https://maker-trading-official-default-rtdb.firebaseio.com/" 
-        };
+        const firebaseConfig = { apiKey: "AIzaSyCh-1xi3jkIj5hUsmbm3GFGfT_AlWmxYkk", databaseURL: "https://maker-trading-official-default-rtdb.firebaseio.com/" };
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const phone = localStorage.getItem("userPhone");
 
-        if(!phone) window.location.href = "login.html";
-
-        // 1. Load Real Balance
         onValue(ref(db, 'users/' + phone), (snap) => {
-            if(snap.exists()) {
-                const bal = snap.val().wallet || 0;
-                document.getElementById('uBal').innerText = "₹ " + parseFloat(bal).toFixed(2);
-            }
+            if(snap.exists()) document.getElementById('uBal').innerText = "₹ " + snap.val().wallet.toFixed(2);
         });
 
-        // 2. Start Fake Payout Patti Logic
-        function startTicker() {
-            const names = ["Zeeshan", "Ahmed", "Priya", "Rahul", "Saniya", "Vikram", "Abbas", "Karan", "Mehak", "Arjun", "Zoya", "Yash"];
-            const amounts = ["1200", "5000", "850", "15000", "2200", "900", "35000", "4300", "12000", "6500"];
-            let content = "";
-            
-            for(let i=0; i<20; i++) {
-                let n = names[Math.floor(Math.random() * names.length)];
-                let a = amounts[Math.floor(Math.random() * amounts.length)];
-                content += ` ⚡ User ${n}*** successfully withdrew ₹${a} | `;
-            }
-            document.getElementById('tickerText').innerHTML = content + content;
-        }
-        startTicker();
-
+        // Fake Payouts
+        const names = ["Zeeshan", "Ahmed", "Priya", "Rahul", "Saniya"];
+        let txt = "";
+        for(let i=0; i<10; i++) txt += `⚡ User ${names[Math.floor(Math.random()*5)]}*** withdrew ₹${(Math.random()*5000).toFixed(0)} | `;
+        document.getElementById('tickerText').innerText = txt;
     </script>
 </body>
             </html>
-    
+                                                                 
