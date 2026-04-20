@@ -3,63 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Win Go 1Min - Official Trading</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <title>Win Go 1Min - Pro Edition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        :root { --blue: #1e3a8a; --bg: #070b14; --card: #1e293b; --gold: #fbbf24; --green: #22c55e; --red: #ef4444; }
-        body { margin: 0; font-family: 'Poppins', sans-serif; background: var(--bg); color: white; text-align: center; }
-        .game-header { background: linear-gradient(180deg, #1e40af, var(--bg)); padding: 30px 20px; }
-        .balance-card { background: rgba(255,255,255,0.05); margin: 0 20px; padding: 20px; border-radius: 15px; border: 1px solid var(--gold); }
-        .timer-card { background: var(--card); margin: 20px; padding: 30px; border-radius: 30px; border-bottom: 4px solid var(--gold); }
-        .timer-val { font-size: 60px; color: var(--gold); font-weight: bold; font-family: 'Courier New', monospace; }
-        
-        /* Trade Input Section */
-        .trade-input-box { margin: 20px; padding: 15px; background: var(--card); border-radius: 15px; border: 1px solid #334155; }
-        .trade-input-box input { width: 80%; padding: 10px; border-radius: 10px; border: 1px solid var(--gold); background: #0f172a; color: white; text-align: center; font-size: 18px; outline: none; }
-        
-        .btn-grid { display: flex; justify-content: center; gap: 15px; margin: 10px 20px; }
-        .bet-btn { flex: 1; padding: 20px; border-radius: 20px; border: none; color: white; font-weight: bold; font-size: 18px; cursor: pointer; text-transform: uppercase; }
-        .btn-green { background: var(--green); box-shadow: 0 6px 0 #15803d; }
-        .btn-red { background: var(--red); box-shadow: 0 6px 0 #991b1b; }
-        
-        #resPop { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 10000; backdrop-filter: blur(8px); }
-        .pop-card { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #1e293b; width: 320px; padding: 40px 20px; border-radius: 40px; border: 2px solid var(--gold); text-align: center; }
+        :root { 
+            --blue: #1e40af; --bg: #030712; --card: #111827; 
+            --gold: #fbbf24; --green: #10b981; --red: #f43f5e; 
+            --glass: rgba(255, 255, 255, 0.03);
+        }
+        body { margin: 0; font-family: 'Poppins', sans-serif; background: var(--bg); color: #f3f4f6; overflow-x: hidden; }
+        .game-header { background: linear-gradient(180deg, #1e3a8a 0%, var(--bg) 100%); padding: 40px 20px; border-bottom: 1px solid var(--glass); }
+        .balance-card { background: var(--glass); backdrop-filter: blur(10px); margin: 0 auto; max-width: 400px; padding: 25px; border-radius: 24px; border: 1px solid rgba(251, 191, 36, 0.3); box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
+        .timer-card { background: var(--card); margin: -20px 20px 20px 20px; padding: 25px; border-radius: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); border: 1px solid var(--glass); }
+        .timer-val { font-size: 55px; color: var(--gold); font-weight: 700; letter-spacing: -2px; font-variant-numeric: tabular-nums; text-align: center; }
+        .bet-container { padding: 0 20px; max-width: 500px; margin: 0 auto; }
+        .input-wrapper { background: var(--card); padding: 20px; border-radius: 20px; border: 1px solid #1f2937; margin-bottom: 20px; }
+        input[type="number"] { width: 100%; background: #030712; border: 2px solid #374151; padding: 15px; border-radius: 12px; color: var(--gold); font-size: 20px; text-align: center; font-weight: 600; outline: none; }
+        .btn-grid { display: flex; gap: 15px; margin-bottom: 30px; }
+        .bet-btn { flex: 1; padding: 18px; border-radius: 16px; border: none; color: white; font-weight: 600; font-size: 16px; cursor: pointer; transition: 0.2s; }
+        .btn-green { background: var(--green); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3); }
+        .btn-red { background: var(--red); box-shadow: 0 4px 15px rgba(244, 63, 94, 0.3); }
+        #resPop { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; backdrop-filter: blur(12px); }
+        .pop-card { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #1f2937; width: 85%; max-width: 350px; padding: 40px 20px; border-radius: 32px; border: 1px solid rgba(255,255,255,0.1); text-align: center; }
     </style>
 </head>
 <body>
 
     <div id="resPop">
         <div class="pop-card">
-            <div id="popEmoji" style="font-size: 80px;">🎉</div>
-            <h2 id="popTitle" style="font-size: 32px; margin: 0;">YOU WIN!</h2>
-            <p id="popDesc" style="color: #94a3b8; margin-top: 15px;">Result updated in your wallet.</p>
-            <button onclick="document.getElementById('resPop').style.display='none'" style="background:var(--gold); padding:15px 50px; border-radius:30px; border:none; font-weight:bold; margin-top:30px; cursor:pointer;">CONTINUE</button>
+            <div id="popEmoji" style="font-size: 70px; margin-bottom: 10px;">🎉</div>
+            <h2 id="popTitle" style="font-size: 28px; margin: 0;">YOU WIN!</h2>
+            <p id="popDesc" style="color: #94a3b8; margin: 15px 0; font-size: 14px;"></p>
+            <button onclick="closePopup()" style="width:100%; background:var(--gold); padding:16px; border-radius:15px; border:none; font-weight:bold; cursor:pointer; color:#000;">BET AGAIN</button>
         </div>
     </div>
 
     <div class="game-header">
         <div class="balance-card">
-            <div style="font-size: 12px; color: #94a3b8;">ACCOUNT BALANCE</div>
-            <div style="font-size: 28px; font-weight: bold; color: var(--gold);" id="walletDisp">$ 0.00</div>
+            <div style="font-size: 11px; color: #94a3b8; letter-spacing: 2px;">AVAILABLE BALANCE</div>
+            <div style="font-size: 32px; font-weight: 700; color: var(--gold); margin-top: 5px;" id="walletDisp">$ 0.00</div>
         </div>
     </div>
 
     <div class="timer-card">
-        <div style="display:flex; justify-content:space-between; font-size:13px; color:#94a3b8; margin-bottom:10px;">
-            <span>Period ID: <b id="periodID" style="color:var(--gold)">Wait...</b></span>
-            <span>Timer</span>
+        <div style="display:flex; justify-content:space-between; font-size:12px; color:#6b7280; font-weight:600;">
+            <span>ID: <b id="periodID" style="color:var(--gold)">--</b></span>
+            <span>TIME REMAINING</span>
         </div>
-        <div id="timerDisplay" class="timer-val">00:00</div>
+        <div id="timerDisplay" class="timer-val">00:60</div>
     </div>
 
-    <div class="trade-input-box">
-        <p style="font-size: 12px; color: #94a3b8; margin-bottom: 8px;">ENTER TRADE AMOUNT ($1 - $20)</p>
-        <input type="number" id="betAmountInput" value="1" min="1" max="20" placeholder="Max $20">
-    </div>
+    <div class="bet-container">
+        <div class="input-wrapper">
+            <div style="font-size: 11px; color: #6b7280; margin-bottom: 10px; font-weight: 600;">TRADE AMOUNT ($1 - $20)</div>
+            <input type="number" id="betAmountInput" value="1" min="1" max="20">
+        </div>
 
-    <div class="btn-grid">
-        <button class="bet-btn btn-green" onclick="placeTrade('Green')">Join Green</button>
-        <button class="bet-btn btn-red" onclick="placeTrade('Red')">Join Red</button>
+        <div class="btn-grid">
+            <button class="bet-btn btn-green" onclick="placeTrade('Green')">JOIN GREEN</button>
+            <button class="bet-btn btn-red" onclick="placeTrade('Red')">JOIN RED</button>
+        </div>
     </div>
 
     <script type="module">
@@ -72,78 +75,74 @@
         };
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-        const phone = localStorage.getItem("userPhone");
+        const phone = localStorage.getItem("userPhone") || "0000000000";
 
         let activeBet = null;
         let activeAmount = 0;
-        let lastPeriod = "";
+        let currentPeriod = "";
 
-        // 1. Live Wallet Sync
+        // Wallet Sync
         onValue(ref(db, `users/${phone}/wallet`), (snap) => {
-            const val = snap.val() || 0;
-            document.getElementById('walletDisp').innerText = "$ " + parseFloat(val).toFixed(2);
+            document.getElementById('walletDisp').innerText = "$ " + parseFloat(snap.val() || 0).toFixed(2);
         });
 
-        // 2. Timer & Game Logic
+        // Game Engine Sync
         onValue(ref(db, 'game_state'), async (snap) => {
             const data = snap.val();
             if(!data) return;
 
-            let time = parseInt(data.timer) || 0;
+            let time = parseInt(data.timer);
             document.getElementById('timerDisplay').innerText = `00:${time < 10 ? '0'+time : time}`;
-            document.getElementById('periodID').innerText = data.activePeriod || "---";
-
-            // Result Check at 2s
-            if(time === 2 && activeBet !== null && data.activePeriod !== lastPeriod) {
-                lastPeriod = data.activePeriod;
-                const winColor = (data.forcedResult === "AUTO" || !data.forcedResult) ? data.lastResult : data.forcedResult;
-                processTradeResult(winColor);
+            
+            // Period change detect karna
+            if (data.activePeriod !== currentPeriod) {
+                if (activeBet !== null) {
+                    processResult(data.lastResult);
+                }
+                currentPeriod = data.activePeriod;
+                document.getElementById('periodID').innerText = currentPeriod;
             }
         });
 
-        // 3. Place Trade with $1 - $20 Validation
         window.placeTrade = async (color) => {
             const amt = parseFloat(document.getElementById('betAmountInput').value);
-            
-            // Validation
-            if(isNaN(amt) || amt < 1) return alert("Minimum trade is $1");
-            if(amt > 20) return alert("Maximum trade is $20");
+            if(amt < 1 || amt > 20 || isNaN(amt)) return alert("Limit: $1 to $20");
 
             const userSnap = await get(ref(db, `users/${phone}`));
-            const currentBal = userSnap.val().wallet || 0;
+            const balance = userSnap.val().wallet || 0;
 
-            if(amt > currentBal) return alert("Insufficient Balance!");
+            if(amt > balance) return alert("Low Balance!");
 
             activeBet = color;
             activeAmount = amt;
-            alert(`Trade Locked: ${color} for $${amt}`);
+            alert(`Trade Set: ${color} ($${amt})`);
         };
 
-        // 4. Final Result Calculation
-        async function processTradeResult(winColor) {
+        async function processResult(winColor) {
             const userRef = ref(db, `users/${phone}`);
             const snap = await get(userRef);
-            let currentWallet = parseFloat(snap.val().wallet) || 0;
+            let wallet = parseFloat(snap.val().wallet) || 0;
 
-            const pop = document.getElementById('resPop');
             if(activeBet === winColor) {
-                let winProfit = activeAmount * 0.9; // 90% Profit
-                await update(userRef, { wallet: currentWallet + winProfit });
-                setPopUI("YOU WIN!", "#22c55e", "🎉", `+$${winProfit.toFixed(2)} added.`);
+                let profit = activeAmount * 0.9;
+                await update(userRef, { wallet: wallet + profit });
+                showPop("YOU WIN!", "#10b981", "🎉", `Profit: +$${profit.toFixed(2)}`);
             } else {
-                await update(userRef, { wallet: currentWallet - activeAmount });
-                setPopUI("YOU LOSE", "#ef4444", "💔", `-$${activeAmount.toFixed(2)} deducted.`);
+                await update(userRef, { wallet: wallet - activeAmount });
+                showPop("YOU LOSE", "#f43f5e", "💔", `Loss: -$${activeAmount.toFixed(2)}`);
             }
-            pop.style.display = 'block';
             activeBet = null;
         }
 
-        function setPopUI(t, c, e, d) {
+        function showPop(t, c, e, d) {
             document.getElementById('popTitle').innerText = t;
             document.getElementById('popTitle').style.color = c;
             document.getElementById('popEmoji').innerText = e;
             document.getElementById('popDesc').innerText = d;
+            document.getElementById('resPop').style.display = 'block';
         }
+
+        window.closePopup = () => document.getElementById('resPop').style.display = 'none';
     </script>
 </body>
 </html>
