@@ -1,166 +1,108 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MAKER GOLD - Staking Nodes</title>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staking Hub - Maker Gold</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #3b82f6; --bg: #070b14; --card: #1e293b; --gold: #fbbf24; }
-        body { background: var(--bg); color: white; font-family: 'Poppins', sans-serif; padding: 15px; margin: 0; padding-bottom: 80px; }
+        :root { --primary: #3b82f6; --bg: #070b14; --card: #1e293b; --gold: #fbbf24; --green: #22c55e; --red: #ef4444; }
+        body { margin: 0; font-family: 'Poppins', sans-serif; background: var(--bg); color: white; padding: 15px; }
         
-        .portfolio { 
-            background: linear-gradient(135deg, #1e293b, #0f172a); 
-            padding: 25px; border-radius: 20px; border: 1px solid var(--primary); 
-            margin-bottom: 25px; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.3);
-        }
-        .staked-amt { font-size: 32px; font-weight: bold; color: var(--primary); margin: 10px 0; }
-        
-        .node-card { 
-            background: var(--card); padding: 20px; border-radius: 20px; 
-            margin-bottom: 15px; border-left: 5px solid var(--gold);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        }
-        h4 { margin: 0 0 10px 0; color: var(--gold); letter-spacing: 1px; }
-        
-        input { 
-            width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; 
-            border: 1px solid #334155; background: #0f172a; color: white; outline: none; box-sizing: border-box;
-        }
-        .invest-btn { 
-            width: 100%; padding: 14px; background: var(--gold); border: none; 
-            border-radius: 12px; font-weight: bold; color: #070b14; cursor: pointer; transition: 0.3s;
-        }
-        .invest-btn:active { transform: scale(0.98); }
+        .tab-container { display: flex; background: var(--card); border-radius: 15px; margin-bottom: 20px; padding: 5px; }
+        .tab { flex: 1; padding: 12px; border-radius: 12px; cursor: pointer; transition: 0.3s; font-weight: 600; font-size: 14px; }
+        .tab.active { background: var(--primary); color: white; }
 
-        .nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #111827; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #334155; }
-        .nav a { color: #94a3b8; text-decoration: none; font-size: 14px; text-align: center; }
-        .nav a.active { color: var(--primary); font-weight: bold; }
+        .plan-card { 
+            background: linear-gradient(145deg, #1e293b, #0f172a); padding: 20px; border-radius: 25px; 
+            border: 1px solid rgba(255,255,255,0.05); margin-bottom: 15px; text-align: left; position: relative;
+        }
+        .mode-badge { position: absolute; top: 15px; right: 15px; font-size: 10px; padding: 4px 10px; border-radius: 20px; font-weight: bold; }
+        
+        .profit-val { font-size: 24px; font-weight: bold; margin: 10px 0; }
+        .locked { color: var(--gold); }
+        .flexi { color: var(--green); }
+
+        .btn-invest { width: 100%; padding: 15px; border-radius: 15px; border: none; font-weight: bold; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 0 rgba(0,0,0,0.3); }
+        .btn-locked { background: var(--primary); color: white; }
+        .btn-flexi { background: var(--green); color: white; }
+        
+        .risk-text { font-size: 11px; color: #94a3b8; margin-top: 5px; }
     </style>
 </head>
 <body>
 
-    <h2 style="text-align:center; color:var(--gold);">💎 STAKING NODES</h2>
+    <h2 style="text-align:center;">💰 Investment Hub</h2>
 
-    <div class="portfolio">
-        <p style="color:#94a3b8; margin:0; font-size: 12px; letter-spacing: 1px;">TOTAL ASSETS STAKED</p>
-        <div class="staked-amt" id="stakedDisplay">₹ 0.00</div>
-        <p id="lockInfo" style="font-size:12px; color:var(--gold);">Check your active nodes below</p>
+    <div class="tab-container">
+        <div id="tab1" class="tab active" onclick="switchTab('locked')">🔒 LOCKED</div>
+        <div id="tab2" class="tab" onclick="switchTab('flexi')">📈 FLEXIBLE</div>
     </div>
 
-    <h3>Available Nodes</h3>
-    
-    <div class="node-card">
-        <h4>SILVER NODE</h4>
-        <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:10px;">
-            <span>Daily Profit: <b style="color:#22c55e;">0.5%</b></span>
-            <span>Duration: <b>7 Days</b></span>
+    <div id="lockedSection">
+        <div class="plan-card">
+            <span class="mode-badge" style="background:rgba(251,191,36,0.2); color:var(--gold);">FIXED</span>
+            <h3 style="margin:0;">Standard Saver</h3>
+            <div class="profit-val locked">Daily 0.5% - 1.2%</div>
+            <p style="font-size:12px; color:#94a3b8;">Min: $50 | Duration: 30 Days (Locked)</p>
+            <button class="btn-invest btn-locked" onclick="invest('locked_std')">STAKE NOW</button>
+            <p class="risk-text">🛡️ Capital is 100% protected in locked mode.</p>
         </div>
-        <input type="number" id="amt1" placeholder="Minimum ₹500" min="500">
-        <button class="invest-btn" id="btn1" onclick="stake(500, 7, 0.5, 'amt1', 'btn1')">START STAKING</button>
     </div>
 
-    <div class="node-card" style="border-left-color: #3b82f6;">
-        <h4 style="color:#3b82f6;">GOLD NODE</h4>
-        <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:10px;">
-            <span>Daily Profit: <b style="color:#22c55e;">1.0%</b></span>
-            <span>Duration: <b>15 Days</b></span>
+    <div id="flexiSection" style="display:none;">
+        <div class="plan-card">
+            <span class="mode-badge" style="background:rgba(34,197,94,0.2); color:var(--green);">MARKET</span>
+            <h3 style="margin:0;">AI Market Bot</h3>
+            <div id="marketProfit" class="profit-val flexi">Daily -2% to +5%</div>
+            <p style="font-size:12px; color:#94a3b8;">Min: $10 | No Lock-in Period</p>
+            <button class="btn-invest btn-flexi" onclick="invest('flexi_ai')">START TRADING</button>
+            <p class="risk-text">⚠️ High Risk: Profit/Loss depends on market volatility.</p>
         </div>
-        <input type="number" id="amt2" placeholder="Minimum ₹5000" min="5000">
-        <button class="invest-btn" id="btn2" style="background:#3b82f6; color:white;" onclick="stake(5000, 15, 1.0, 'amt2', 'btn2')">START STAKING</button>
-    </div>
-
-    <div class="nav">
-        <a href="home.html">🏠<br>Home</a>
-        <a href="investment.html" class="active">💰<br>Invest</a>
-        <a href="profile.html">👤<br>Account</a>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, onValue, get, update, push } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        const firebaseConfig = { 
-            apiKey: "AIzaSyCh-1xi3jkIj5hUsmbm3GFGfT_AlWmxYkk",
-            authDomain: "maker-trading-official.firebaseapp.com",
-            databaseURL: "https://maker-trading-official-default-rtdb.firebaseio.com/",
-            projectId: "maker-trading-official",
-            appId: "1:262205995192:web:d7255379855a0fc9489c4d"
-        };
+        const firebaseConfig = { apiKey: "AIzaSyCh-1xi3jkIj5hUsmbm3GFGfT_AlWmxYkk", databaseURL: "https://maker-trading-official-default-rtdb.firebaseio.com/" };
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-        const phone = localStorage.getItem("userPhone");
 
-        if(!phone) window.location.href = "index.html";
-
-        // Real-time listener for Staked Amount
-        // Note: Hum 'investments' folder se is user ka sara data sum karenge
-        onValue(ref(db, 'investments'), (snap) => {
-            let total = 0;
-            if(snap.exists()) {
-                snap.forEach(child => {
-                    const inv = child.val();
-                    if(inv.phone === phone && inv.status === "Active") {
-                        total += parseFloat(inv.amount);
-                    }
-                });
+        // Tab Switching Logic
+        window.switchTab = (mode) => {
+            if(mode === 'locked') {
+                document.getElementById('lockedSection').style.display = 'block';
+                document.getElementById('flexiSection').style.display = 'none';
+                document.getElementById('tab1').classList.add('active');
+                document.getElementById('tab2').classList.remove('active');
+            } else {
+                document.getElementById('lockedSection').style.display = 'none';
+                document.getElementById('flexiSection').style.display = 'block';
+                document.getElementById('tab1').classList.remove('active');
+                document.getElementById('tab2').classList.add('active');
             }
-            document.getElementById('stakedDisplay').innerText = "₹ " + total.toLocaleString();
+        };
+
+        // Live Market Volatility (Fake or Admin Controlled)
+        onValue(ref(db, 'admin_settings/market_status'), (snap) => {
+            const status = snap.val() || "Normal";
+            const profitEl = document.getElementById('marketProfit');
+            if(status === "Bullish") {
+                profitEl.innerText = "Current: +4.2%";
+                profitEl.style.color = "var(--green)";
+            } else if(status === "Bearish") {
+                profitEl.innerText = "Current: -1.5%";
+                profitEl.style.color = "var(--red)";
+            } else {
+                profitEl.innerText = "Daily -2% to +5%";
+                profitEl.style.color = "var(--green)";
+            }
         });
 
-        window.stake = async (min, days, rate, inp, btnId) => {
-            const amt = parseFloat(document.getElementById(inp).value);
-            const btn = document.getElementById(btnId);
-
-            if(isNaN(amt) || amt < min) {
-                alert(`Minimum investment for this node is ₹${min}`);
-                return;
-            }
-
-            btn.disabled = true;
-            btn.innerText = "PROCESSING...";
-
-            try {
-                const userSnap = await get(ref(db, 'users/' + phone));
-                if(!userSnap.exists()) return;
-
-                const currentWallet = parseFloat(userSnap.val().wallet || 0);
-
-                if(currentWallet >= amt) {
-                    const unlockDate = Date.now() + (days * 24 * 60 * 60 * 1000);
-                    
-                    // 1. Wallet se paisa kato
-                    await update(ref(db, 'users/' + phone), {
-                        wallet: currentWallet - amt
-                    });
-
-                    // 2. Naya investment record create karo (push se unique ID milti hai)
-                    const invRef = ref(db, 'investments');
-                    const newInvRef = push(invRef);
-                    await update(newInvRef, {
-                        phone: phone,
-                        amount: amt,
-                        dailyRate: rate,
-                        unlockDate: unlockDate,
-                        startDate: Date.now(),
-                        status: "Active",
-                        nodeType: inp === 'amt1' ? 'Silver' : 'Gold'
-                    });
-
-                    alert("🎉 Investment Successful! Your daily profit will start tomorrow.");
-                    document.getElementById(inp).value = "";
-                } else {
-                    alert("Insufficient Wallet Balance! Please recharge.");
-                }
-            } catch (error) {
-                console.error(error);
-                alert("Something went wrong. Try again.");
-            } finally {
-                btn.disabled = false;
-                btn.innerText = "START STAKING";
-            }
+        window.invest = (plan) => {
+            alert("Redirecting to payment for " + plan);
+            location.href = 'deposit.html';
         };
     </script>
 </body>
-    </html>
-    
+</html>
