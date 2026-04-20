@@ -3,20 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Win Go 1Min - Official</title>
+    <title>Win Go 1Min - Pro</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <style>
         :root { --blue: #1e3a8a; --bg: #070b14; --card: #1e293b; --gold: #fbbf24; --green: #22c55e; --red: #ef4444; }
         body { margin: 0; font-family: 'Poppins', sans-serif; background: var(--bg); color: white; text-align: center; }
         .game-header { background: linear-gradient(180deg, #1e40af, var(--bg)); padding: 30px 20px; }
         .balance-card { background: rgba(255,255,255,0.05); margin: 0 20px; padding: 15px; border-radius: 15px; border: 1px solid var(--gold); }
-        .timer-card { background: var(--card); margin: 20px; padding: 25px; border-radius: 30px; border-bottom: 4px solid var(--gold); }
+        
+        /* Amount Selection Style */
+        .amt-selector { display: flex; justify-content: center; gap: 10px; margin: 15px 0; }
+        .amt-btn { background: #334155; border: 1px solid #475569; color: white; padding: 5px 15px; border-radius: 8px; cursor: pointer; transition: 0.3s; }
+        .amt-btn.active { background: var(--gold); color: black; font-weight: bold; }
+
+        .timer-card { background: var(--card); margin: 20px; padding: 25px; border-radius: 30px; border-bottom: 4px solid var(--gold); position: relative; }
         .timer-val { font-size: 55px; color: var(--gold); font-weight: bold; font-family: 'Courier New', monospace; }
         .p-info { display: flex; justify-content: space-between; font-size: 13px; color: #94a3b8; margin-bottom: 10px; }
+        
         .btn-grid { display: flex; justify-content: center; gap: 15px; margin: 25px 20px; }
-        .bet-btn { flex: 1; padding: 20px; border-radius: 20px; border: none; color: white; font-weight: bold; font-size: 18px; cursor: pointer; }
+        .bet-btn { flex: 1; padding: 20px; border-radius: 20px; border: none; color: white; font-weight: bold; font-size: 18px; cursor: pointer; transition: 0.3s; }
         .btn-green { background: var(--green); box-shadow: 0 6px 0 #15803d; }
         .btn-red { background: var(--red); box-shadow: 0 6px 0 #991b1b; }
+        .bet-btn:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; transform: translateY(4px); }
+
         #resPop { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 10000; }
         .pop-card { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #1e293b; width: 300px; padding: 40px 20px; border-radius: 40px; border: 2px solid var(--gold); text-align: center; }
     </style>
@@ -42,20 +51,29 @@
     <div class="timer-card">
         <div class="p-info">
             <span>Period ID: <b id="periodID" style="color:var(--gold)">---</b></span>
-            <span>Timer</span>
+            <span>1 Min Game</span>
         </div>
         <div id="timerDisplay" class="timer-val">00:60</div>
+        
+        <p style="font-size: 12px; color: #94a3b8; margin-top: 10px;">Select Bet Amount:</p>
+        <div class="amt-selector">
+            <button class="amt-btn active" onclick="selectAmt(this, 2)">$2</button>
+            <button class="amt-btn" onclick="selectAmt(this, 5)">$5</button>
+            <button class="amt-btn" onclick="selectAmt(this, 10)">$10</button>
+            <button class="amt-btn" onclick="selectAmt(this, 50)">$50</button>
+        </div>
     </div>
 
     <div class="btn-grid">
-        <button class="bet-btn btn-green" onclick="setBet('Green')">JOIN GREEN</button>
-        <button class="bet-btn btn-red" onclick="setBet('Red')">JOIN RED</button>
+        <button id="btnGreen" class="bet-btn btn-green" onclick="setBet('Green')">JOIN GREEN</button>
+        <button id="btnRed" class="bet-btn btn-red" onclick="setBet('Red')">JOIN RED</button>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, onValue, get, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
+        // Firebase ID untouched as requested
         const firebaseConfig = { 
             apiKey: "AIzaSyCh-1xi3jkIj5hUsmbm3GFGfT_AlWmxYkk", 
             databaseURL: "https://maker-trading-official-default-rtdb.firebaseio.com/" 
@@ -65,7 +83,15 @@
         const phone = localStorage.getItem("userPhone");
 
         let currentSelection = null;
+        let selectedAmount = 2; // Default
         let lastProcessedPeriod = "";
+
+        // UI function for amount selection
+        window.selectAmt = (btn, amt) => {
+            document.querySelectorAll('.amt-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            selectedAmount = amt;
+        };
 
         // Wallet Update
         onValue(ref(db, `users/${phone}/wallet`), (snap) => {
@@ -82,7 +108,17 @@
             document.getElementById('timerDisplay').innerText = `00:${time < 10 ? '0'+time : time}`;
             document.getElementById('periodID').innerText = data.activePeriod || "Wait...";
 
-            // Jab timer 2 second par ho, result check karo
+            // Feature: Lock betting in last 5 seconds
+            const buttons = [document.getElementById('btnGreen'), document.getElementById('btnRed')];
+            if(time <= 5) {
+                buttons.forEach(b => b.disabled = true);
+                document.getElementById('timerDisplay').style.color = "#ef4444";
+            } else {
+                buttons.forEach(b => b.disabled = false);
+                document.getElementById('timerDisplay').style.color = "#fbbf24";
+            }
+
+            // Result Trigger at 2 seconds
             if(time === 2 && currentSelection !== null && data.activePeriod !== lastProcessedPeriod) {
                 lastProcessedPeriod = data.activePeriod;
                 const winColor = (data.forcedResult === "AUTO" || !data.forcedResult) ? data.lastResult : data.forcedResult;
@@ -92,24 +128,23 @@
 
         window.setBet = (color) => {
             currentSelection = color;
-            alert("Trade Fixed on " + color);
+            alert(`Trade Fixed on ${color} for $${selectedAmount}`);
         };
 
         async function calculateFinalResult(winColor) {
             const userRef = ref(db, `users/${phone}`);
             const snap = await get(userRef);
             let wallet = parseFloat(snap.val().wallet) || 0;
-            let betAmt = 10; // Default trade $10
 
             const pop = document.getElementById('resPop');
             if(currentSelection === winColor) {
-                let winAmt = betAmt * 1.9;
-                await update(userRef, { wallet: wallet + winAmt });
+                let winAmt = selectedAmount * 1.9;
+                await update(userRef, { wallet: wallet + (winAmt - selectedAmount) });
                 document.getElementById('popTitle').innerText = "YOU WIN!";
                 document.getElementById('popTitle').style.color = "#22c55e";
                 document.getElementById('popEmoji').innerText = "🎉";
             } else {
-                await update(userRef, { wallet: wallet - betAmt });
+                await update(userRef, { wallet: wallet - selectedAmount });
                 document.getElementById('popTitle').innerText = "YOU LOSE";
                 document.getElementById('popTitle').style.color = "#ef4444";
                 document.getElementById('popEmoji').innerText = "💔";
@@ -119,4 +154,5 @@
         }
     </script>
 </body>
-</html>
+    </html>
+    
