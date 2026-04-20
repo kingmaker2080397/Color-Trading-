@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Win Go - Maker Gold</title>
+    <style>
+        :root { --primary: #3b82f6; --bg: #070b14; --card: #1e293b; --gold: #fbbf24; }
+        body { margin: 0; font-family: sans-serif; background: var(--bg); color: white; text-align: center; }
+        .card { background: var(--card); margin: 20px; padding: 25px; border-radius: 25px; border: 1px solid #3b82f6; }
+        .timer { font-size: 35px; color: var(--gold); font-weight: bold; }
+        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 20px; }
+        .btn { padding: 15px; border: none; border-radius: 12px; font-weight: bold; color: white; cursor: pointer; }
+        .green { background: #22c55e; box-shadow: 0 4px 0 #15803d; }
+        .red { background: #ef4444; box-shadow: 0 4px 0 #b91c1c; }
+
+        /* Modern Popup Overlay */
+        #gamePop { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10000; }
+        .pop-content { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #1e293b; width: 280px; padding: 30px; border-radius: 30px; border-top: 5px solid var(--gold); text-align: center; }
+        .pop-btn { background: var(--gold); color: black; border: none; padding: 10px 30px; border-radius: 20px; font-weight: bold; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+    <div id="gamePop">
+        <div class="pop-content">
+            <h1 id="popIcon" style="font-size: 50px; margin: 0;">🏆</h1>
+            <h2 id="popTitle" style="margin: 10px 0;">WINNER!</h2>
+            <p id="popMsg" style="color: #94a3b8;">You won ₹200</p>
+            <button class="pop-btn" onclick="document.getElementById('gamePop').style.display='none'">OK</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <p style="color:#94a3b8;">Period ID: <b id="period">--------</b></p>
+        <div class="timer" id="timer">00:00</div>
+    </div>
+
+    <div class="btn-grid">
+        <button class="btn green" onclick="placeTrade('Green')">JOIN GREEN</button>
+        <button class="btn red" onclick="placeTrade('Red')">JOIN RED</button>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, onValue, update, push, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = { 
+            apiKey: "AIzaSyCh-1xi3jkIj5hUsmbm3GFGfT_AlWmxYkk",
+            databaseURL: "https://maker-trading-official-default-rtdb.firebaseio.com/" 
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // Show Game Popup Function
+        window.gameResultPop = (status, msg) => {
+            const p = document.getElementById('gamePop');
+            document.getElementById('popTitle').innerText = status;
+            document.getElementById('popMsg').innerText = msg;
+            document.getElementById('popIcon').innerText = status === 'WIN' ? '🏆' : '💸';
+            document.getElementById('popTitle').style.color = status === 'WIN' ? '#22c55e' : '#ef4444';
+            p.style.display = 'block';
+        };
+
+        window.placeTrade = (color) => {
+            const amt = prompt("Enter Amount:"); // Ye browser ka h, aap chahein to isko b custom bana sakte h
+            if(!amt) return;
+            
+            // Yahan trade lagne ka popup
+            gameResultPop("PENDING", "Trade Placed on " + color);
+            setTimeout(() => { document.getElementById('gamePop').style.display='none'; }, 1500);
+            
+            // Trade logic here... (Firebase set)
+        };
+
+        // Sync Timer
+        onValue(ref(db, 'game_state'), (snap) => {
+            const d = snap.val();
+            document.getElementById('period').innerText = d.activePeriod;
+            document.getElementById('timer').innerText = "00:" + (d.timer < 10 ? "0"+d.timer : d.timer);
+            
+            // Jab timer khatam ho aur result aaye, toh call karein:
+            // gameResultPop("WIN", "Congratulation! You won ₹400");
+        });
+    </script>
+</body>
+</html>
