@@ -2,107 +2,83 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staking Hub - Maker Gold</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <title>Investment Leaderboard</title>
     <style>
-        :root { --primary: #3b82f6; --bg: #070b14; --card: #1e293b; --gold: #fbbf24; --green: #22c55e; --red: #ef4444; }
-        body { margin: 0; font-family: 'Poppins', sans-serif; background: var(--bg); color: white; padding: 15px; }
-        
-        .tab-container { display: flex; background: var(--card); border-radius: 15px; margin-bottom: 20px; padding: 5px; }
-        .tab { flex: 1; padding: 12px; border-radius: 12px; cursor: pointer; transition: 0.3s; font-weight: 600; font-size: 14px; }
-        .tab.active { background: var(--primary); color: white; }
-
-        .plan-card { 
-            background: linear-gradient(145deg, #1e293b, #0f172a); padding: 20px; border-radius: 25px; 
-            border: 1px solid rgba(255,255,255,0.05); margin-bottom: 15px; text-align: left; position: relative;
-        }
-        .mode-badge { position: absolute; top: 15px; right: 15px; font-size: 10px; padding: 4px 10px; border-radius: 20px; font-weight: bold; }
-        
-        .profit-val { font-size: 24px; font-weight: bold; margin: 10px 0; }
-        .locked { color: var(--gold); }
-        .flexi { color: var(--green); }
-
-        .btn-invest { width: 100%; padding: 15px; border-radius: 15px; border: none; font-weight: bold; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 0 rgba(0,0,0,0.3); }
-        .btn-locked { background: var(--primary); color: white; }
-        .btn-flexi { background: var(--green); color: white; }
-        
-        .risk-text { font-size: 11px; color: #94a3b8; margin-top: 5px; }
+        :root { --bg: #070b14; --card: #1e293b; --gold: #fbbf24; }
+        body { background: var(--bg); color: white; font-family: 'Poppins', sans-serif; padding: 15px; }
+        .my-plan { background: linear-gradient(135deg, #1e3a8a, #1e293b); padding: 20px; border-radius: 20px; border: 2px solid var(--gold); margin-bottom: 30px; position: relative; }
+        .leaderboard-row { background: var(--card); padding: 12px; border-radius: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #334155; }
+        .flag { margin-right: 10px; font-size: 18px; }
+        .profit { color: #22c55e; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <h2 style="text-align:center;">💰 Investment Hub</h2>
-
-    <div class="tab-container">
-        <div id="tab1" class="tab active" onclick="switchTab('locked')">🔒 LOCKED</div>
-        <div id="tab2" class="tab" onclick="switchTab('flexi')">📈 FLEXIBLE</div>
-    </div>
-
-    <div id="lockedSection">
-        <div class="plan-card">
-            <span class="mode-badge" style="background:rgba(251,191,36,0.2); color:var(--gold);">FIXED</span>
-            <h3 style="margin:0;">Standard Saver</h3>
-            <div class="profit-val locked">Daily 0.5% - 1.2%</div>
-            <p style="font-size:12px; color:#94a3b8;">Min: $50 | Duration: 30 Days (Locked)</p>
-            <button class="btn-invest btn-locked" onclick="invest('locked_std')">STAKE NOW</button>
-            <p class="risk-text">🛡️ Capital is 100% protected in locked mode.</p>
+    <h3 style="color: var(--gold);">⭐ My Active Investment</h3>
+    <div id="myInvestmentArea">
+        <div class="my-plan">
+            <p style="margin:0; font-size:12px; color:#94a3b8;">YOUR CURRENT STATUS</p>
+            <h2 id="myPlanName">No Active Plan</h2>
+            <div style="display:flex; justify-content:space-between;">
+                <span>Invested: <b id="myAmt">$0.00</b></span>
+                <span>Return: <b id="myReturn" class="profit">0%</b></span>
+            </div>
+            <button id="redeemBtn" onclick="redeemNow()" style="width:100%; margin-top:15px; padding:10px; border-radius:10px; border:none; background:var(--gold); font-weight:bold; cursor:pointer; display:none;">REDEEM NOW</button>
         </div>
     </div>
 
-    <div id="flexiSection" style="display:none;">
-        <div class="plan-card">
-            <span class="mode-badge" style="background:rgba(34,197,94,0.2); color:var(--green);">MARKET</span>
-            <h3 style="margin:0;">AI Market Bot</h3>
-            <div id="marketProfit" class="profit-val flexi">Daily -2% to +5%</div>
-            <p style="font-size:12px; color:#94a3b8;">Min: $10 | No Lock-in Period</p>
-            <button class="btn-invest btn-flexi" onclick="invest('flexi_ai')">START TRADING</button>
-            <p class="risk-text">⚠️ High Risk: Profit/Loss depends on market volatility.</p>
+    <h3 style="font-size: 16px; margin-top: 20px;">🌍 Global Staking Board</h3>
+    <div id="globalBoard">
         </div>
-    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         const firebaseConfig = { apiKey: "AIzaSyCh-1xi3jkIj5hUsmbm3GFGfT_AlWmxYkk", databaseURL: "https://maker-trading-official-default-rtdb.firebaseio.com/" };
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
+        const phone = localStorage.getItem("userPhone");
 
-        // Tab Switching Logic
-        window.switchTab = (mode) => {
-            if(mode === 'locked') {
-                document.getElementById('lockedSection').style.display = 'block';
-                document.getElementById('flexiSection').style.display = 'none';
-                document.getElementById('tab1').classList.add('active');
-                document.getElementById('tab2').classList.remove('active');
-            } else {
-                document.getElementById('lockedSection').style.display = 'none';
-                document.getElementById('flexiSection').style.display = 'block';
-                document.getElementById('tab1').classList.remove('active');
-                document.getElementById('tab2').classList.add('active');
-            }
-        };
-
-        // Live Market Volatility (Fake or Admin Controlled)
-        onValue(ref(db, 'admin_settings/market_status'), (snap) => {
-            const status = snap.val() || "Normal";
-            const profitEl = document.getElementById('marketProfit');
-            if(status === "Bullish") {
-                profitEl.innerText = "Current: +4.2%";
-                profitEl.style.color = "var(--green)";
-            } else if(status === "Bearish") {
-                profitEl.innerText = "Current: -1.5%";
-                profitEl.style.color = "var(--red)";
-            } else {
-                profitEl.innerText = "Daily -2% to +5%";
-                profitEl.style.color = "var(--green)";
+        // 1. Fetch User's Own Investment
+        onValue(ref(db, `user_investments/${phone}`), (snap) => {
+            if(snap.exists()){
+                snap.forEach(child => {
+                    const d = child.val();
+                    document.getElementById('myPlanName').innerText = d.planName;
+                    document.getElementById('myAmt').innerText = "$" + d.amount;
+                    document.getElementById('myReturn').innerText = "+" + d.dailyProfit + "% Daily";
+                    if(d.status === "Ready") document.getElementById('redeemBtn').style.display = 'block';
+                });
             }
         });
 
-        window.invest = (plan) => {
-            alert("Redirecting to payment for " + plan);
-            location.href = 'deposit.html';
-        };
+        // 2. Generate Global Leaderboard (Fake + Flag Logic)
+        const board = document.getElementById('globalBoard');
+        const flags = ['🇮🇳', '🇵🇰', '🇦🇺', '🇧🇩', '🇺🇸', '🇬🇧', '🇿🇦'];
+        const names = ['Arjun', 'Zeeshan', 'Smith', 'Rahman', 'John', 'Alex', 'Musa'];
+
+        for(let i=0; i<15; i++){
+            const row = document.createElement('div');
+            row.className = 'leaderboard-row';
+            const f = flags[Math.floor(Math.random()*flags.length)];
+            const n = names[Math.floor(Math.random()*names.length)] + "***" + Math.floor(Math.random()*99);
+            const amt = Math.floor(Math.random()*5000 + 500);
+            const prof = (Math.random()*2 + 0.5).toFixed(1);
+
+            row.innerHTML = `
+                <div style="display:flex; align-items:center;">
+                    <span class="flag">${f}</span>
+                    <span>${n}</span>
+                </div>
+                <div style="text-align:right;">
+                    <div style="font-size:11px; color:#94a3b8;">Invested $${amt}</div>
+                    <div class="profit">+$${(amt*(prof/100)).toFixed(2)} Today</div>
+                </div>
+            `;
+            board.appendChild(row);
+        }
     </script>
 </body>
 </html>
+
