@@ -5,83 +5,120 @@
     <title>Master Admin - Maker Gold</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        :root { --blue: #3b82f6; --bg: #070b14; --card: #1e293b; --green: #22c55e; --red: #ef4444; }
+        :root { --blue: #3b82f6; --bg: #070b14; --card: #1e293b; --green: #22c55e; --red: #ef4444; --gold: #fbbf24; }
         body { background: var(--bg); color: white; font-family: 'Poppins', sans-serif; padding: 15px; margin:0; }
         .box { background: var(--card); padding: 20px; border-radius: 20px; margin-bottom: 20px; border: 1px solid #334155; }
-        h3 { color: var(--blue); margin-top: 0; border-bottom: 1px solid #334155; padding-bottom: 10px; }
-        input { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: 1px solid #334155; background: #0f172a; color: white; box-sizing: border-box; }
+        h3 { color: var(--blue); margin-top: 0; border-bottom: 1px solid #334155; padding-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+        input, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: 1px solid #334155; background: #0f172a; color: white; box-sizing: border-box; }
         .btn { width: 100%; padding: 12px; border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; margin-top: 5px; }
         .btn-green { background: var(--green); }
         .btn-red { background: var(--red); }
         .btn-blue { background: var(--blue); }
-        .list-item { background: #0f172a; padding: 15px; border-radius: 12px; margin-bottom: 10px; border-left: 4px solid var(--blue); font-size: 13px; }
+        .list-item { background: #0f172a; padding: 15px; border-radius: 12px; margin-bottom: 10px; border-left: 4px solid var(--blue); font-size: 13px; position: relative; }
         .flex { display: flex; gap: 10px; margin-top: 10px; }
+        .badge { font-size: 10px; padding: 3px 8px; border-radius: 5px; background: var(--blue); margin-left: 10px; }
     </style>
 </head>
 <body>
 
-    <h2 style="text-align:center;">🛠️ MASTER ADMIN</h2>
+    <h2 style="text-align:center; color:var(--gold);">🛠️ MASTER CONTROL PANEL</h2>
 
     <div class="box">
-        <h3>🎮 Game Control</h3>
-        <p>Period: <b id="period">--</b> | Timer: <b id="timer" style="color:var(--blue)">00s</b></p>
+        <h3>🎮 Win Go 1Min Control</h3>
+        <p>Period ID: <b id="period" style="color:var(--gold)">--</b> | Timer: <b id="timer" style="color:var(--blue)">00s</b></p>
         <div class="flex">
-            <button class="btn btn-green" onclick="force('Green')">FORCE GREEN</button>
-            <button class="btn btn-red" onclick="force('Red')">FORCE RED</button>
+            <button class="btn btn-green" onclick="forceResult('Green')">FORCE GREEN</button>
+            <button class="btn btn-red" onclick="forceResult('Red')">FORCE RED</button>
         </div>
-        <p style="text-align:center; font-size:12px;">Current Status: <b id="forceStatus">AUTO</b></p>
+        <p style="text-align:center; font-size:12px; margin-top:10px;">Forced Next: <b id="forceStatus">AUTO</b></p>
     </div>
 
     <div class="box">
-        <h3>💰 Payment Manager</h3>
+        <h3>📈 Market Mood (Flexible Plan)</h3>
+        <select id="marketMood">
+            <option value="Normal">Normal (Default)</option>
+            <option value="Bullish">Bullish (Users Profit 📈)</option>
+            <option value="Bearish">Bearish (Users Loss 📉)</option>
+        </select>
+        <button class="btn btn-blue" onclick="updateMarket()">SET MARKET TREND</button>
+    </div>
+
+    <div class="box">
+        <h3>💰 Payment Methods (Min: 300 PKR / $10)</h3>
         <label>Easypaisa (Name - Number):</label>
-        <input type="text" id="adm_ep" placeholder="Coming Soon">
+        <input type="text" id="adm_ep" placeholder="Leave blank for Coming Soon">
         <label>JazzCash (Name - Number):</label>
-        <input type="text" id="adm_jc" placeholder="Coming Soon">
+        <input type="text" id="adm_jc">
         <label>USDT TRC20 Address:</label>
-        <input type="text" id="adm_usdt" placeholder="Coming Soon">
-        <button class="btn btn-blue" onclick="savePayments()">UPDATE PAYMENTS</button>
+        <input type="text" id="adm_usdt">
+        <button class="btn btn-green" onclick="savePayments()">SAVE ALL ADDRESSES</button>
     </div>
 
     <div class="box">
-        <h3>📥 Pending Deposits</h3>
+        <h3>📤 Withdrawal Requests <span class="badge">5% Fee Applied</span></h3>
+        <div id="withdrawList">Loading...</div>
+    </div>
+
+    <div class="box">
+        <h3>📥 Deposit Verification</h3>
         <div id="depList">Loading...</div>
     </div>
 
     <div class="box">
-        <h3>🆔 KYC Requests</h3>
+        <h3>🆔 KYC & Payment Detail Review</h3>
         <div id="kycList">Loading...</div>
-    </div>
-
-    <div class="box">
-        <h3>📤 Withdrawal Requests</h3>
-        <div id="withdrawList">Loading...</div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, onValue, update, get, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, onValue, update, get, remove, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        const firebaseConfig = { apiKey: "AIzaSyCh-1xi3jkIj5hUsmbm3GFGfT_AlWmxYkk", databaseURL: "https://maker-trading-official-default-rtdb.firebaseio.com/" };
+        const firebaseConfig = { 
+            apiKey: "AIzaSyCh-1xi3jkIj5hUsmbm3GFGfT_AlWmxYkk", 
+            databaseURL: "https://maker-trading-official-default-rtdb.firebaseio.com/" 
+        };
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // --- GAME LOGIC ---
+        // --- 1. AUTO TIMER LOGIC (Runs every 1 sec) ---
+        setInterval(async () => {
+            const snap = await get(ref(db, 'game_state'));
+            let data = snap.val() || { timer: 60, activePeriod: Date.now(), forcedResult: "AUTO" };
+            
+            let newTime = data.timer - 1;
+            if(newTime <= 0) {
+                newTime = 60;
+                // Generate New Period
+                const newPeriod = "MG" + Math.floor(Math.random() * 900000 + 100000);
+                update(ref(db, 'game_state'), { timer: 60, activePeriod: newPeriod, forcedResult: "AUTO" });
+            } else {
+                update(ref(db, 'game_state'), { timer: newTime });
+            }
+        }, 1000);
+
         onValue(ref(db, 'game_state'), (snap) => {
             const d = snap.val() || {};
             document.getElementById('period').innerText = d.activePeriod || "--";
             document.getElementById('timer').innerText = (d.timer || 0) + "s";
             document.getElementById('forceStatus').innerText = d.forcedResult || "AUTO";
         });
-        window.force = (c) => update(ref(db, 'game_state'), { forcedResult: c });
 
-        // --- PAYMENT MANAGER ---
+        window.forceResult = (c) => update(ref(db, 'game_state'), { forcedResult: c });
+
+        // --- 2. MARKET CONTROL ---
+        window.updateMarket = () => {
+            const mood = document.getElementById('marketMood').value;
+            update(ref(db, 'admin_settings'), { market_status: mood });
+            alert("Market trend updated!");
+        };
+
+        // --- 3. PAYMENT MANAGER ---
         window.savePayments = () => {
             update(ref(db, 'admin_settings/payments'), {
                 easypaisa: document.getElementById('adm_ep').value || "Coming Soon",
                 jazzcash: document.getElementById('adm_jc').value || "Coming Soon",
                 usdt: document.getElementById('adm_usdt').value || "Coming Soon"
-            }).then(() => alert("Payments Updated!"));
+            }).then(() => alert("All Payment Methods Updated!"));
         };
         onValue(ref(db, 'admin_settings/payments'), (snap) => {
             const d = snap.val() || {};
@@ -90,64 +127,81 @@
             document.getElementById('adm_usdt').value = d.usdt === "Coming Soon" ? "" : d.usdt;
         });
 
-        // --- DEPOSIT APPROVAL ---
-        onValue(ref(db, 'deposits'), (snap) => {
-            let html = "";
-            snap.forEach(child => {
-                const d = child.val();
-                if(d.status === "Pending") {
-                    html += `<div class="list-item">User: ${d.user}<br>Amt: ₹${d.amount}<br>TID: ${d.tid}
-                    <div class="flex"><button class="btn btn-green" onclick="approveDep('${child.key}','${d.user}',${d.amount})">✔</button>
-                    <button class="btn btn-red" onclick="rejectData('deposits/${child.key}')">✖</button></div></div>`;
-                }
-            });
-            document.getElementById('depList').innerHTML = html || "No Pending Deposits";
-        });
-
-        window.approveDep = async (key, phone, amt) => {
-            const snap = await get(ref(db, 'users/' + phone));
-            const bal = (snap.val().wallet || 0) + amt;
-            await update(ref(db, 'users/' + phone), { wallet: bal });
-            await update(ref(db, 'deposits/' + key), { status: "Approved" });
-            alert("Deposit Added!");
-        };
-
-        // --- KYC APPROVAL ---
-        onValue(ref(db, 'users'), (snap) => {
-            let html = "";
-            snap.forEach(user => {
-                const d = user.val();
-                if(d.kycStatus === "Pending") {
-                    html += `<div class="list-item">User: ${user.key}<br>Name: ${d.realName}<br>Method: ${d.withdrawalMethod}<br>Detail: ${d.withdrawalDetail}
-                    <button class="btn btn-blue" onclick="updateStatus('users/${user.key}', {kycStatus:'Verified'})">VERIFY KYC</button></div>`;
-                }
-            });
-            document.getElementById('kycList').innerHTML = html || "No Pending KYC";
-        });
-
-        // --- WITHDRAWAL APPROVAL ---
+        // --- 4. WITHDRAWALS (With Fee Logic) ---
         onValue(ref(db, 'withdrawals'), (snap) => {
             let html = "";
             snap.forEach(child => {
                 const d = child.val();
                 if(d.status === "Pending") {
-                    html += `<div class="list-item">User: ${d.user}<br>Amt: ₹${d.amount}<br>Target: ${d.address}
-                    <div class="flex"><button class="btn btn-green" onclick="updateStatus('withdrawals/${child.key}', {status:'Approved'})">APPROVE</button>
-                    <button class="btn btn-red" onclick="rejectWithdraw('${child.key}','${d.user}',${d.amount})">REJECT</button></div></div>`;
+                    html += `<div class="list-item">
+                        <b>User:</b> ${d.user}<br>
+                        <b>Requested:</b> $${d.requestedAmount}<br>
+                        <b style="color:var(--gold)">Payable (After 5%): $${d.payableAmount}</b><br>
+                        <b>Address:</b> ${d.address}
+                        <div class="flex">
+                            <button class="btn btn-green" onclick="updateStatus('withdrawals/${child.key}', {status:'Approved'})">✔ PAID</button>
+                            <button class="btn btn-red" onclick="rejectWithdraw('${child.key}','${d.user}',${d.requestedAmount})">✖ REJECT</button>
+                        </div>
+                    </div>`;
                 }
             });
-            document.getElementById('withdrawList').innerHTML = html || "No Pending Withdrawals";
+            document.getElementById('withdrawList').innerHTML = html || "No pending withdrawals";
         });
 
-        window.updateStatus = (path, data) => update(ref(db, path), data);
-        window.rejectData = (path) => remove(ref(db, path));
+        // --- 5. DEPOSITS ---
+        onValue(ref(db, 'deposits'), (snap) => {
+            let html = "";
+            snap.forEach(child => {
+                const d = child.val();
+                if(d.status === "Pending") {
+                    html += `<div class="list-item">
+                        <b>User:</b> ${d.user} | <b>Amount:</b> $${d.amount}<br>
+                        <b>TID:</b> ${d.tid} | <b>Method:</b> ${d.method}
+                        <div class="flex">
+                            <button class="btn btn-green" onclick="approveDep('${child.key}','${d.user}',${d.amount})">APPROVE</button>
+                            <button class="btn btn-red" onclick="removeData('deposits/${child.key}')">REJECT</button>
+                        </div>
+                    </div>`;
+                }
+            });
+            document.getElementById('depList').innerHTML = html || "No pending deposits";
+        });
+
+        // --- 6. KYC ---
+        onValue(ref(db, 'users'), (snap) => {
+            let html = "";
+            snap.forEach(user => {
+                const d = user.val();
+                if(d.kycStatus === "Pending") {
+                    html += `<div class="list-item">
+                        <b>User:</b> ${user.key}<br><b>Name:</b> ${d.realName}<br>
+                        <b>Target Detail:</b> ${d.withdrawalDetail}
+                        <button class="btn btn-blue" onclick="updateStatus('users/${user.key}', {kycStatus:'Verified'})">VERIFY KYC</button>
+                    </div>`;
+                }
+            });
+            document.getElementById('kycList').innerHTML = html || "No pending KYC";
+        });
+
+        // Helper Functions
+        window.approveDep = async (key, phone, amt) => {
+            const snap = await get(ref(db, 'users/' + phone));
+            const newBal = (snap.val().wallet || 0) + amt;
+            await update(ref(db, 'users/' + phone), { wallet: newBal });
+            await update(ref(db, 'deposits/' + key), { status: "Approved" });
+            alert("Deposit approved!");
+        };
+
         window.rejectWithdraw = async (key, phone, amt) => {
             const snap = await get(ref(db, 'users/' + phone));
             await update(ref(db, 'users/' + phone), { wallet: (snap.val().wallet || 0) + amt });
             await remove(ref(db, 'withdrawals/' + key));
-            alert("Withdraw Rejected & Refunded");
+            alert("Rejected & Refunded to User");
         };
+
+        window.updateStatus = (path, data) => update(ref(db, path), data);
+        window.removeData = (path) => remove(ref(db, path));
+
     </script>
 </body>
 </html>
-
