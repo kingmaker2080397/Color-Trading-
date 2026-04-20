@@ -41,5 +41,124 @@
         <div class="pop-card">
             <h1 id="popEmoji" style="font-size: 70px; margin: 0;">🎉</h1>
             <h2 id="popTitle" style="font-size: 28px; margin: 10px 0;">YOU WIN!</h2>
-            <p id="popDesc" style="color: #94a3b8;">Profit added to your
-                
+            <p id="popDesc" style="color: #94a3b8;">Profit added to your wallet.</p>
+            <button class="pop-btn" onclick="document.getElementById('resPop').style.display='none'">OK</button>
+        </div>
+    </div>
+
+    <div class="game-header">
+        <h3 style="margin: 0 0 10px 0;">Win Go 1Min</h3>
+        <div class="balance-card">
+            <span style="font-size: 12px; color: #94a3b8;">Wallet Balance</span>
+            <div style="font-size: 22px; font-weight: bold; color: var(--gold);" id="walletDisplay">$ 0.00</div>
+        </div>
+    </div>
+
+    <div class="timer-card">
+        <div class="period-info">
+            <span>Period ID: <b id="periodID" style="color:var(--gold)">Loading...</b></span>
+            <span>Timer</span>
+        </div>
+        <div id="timerDisplay" class="timer-val">00:00</div>
+    </div>
+
+    <div class="btn-container">
+        <button class="bet-btn btn-green" onclick="placeTrade('Green')">JOIN GREEN</button>
+        <button class="bet-btn btn-red" onclick="placeTrade('Red')">JOIN RED</button>
+    </div>
+
+    <div class="leaderboard">
+        <h4 style="margin:0 0 10px 0; color:var(--gold)">🏆 Global Winners</h4>
+        <div id="ticker"></div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, onValue, get, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = { 
+            apiKey: "AIzaSyCh-1xi3jkIj5hUsmbm3GFGfT_AlWmxYkk", 
+            databaseURL: "https://maker-trading-official-default-rtdb.firebaseio.com/" 
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const phone = localStorage.getItem("userPhone");
+
+        let currentBet = null;
+        let lastCheckedPeriod = "";
+
+        // 1. Load Real Wallet Balance
+        onValue(ref(db, `users/${phone}/wallet`), (snap) => {
+            const bal = snap.val() || 0;
+            document.getElementById('walletDisplay').innerText = "$ " + parseFloat(bal).toFixed(2);
+        });
+
+        // 2. Fixed Timer Logic (No NaN)
+        onValue(ref(db, 'game_state'), async (snap) => {
+            const data = snap.val();
+            if(!data) return;
+
+            let time = parseInt(data.timer) || 0;
+            document.getElementById('timerDisplay').innerText = `00:${time < 10 ? '0'+time : time}`;
+            document.getElementById('periodID').innerText = data.activePeriod || "---";
+
+            // Result Logic (Jab timer 2 par ho)
+            if(time === 2 && currentBet !== null && data.activePeriod !== lastCheckedPeriod) {
+                lastCheckedPeriod = data.activePeriod;
+                const winColor = (data.forcedResult === "AUTO" || !data.forcedResult) ? data.lastResult : data.forcedResult;
+                calculateResult(winColor);
+            }
+        });
+
+        window.placeTrade = (color) => {
+            currentBet = color;
+            const toast = document.createElement("div");
+            toast.innerText = "Trade Placed: " + color;
+            toast.style = "position:fixed; bottom:50px; left:50%; transform:translateX(-50%); background:var(--green); padding:10px 30px; border-radius:20px; z-index:20000;";
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 2000);
+        };
+
+        async function calculateResult(winColor) {
+            const userRef = ref(db, `users/${phone}`);
+            const snap = await get(userRef);
+            let wallet = snap.val().wallet || 0;
+            let stakeAmt = 10; // Default Trade Amount $10
+
+            const pop = document.getElementById('resPop');
+            const title = document.getElementById('popTitle');
+            const emoji = document.getElementById('popEmoji');
+            const desc = document.getElementById('popDesc');
+
+            if(currentBet === winColor) {
+                // WIN - Add 1.9x profit
+                let profit = stakeAmt * 0.9; 
+                await update(userRef, { wallet: wallet + profit });
+                emoji.innerText = "🎉"; title.innerText = "YOU WIN!"; title.style.color = "#22c55e";
+                desc.innerText = `Profit of $${profit.toFixed(2)} added to wallet.`;
+            } else {
+                // LOSS - Deduct Stake
+                await update(userRef, { wallet: wallet - stakeAmt });
+                emoji.innerText = "💔"; title.innerText = "SORRY, LOSS"; title.style.color = "#ef4444";
+                desc.innerText = `Better luck next time. Lost $${stakeAmt}.`;
+            }
+            pop.style.display = 'block';
+            currentBet = null;
+        }
+
+        // 3. Fake Winners List
+        const flags = ['🇮🇳','🇵🇰','🇦🇺','🇬🇧','🇺🇸'];
+        setInterval(() => {
+            const f = flags[Math.floor(Math.random()*flags.length)];
+            const amt = (Math.random()*100 + 5).toFixed(2);
+            const row = document.createElement('div');
+            row.className = 'l-row';
+            row.innerHTML = `<span>${f} User***${Math.floor(Math.random()*999)}</span> <span style="color:var(--green);">+$${amt}</span>`;
+            const ticker = document.getElementById('ticker');
+            ticker.prepend(row);
+            if(ticker.children.length > 4) ticker.lastChild.remove();
+        }, 3000);
+
+    </script>
+</body>
+</html>
