@@ -1,50 +1,72 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Master Control Panel - Admin</title>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate Admin Control - Maker Gold</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        body { background: #070b14; color: white; font-family: 'Poppins', sans-serif; padding: 20px; text-align: center; }
-        .card { background: #1e293b; padding: 25px; border-radius: 20px; margin-bottom: 20px; border: 1px solid #334155; }
-        .timer-box { font-size: 50px; color: #fbbf24; font-weight: bold; margin: 15px 0; }
-        .btn { padding: 15px 30px; border-radius: 12px; border: none; font-weight: bold; cursor: pointer; margin: 5px; width: 140px; }
-        .btn-green { background: #22c55e; color: white; }
-        .btn-red { background: #ef4444; color: white; }
-        .btn-blue { background: #3b82f6; color: white; width: 100%; margin-top: 15px; }
-        select { background: #0f172a; color: white; padding: 10px; width: 100%; border-radius: 10px; border: 1px solid #3b82f6; }
-        h2 { color: #fbbf24; border-bottom: 1px solid #334155; padding-bottom: 10px; }
+        :root { --bg: #070b14; --card: #1e293b; --gold: #fbbf24; --green: #22c55e; --red: #ef4444; --blue: #3b82f6; }
+        body { background: var(--bg); color: white; font-family: 'Poppins', sans-serif; padding: 15px; margin: 0; }
+        .section { background: var(--card); padding: 20px; border-radius: 20px; margin-bottom: 20px; border: 1px solid #334155; box-shadow: 0 8px 25px rgba(0,0,0,0.5); }
+        h1 { color: var(--gold); text-align: center; font-size: 22px; text-transform: uppercase; margin-bottom: 25px; border-bottom: 2px solid var(--gold); padding-bottom: 10px; }
+        h2 { font-size: 16px; color: var(--gold); margin-bottom: 15px; display: flex; align-items: center; gap: 10px; border-left: 4px solid var(--gold); padding-left: 10px; }
+        
+        /* Game Controls */
+        .timer-val { font-size: 50px; font-weight: bold; color: var(--gold); text-align: center; margin: 10px 0; font-family: monospace; }
+        .btn-group { display: flex; gap: 10px; }
+        .btn { flex: 1; padding: 12px; border-radius: 12px; border: none; font-weight: bold; cursor: pointer; color: white; text-transform: uppercase; font-size: 13px; }
+        .btn-green { background: var(--green); box-shadow: 0 4px 0 #15803d; }
+        .btn-red { background: var(--red); box-shadow: 0 4px 0 #991b1b; }
+        .btn-blue { background: var(--blue); width: 100%; box-shadow: 0 4px 0 #1d4ed8; }
+        
+        /* Requests Style */
+        .req-box { background: #0f172a; padding: 12px; border-radius: 12px; margin-bottom: 10px; font-size: 13px; border-left: 3px solid var(--blue); }
+        input, select { width: 100%; padding: 12px; border-radius: 10px; background: #0f172a; color: white; border: 1px solid #334155; margin-bottom: 10px; box-sizing: border-box; }
+        .fee-label { color: var(--red); font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <h1>🛠️ MASTER CONTROL PANEL</h1>
+    <h1>🛠️ Master Admin Engine</h1>
 
-    <div class="card">
-        <h2>🎮 Win Go 1Min Control</h2>
-        <div class="p-info">Period ID: <b id="periodID">--</b> | Timer: <span id="timerBox" class="timer-box">0s</span></div>
-        
-        <div style="margin-top:20px;">
-            <button class="btn btn-green" onclick="forceResult('Green')">FORCE GREEN</button>
-            <button class="btn btn-red" onclick="forceResult('Red')">FORCE RED</button>
+    <div class="section">
+        <h2>🎮 GAME CONTROL (1 MIN)</h2>
+        <div class="timer-val" id="timerDisp">00s</div>
+        <div class="btn-group">
+            <button class="btn btn-green" onclick="forceNext('Green')">Force Green</button>
+            <button class="btn btn-red" onclick="forceNext('Red')">Force Red</button>
         </div>
-        <p style="margin-top:10px; color: #94a3b8;">Forced Next: <b id="forcedStatus" style="color:white;">AUTO</b></p>
+        <p style="text-align:center; font-size:12px; margin-top:10px;">Next Mode: <b id="modeLabel" style="color:var(--gold)">AUTO</b></p>
     </div>
 
-    <div class="card">
-        <h2>📈 Market Mood (Risk Management)</h2>
-        <select id="marketTrend">
-            <option value="AUTO">Normal (Auto Random)</option>
-            <option value="BULLISH">Bullish (Users Win More 📈)</option>
-            <option value="BEARISH">Bearish (Users Loss 📉)</option>
-        </select>
-        <button class="btn btn-blue" onclick="setTrend()">SET MARKET TREND</button>
+    <div class="section">
+        <h2>💰 INVESTMENT PROFIT</h2>
+        <p style="font-size:12px; color:#94a3b8;">Click once daily to distribute 1.2% profit to all stakers.</p>
+        <button class="btn btn-blue" onclick="distributeProfit()">🚀 DISTRIBUTE DAILY PROFIT</button>
+    </div>
+
+    <div class="section">
+        <h2>⚙️ SYSTEM SETTINGS</h2>
+        <label>Withdrawal Fee (%)</label>
+        <input type="number" id="feeInput" value="5" placeholder="Fees in %">
+        <label>USDT/JazzCash Address</label>
+        <input type="text" id="payAddr" placeholder="Enter Address">
+        <button class="btn btn-blue" onclick="saveSettings()">SAVE SETTINGS</button>
+    </div>
+
+    <div class="section">
+        <h2>📥 DEPOSIT REQUESTS</h2>
+        <div id="depList">No pending deposits.</div>
+    </div>
+
+    <div class="section">
+        <h2>📤 WITHDRAWAL REQUESTS</h2>
+        <div id="withList">No pending withdrawals.</div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, update, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, update, onValue, get, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         const firebaseConfig = { 
             apiKey: "AIzaSyCh-1xi3jkIj5hUsmbm3GFGfT_AlWmxYkk", 
@@ -54,62 +76,100 @@
         const db = getDatabase(app);
 
         let timeLeft = 60;
-        let activePeriod = new Date().getTime().toString().slice(-6);
-        let nextForce = "AUTO";
+        let forcedRes = "AUTO";
 
-        // --- TIMER ENGINE (The most important part) ---
+        // --- TIMER & GAME ENGINE ---
         setInterval(() => {
             timeLeft--;
-            
             if (timeLeft <= 0) {
-                // Period Change Logic
-                const colors = ['Red', 'Green'];
-                const randomResult = colors[Math.floor(Math.random() * colors.length)];
-                
-                // Final Result Decide Karo
-                let finalWin = (nextForce === "AUTO") ? randomResult : nextForce;
-
+                const randomRes = ['Red', 'Green'][Math.floor(Math.random()*2)];
+                const finalWin = (forcedRes === "AUTO") ? randomRes : forcedRes;
                 update(ref(db, 'game_state'), {
                     lastResult: finalWin,
                     timer: 60,
-                    activePeriod: new Date().getTime().toString().slice(-6)
+                    activePeriod: new Date().getTime().toString().slice(-6),
+                    forcedResult: "AUTO"
                 });
-
                 timeLeft = 60;
-                nextForce = "AUTO"; // Reset force after round ends
-                document.getElementById('forcedStatus').innerText = "AUTO";
+                forcedRes = "AUTO";
+                document.getElementById('modeLabel').innerText = "AUTO";
             } else {
-                // Sirf Timer Update Karo
-                update(ref(db, 'game_state'), {
-                    timer: timeLeft,
-                    forcedResult: nextForce
-                });
+                update(ref(db, 'game_state'), { timer: timeLeft });
             }
-            
-            // Local Display Update
-            document.getElementById('timerBox').innerText = timeLeft + "s";
+            document.getElementById('timerDisp').innerText = timeLeft + "s";
         }, 1000);
 
-        // Sync Period ID on UI
-        onValue(ref(db, 'game_state/activePeriod'), (snap) => {
-            document.getElementById('periodID').innerText = snap.val() || "--";
+        window.forceNext = (c) => { 
+            forcedRes = c; 
+            document.getElementById('modeLabel').innerText = c;
+            update(ref(db, 'game_state'), { forcedResult: c });
+        };
+
+        // --- PROFIT DISTRIBUTION ---
+        window.distributeProfit = async () => {
+            const snap = await get(ref(db, 'user_investments'));
+            if(!snap.exists()) return alert("No active stakes!");
+            let total = 0;
+            for(let phone in snap.val()){
+                for(let key in snap.val()[phone]){
+                    const inv = snap.val()[phone][key];
+                    if(inv.status === "Locked"){
+                        const profit = inv.amount * 0.012;
+                        const uSnap = await get(ref(db, `users/${phone}`));
+                        await update(ref(db, `users/${phone}`), { wallet: (uSnap.val().wallet || 0) + profit });
+                        total += profit;
+                    }
+                }
+            }
+            alert(`Distributed $${total.toFixed(2)} Profit!`);
+        };
+
+        // --- SETTINGS ---
+        window.saveSettings = () => {
+            update(ref(db, 'admin_settings'), {
+                withdraw_fee: document.getElementById('feeInput').value,
+                payment_address: document.getElementById('payAddr').value
+            });
+            alert("Settings Saved!");
+        };
+
+        // --- DEPOSITS ---
+        onValue(ref(db, 'deposit_requests'), (snap) => {
+            const cont = document.getElementById('depList');
+            cont.innerHTML = "";
+            snap.forEach(child => {
+                const d = child.val();
+                cont.innerHTML += `<div class="req-box">${d.phone}: <b>$${d.amount}</b><br>
+                <button class="btn btn-green" style="padding:5px; margin-top:5px;" onclick="approveDep('${d.phone}', ${d.amount}, '${child.key}')">Approve</button></div>`;
+            });
         });
 
-        // Forced Result Functions
-        window.forceResult = (color) => {
-            nextForce = color;
-            document.getElementById('forcedStatus').innerText = color;
-            update(ref(db, 'game_state'), { forcedResult: color });
-            alert("Next Result Forced to: " + color);
+        window.approveDep = async (ph, amt, key) => {
+            const s = await get(ref(db, `users/${ph}/wallet`));
+            await update(ref(db, `users/${ph}`), { wallet: (s.val() || 0) + amt });
+            await remove(ref(db, `deposit_requests/${key}`));
+            alert("Approved!");
         };
 
-        // Market Trend Logic
-        window.setTrend = () => {
-            const trend = document.getElementById('marketTrend').value;
-            update(ref(db, 'app_settings'), { market_mood: trend });
-            alert("Market Trend set to: " + trend);
-        };
+        // --- WITHDRAWALS WITH FEES ---
+        onValue(ref(db, 'withdraw_requests'), async (snap) => {
+            const feeSnap = await get(ref(db, 'admin_settings/withdraw_fee'));
+            const feeP = feeSnap.val() || 0;
+            const cont = document.getElementById('withList');
+            cont.innerHTML = "";
+            snap.forEach(child => {
+                const w = child.val();
+                const feeAmt = (w.amount * (feeP/100)).toFixed(2);
+                const net = (w.amount - feeAmt).toFixed(2);
+                cont.innerHTML += `<div class="req-box">${w.phone}: Requested $${w.amount}<br>
+                <span class="fee-label">Fee: -$${feeAmt}</span> | <b>Pay: $${net}</b><br>
+                <button class="btn btn-green" style="padding:5px; margin-top:5px;" onclick="doneWith('${child.key}')">Mark Paid</button></div>`;
+            });
+        });
+
+        window.doneWith = (key) => remove(ref(db, `withdraw_requests/${key}`));
 
     </script>
 </body>
-</html>
+    </html>
+        
