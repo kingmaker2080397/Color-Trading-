@@ -2,83 +2,70 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Investment Leaderboard</title>
+    <title>Stake Assets - Maker Gold</title>
     <style>
-        :root { --bg: #070b14; --card: #1e293b; --gold: #fbbf24; }
+        :root { --bg: #070b14; --card: #1e293b; --gold: #fbbf24; --blue: #3b82f6; }
         body { background: var(--bg); color: white; font-family: 'Poppins', sans-serif; padding: 15px; }
-        .my-plan { background: linear-gradient(135deg, #1e3a8a, #1e293b); padding: 20px; border-radius: 20px; border: 2px solid var(--gold); margin-bottom: 30px; position: relative; }
-        .leaderboard-row { background: var(--card); padding: 12px; border-radius: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #334155; }
-        .flag { margin-right: 10px; font-size: 18px; }
-        .profit { color: #22c55e; font-weight: bold; }
+        .wallet-card { background: linear-gradient(135deg, #1e3a8a, #1e293b); padding: 20px; border-radius: 20px; border: 1px solid var(--blue); margin-bottom: 20px; text-align: center; }
+        .input-group { background: var(--card); padding: 15px; border-radius: 15px; margin-top: 15px; }
+        input { width: 100%; background: transparent; border: none; border-bottom: 2px solid var(--blue); color: white; padding: 10px; font-size: 18px; outline: none; margin-top: 10px; }
+        .btn-stake { width: 100%; background: var(--gold); color: black; padding: 15px; border-radius: 15px; border: none; font-weight: bold; margin-top: 20px; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <h3 style="color: var(--gold);">⭐ My Active Investment</h3>
-    <div id="myInvestmentArea">
-        <div class="my-plan">
-            <p style="margin:0; font-size:12px; color:#94a3b8;">YOUR CURRENT STATUS</p>
-            <h2 id="myPlanName">No Active Plan</h2>
-            <div style="display:flex; justify-content:space-between;">
-                <span>Invested: <b id="myAmt">$0.00</b></span>
-                <span>Return: <b id="myReturn" class="profit">0%</b></span>
-            </div>
-            <button id="redeemBtn" onclick="redeemNow()" style="width:100%; margin-top:15px; padding:10px; border-radius:10px; border:none; background:var(--gold); font-weight:bold; cursor:pointer; display:none;">REDEEM NOW</button>
-        </div>
+    <div class="wallet-card">
+        <p style="margin:0; font-size:12px; color:#94a3b8;">AVAILABLE WALLET BALANCE</p>
+        <h1 id="userBal">$ 0.00</h1>
     </div>
 
-    <h3 style="font-size: 16px; margin-top: 20px;">🌍 Global Staking Board</h3>
-    <div id="globalBoard">
-        </div>
+    <div class="input-group">
+        <label style="font-size: 14px; color: var(--gold);">Enter Staking Amount ($)</label>
+        <input type="number" id="stakeAmt" placeholder="Min $10">
+        <p style="font-size: 11px; color: #94a3b8; margin-top: 10px;">Daily Return: 0.5% - 1.2% (Auto-Compounding)</p>
+    </div>
+
+    <button class="btn-stake" onclick="startStake()">STAKE NOW</button>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, onValue, update, get, push } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         const firebaseConfig = { apiKey: "AIzaSyCh-1xi3jkIj5hUsmbm3GFGfT_AlWmxYkk", databaseURL: "https://maker-trading-official-default-rtdb.firebaseio.com/" };
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const phone = localStorage.getItem("userPhone");
 
-        // 1. Fetch User's Own Investment
-        onValue(ref(db, `user_investments/${phone}`), (snap) => {
-            if(snap.exists()){
-                snap.forEach(child => {
-                    const d = child.val();
-                    document.getElementById('myPlanName').innerText = d.planName;
-                    document.getElementById('myAmt').innerText = "$" + d.amount;
-                    document.getElementById('myReturn').innerText = "+" + d.dailyProfit + "% Daily";
-                    if(d.status === "Ready") document.getElementById('redeemBtn').style.display = 'block';
-                });
-            }
+        // Wallet Balance Load Karo
+        onValue(ref(db, `users/${phone}/wallet`), (snap) => {
+            const bal = snap.val() || 0;
+            document.getElementById('userBal').innerText = "$ " + bal.toFixed(2);
         });
 
-        // 2. Generate Global Leaderboard (Fake + Flag Logic)
-        const board = document.getElementById('globalBoard');
-        const flags = ['🇮🇳', '🇵🇰', '🇦🇺', '🇧🇩', '🇺🇸', '🇬🇧', '🇿🇦'];
-        const names = ['Arjun', 'Zeeshan', 'Smith', 'Rahman', 'John', 'Alex', 'Musa'];
+        window.startStake = async () => {
+            const amt = parseFloat(document.getElementById('stakeAmt').value);
+            const userSnap = await get(ref(db, `users/${phone}`));
+            const currentBal = userSnap.val().wallet || 0;
 
-        for(let i=0; i<15; i++){
-            const row = document.createElement('div');
-            row.className = 'leaderboard-row';
-            const f = flags[Math.floor(Math.random()*flags.length)];
-            const n = names[Math.floor(Math.random()*names.length)] + "***" + Math.floor(Math.random()*99);
-            const amt = Math.floor(Math.random()*5000 + 500);
-            const prof = (Math.random()*2 + 0.5).toFixed(1);
+            if (amt < 10) return alert("Minimum stake is $10");
+            if (amt > currentBal) return alert("Insufficient balance in wallet!");
 
-            row.innerHTML = `
-                <div style="display:flex; align-items:center;">
-                    <span class="flag">${f}</span>
-                    <span>${n}</span>
-                </div>
-                <div style="text-align:right;">
-                    <div style="font-size:11px; color:#94a3b8;">Invested $${amt}</div>
-                    <div class="profit">+$${(amt*(prof/100)).toFixed(2)} Today</div>
-                </div>
-            `;
-            board.appendChild(row);
-        }
+            // Deduct from Wallet & Add to Investment
+            const newBal = currentBal - amt;
+            await update(ref(db, `users/${phone}`), { wallet: newBal });
+            
+            const invRef = ref(db, `user_investments/${phone}`);
+            await push(invRef, {
+                amount: amt,
+                planName: "Standard Stake",
+                dailyProfit: 0.8,
+                status: "Locked",
+                timestamp: Date.now()
+            });
+
+            alert("Staking Successful! Your $ " + amt + " is now active.");
+            location.href = "dashboard.html";
+        };
     </script>
 </body>
 </html>
-
