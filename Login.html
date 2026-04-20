@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Maker Gold</title>
+    <style>
+        :root { --primary: #3b82f6; --bg: #070b14; --card: #1e293b; }
+        body { margin: 0; font-family: sans-serif; background: var(--bg); color: white; display: flex; align-items: center; justify-content: center; height: 100vh; }
+        .card { background: var(--card); padding: 30px; border-radius: 25px; width: 85%; max-width: 350px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        input { width: 100%; padding: 15px; margin: 10px 0; border-radius: 12px; border: 1px solid #334155; background: #0f172a; color: white; box-sizing: border-box; }
+        .btn { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; box-shadow: 0 5px 0 #1e40af; }
+        
+        /* Popup Style */
+        #popup { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #1e293b; padding: 20px; border-radius: 15px; border: 1px solid var(--primary); z-index: 1000; box-shadow: 0 0 100px rgba(0,0,0,0.8); text-align: center; min-width: 200px; }
+    </style>
+</head>
+<body>
+
+    <div id="popup">
+        <div id="popIcon" style="font-size: 40px; margin-bottom: 10px;"></div>
+        <div id="popMsg"></div>
+    </div>
+
+    <div class="card">
+        <h2>Maker Gold</h2>
+        <input type="text" id="phone" placeholder="Phone Number">
+        <input type="password" id="pass" placeholder="Password">
+        <button class="btn" onclick="handleLogin()">LOGIN</button>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = { 
+            apiKey: "AIzaSyCh-1xi3jkIj5hUsmbm3GFGfT_AlWmxYkk",
+            databaseURL: "https://maker-trading-official-default-rtdb.firebaseio.com/" 
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // Professional Popup Function
+        window.showPop = (msg, type) => {
+            const p = document.getElementById('popup');
+            document.getElementById('popMsg').innerText = msg;
+            document.getElementById('popIcon').innerText = type === 'success' ? '✅' : '❌';
+            p.style.display = 'block';
+            setTimeout(() => { p.style.display = 'none'; }, 2000);
+        };
+
+        window.handleLogin = async () => {
+            const phone = document.getElementById('phone').value;
+            const pass = document.getElementById('pass').value;
+
+            if(!phone || !pass) { showPop("Fill all fields", "error"); return; }
+
+            const userRef = ref(db, 'users/' + phone);
+            const snap = await get(userRef);
+
+            if(snap.exists() && snap.val().password === pass) {
+                showPop("Login Success!", "success");
+                localStorage.setItem("userPhone", phone);
+                setTimeout(() => { location.href = "home.html"; }, 1500);
+            } else {
+                showPop("Invalid Credentials", "error");
+            }
+        };
+    </script>
+</body>
+  </html>
+  
