@@ -6,31 +6,65 @@
     <title>Game Records - Maker Gold</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #3b82f6; --bg: #070b14; --card: #1e293b; --win: #22c55e; --loss: #ef4444; }
-        body { font-family: 'Poppins', sans-serif; background: var(--bg); color: white; padding: 15px; margin: 0; }
+        :root { --primary: #3b82f6; --bg: #070b14; --card: #1e293b; --win: #22c55e; --loss: #ef4444; --gold: #fbbf24; }
+        body { font-family: 'Poppins', sans-serif; background: var(--bg); color: white; padding: 15px; margin: 0; padding-bottom: 50px; }
         
-        .header { text-align: center; padding: 20px 0; border-bottom: 1px solid #334155; margin-bottom: 20px; }
+        .header { text-align: center; padding: 25px 0; position: relative; }
+        .back-btn { position: absolute; left: 10px; top: 30px; color: var(--gold); text-decoration: none; font-size: 20px; }
         
-        .table-container { background: var(--card); border-radius: 20px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
-        table { width: 100%; border-collapse: collapse; font-size: 14px; }
-        th { background: #0f172a; padding: 15px; text-align: left; color: #94a3b8; font-weight: 600; text-transform: uppercase; font-size: 12px; }
-        td { padding: 15px; border-bottom: 1px solid #334155; }
+        /* Stats Header */
+        .summary-box { 
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e293b 100%); 
+            padding: 20px; border-radius: 20px; margin-bottom: 25px; 
+            display: flex; justify-content: space-around; border: 1px solid rgba(255,255,255,0.05);
+        }
+        .stat-item { text-align: center; }
+        .stat-item span { display: block; font-size: 10px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; }
+        .stat-item b { font-size: 18px; color: var(--gold); }
+
+        .table-container { 
+            background: var(--card); border-radius: 25px; overflow: hidden; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.03); 
+        }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #0f172a; padding: 15px 10px; text-align: left; color: #94a3b8; font-size: 11px; text-transform: uppercase; }
+        td { padding: 18px 10px; border-bottom: 1px solid #334155; font-size: 13px; }
         
-        .win { color: var(--win); font-weight: bold; }
-        .loss { color: var(--loss); font-weight: bold; }
-        .period-id { font-family: monospace; color: #3b82f6; }
-        .badge { padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; }
-        .badge-green { background: rgba(34, 197, 94, 0.1); color: var(--win); border: 1px solid var(--win); }
-        .badge-red { background: rgba(239, 68, 68, 0.1); color: var(--loss); border: 1px solid var(--loss); }
+        /* Winning/Lossing Styles */
+        .win-amount { color: var(--win); font-weight: 600; }
+        .loss-amount { color: var(--loss); font-weight: 600; }
+        .period-txt { font-family: 'Courier New', monospace; color: #94a3b8; font-size: 12px; }
         
-        .empty-state { text-align: center; padding: 50px 20px; color: #94a3b8; display: none; }
+        /* Choice Badges */
+        .badge { padding: 5px 10px; border-radius: 8px; font-size: 10px; font-weight: bold; }
+        .badge-green { background: rgba(34, 197, 94, 0.15); color: #22c55e; border: 1px solid #22c55e; }
+        .badge-red { background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid #ef4444; }
+        .badge-violet { background: rgba(139, 92, 246, 0.15); color: #a78bfa; border: 1px solid #a78bfa; }
+        
+        .empty-state { text-align: center; padding: 60px 20px; color: #475569; }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <h3 style="margin: 0;">📊 My Game History</h3>
-        <p style="font-size: 12px; color: #94a3b8; margin-top: 5px;">Showing your last 20 betting sessions</p>
+        <a href="home.html" class="back-btn">❮</a>
+        <h3 style="margin: 0; color: var(--gold);">Trade History</h3>
+        <p style="font-size: 11px; color: #94a3b8; margin-top: 5px;">Your recent 1-minute game results</p>
+    </div>
+
+    <div class="summary-box">
+        <div class="stat-item">
+            <span id="totalBets">0</span>
+            <span>Total Bets</span>
+        </div>
+        <div class="stat-item">
+            <span id="winCount" style="color: var(--win);">0</span>
+            <span>Wins</span>
+        </div>
+        <div class="stat-item">
+            <span id="winRate">0%</span>
+            <span>Win Rate</span>
+        </div>
     </div>
 
     <div class="table-container">
@@ -38,8 +72,8 @@
             <thead>
                 <tr>
                     <th>Period</th>
-                    <th>Select</th>
-                    <th>Result</th>
+                    <th>Prediction</th>
+                    <th>Result (Net)</th>
                 </tr>
             </thead>
             <tbody id="recordsList">
@@ -47,14 +81,10 @@
         </table>
         
         <div id="noData" class="empty-state">
-            <div style="font-size: 40px;">📂</div>
-            <p>No betting history found.</p>
+            <div style="font-size: 40px; margin-bottom: 10px;">📉</div>
+            <p>No trades recorded yet.<br><small>Start playing to see your history!</small></p>
         </div>
     </div>
-
-    <p style="text-align:center; color:#475569; font-size:11px; margin-top:30px;">
-        Records are synced in real-time with our secure servers.
-    </p>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -62,10 +92,7 @@
 
         const firebaseConfig = {
             apiKey: "AIzaSyCh-1xi3jkIj5hUsmbm3GFGfT_AlWmxYkk",
-            authDomain: "maker-trading-official.firebaseapp.com",
-            databaseURL: "https://maker-trading-official-default-rtdb.firebaseio.com/",
-            projectId: "maker-trading-official",
-            appId: "1:262205995192:web:d7255379855a0fc9489c4d"
+            databaseURL: "https://maker-trading-official-default-rtdb.firebaseio.com/"
         };
         
         const app = initializeApp(firebaseConfig);
@@ -74,12 +101,16 @@
 
         if(!phone) window.location.href = "login.html";
 
-        // Fetch user results
-        const resultsRef = ref(db, 'user_history/' + phone);
-        // query and limit to last 20 records for performance
+        // Fetching records
+        const resultsRef = query(ref(db, 'user_history/' + phone), limitToLast(30));
+
         onValue(resultsRef, (snap) => {
             const list = document.getElementById('recordsList');
             const noData = document.getElementById('noData');
+            
+            let winCount = 0;
+            let totalCount = 0;
+            
             list.innerHTML = "";
 
             if(!snap.exists()) {
@@ -89,21 +120,35 @@
 
             noData.style.display = "none";
             
-            // Reverse the keys to show latest on top
             const records = [];
             snap.forEach(child => {
-                records.unshift({ id: child.key, ...child.val() });
+                const data = child.val();
+                records.unshift({ id: child.key, ...data });
+                
+                // Stats Calculation
+                totalCount++;
+                if(data.status === 'WIN') winCount++;
             });
+
+            // Update UI Stats
+            document.getElementById('totalBets').innerText = totalCount;
+            document.getElementById('winCount').innerText = winCount;
+            document.getElementById('winRate').innerText = totalCount > 0 ? Math.round((winCount/totalCount)*100) + "%" : "0%";
 
             records.forEach(item => {
                 const tr = document.createElement('tr');
                 const isWin = item.status === 'WIN';
                 
+                // Choosing badge class
+                let badgeClass = 'badge-green';
+                if(item.choice === 'Red') badgeClass = 'badge-red';
+                if(item.choice === 'Violet') badgeClass = 'badge-violet';
+
                 tr.innerHTML = `
-                    <td class="period-id">${item.periodId}</td>
-                    <td><span class="badge ${item.choice === 'Green' ? 'badge-green' : 'badge-red'}">${item.choice.toUpperCase()}</span></td>
-                    <td class="${isWin ? 'win' : 'loss'}">
-                        ${isWin ? '+' : '-'}₹${parseFloat(item.amount).toFixed(2)}
+                    <td class="period-txt">${item.periodId.toString().slice(-5)}</td>
+                    <td><span class="badge ${badgeClass}">${item.choice.toUpperCase()}</span></td>
+                    <td class="${isWin ? 'win-amount' : 'loss-amount'}">
+                        ${isWin ? '+' : '-'} $${parseFloat(item.amount).toFixed(2)}
                     </td>
                 `;
                 list.appendChild(tr);
