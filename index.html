@@ -3,99 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Maker Gold | Welcome</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
+    <title>Maker Gold - Login/Register</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #070b14; --gold: #fbbf24; }
-        
-        body { 
-            margin: 0; 
-            padding: 0; 
-            background: var(--bg); 
-            display: flex; 
-            flex-direction: column; 
-            justify-content: center; 
-            align-items: center; 
-            height: 100vh; 
-            overflow: hidden;
-            font-family: 'Poppins', sans-serif;
-        }
-
-        /* Splash Animation */
-        .logo-container {
-            text-align: center;
-            animation: zoomIn 1.2s ease-out forwards;
-        }
-
-        .logo-icon {
-            font-size: 80px;
-            margin-bottom: 10px;
-            filter: drop-shadow(0 0 20px rgba(251, 191, 36, 0.4));
-        }
-
-        .logo-text {
-            color: var(--gold);
-            font-size: 24px;
-            letter-spacing: 5px;
-            font-weight: 700;
-            text-transform: uppercase;
-        }
-
-        /* Loading Spinner */
-        .loader {
-            width: 40px;
-            height: 40px;
-            border: 3px solid rgba(255, 255, 255, 0.1);
-            border-top: 3px solid var(--gold);
-            border-radius: 50%;
-            margin-top: 30px;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes zoomIn {
-            from { transform: scale(0.5); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .version {
-            position: absolute;
-            bottom: 20px;
-            color: rgba(255,255,255,0.3);
-            font-size: 10px;
-            letter-spacing: 1px;
-        }
+        :root { --primary: #fbbf24; --bg: #070b14; --card: #1e293b; }
+        body { font-family: 'Poppins', sans-serif; background: var(--bg); color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .auth-card { background: var(--card); padding: 30px; border-radius: 20px; width: 350px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid #334155; }
+        .tabs { display: flex; justify-content: space-around; margin-bottom: 25px; cursor: pointer; border-bottom: 1px solid #334155; }
+        .tab { padding: 10px; font-weight: bold; color: #94a3b8; }
+        .active-tab { color: var(--primary); border-bottom: 2px solid var(--primary); }
+        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; border: 1px solid #334155; background: #070b14; color: white; box-sizing: border-box; outline: none; }
+        input:focus { border-color: var(--primary); }
+        .btn { width: 100%; padding: 14px; background: var(--primary); border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 15px; font-size: 16px; color: #000; }
+        .hidden { display: none; }
     </style>
 </head>
 <body>
 
-    <div class="logo-container">
-        <div class="logo-icon">👑</div>
-        <div class="logo-text">Maker Gold</div>
-        <div class="loader"></div>
+<div class="auth-card">
+    <div class="tabs">
+        <div id="loginTab" class="tab active-tab" onclick="toggleAuth('login')">LOGIN</div>
+        <div id="registerTab" class="tab" onclick="toggleAuth('register')">SIGN UP</div>
     </div>
 
-    <div class="version">SECURED BY MAKER V2.0</div>
+    <div id="loginForm">
+        <input type="number" id="lPhone" placeholder="Phone Number">
+        <input type="password" id="lPass" placeholder="Password">
+        <button class="btn" onclick="handleLogin()">LOGIN NOW</button>
+    </div>
 
-    <script>
-        // Redirect Logic
-        setTimeout(() => {
-            const userPhone = localStorage.getItem("userPhone");
+    <div id="registerForm" class="hidden">
+        <input type="number" id="rPhone" placeholder="Phone Number">
+        <input type="password" id="rPass" placeholder="Password (Min 6 digits)">
+        <button class="btn" style="background: #22c55e; color: white;" onclick="handleRegister()">CREATE ACCOUNT</button>
+    </div>
+</div>
 
-            // Check if user is logged in
-            if (userPhone) {
-                // If logged in, go to Home
-                window.location.href = "home.html";
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getDatabase, ref, set, get, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+    // DATABASE CONFIG
+    const firebaseConfig = { 
+        apiKey: "AIzaSyCh-1xi3jkIj5hUsmbm3GFGfT_AlWmxYkk", 
+        databaseURL: "https://maker-trading-official-default-rtdb.firebaseio.com/" 
+    };
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    // TAB TOGGLE
+    window.toggleAuth = (type) => {
+        if(type === 'login') {
+            document.getElementById('loginForm').classList.remove('hidden');
+            document.getElementById('registerForm').classList.add('hidden');
+            document.getElementById('loginTab').classList.add('active-tab');
+            document.getElementById('registerTab').classList.remove('active-tab');
+        } else {
+            document.getElementById('loginForm').classList.add('hidden');
+            document.getElementById('registerForm').classList.remove('hidden');
+            document.getElementById('registerTab').classList.add('active-tab');
+            document.getElementById('loginTab').classList.remove('active-tab');
+        }
+    }
+
+    // REGISTER LOGIC
+    window.handleRegister = async () => {
+        const phone = document.getElementById('rPhone').value.trim();
+        const pass = document.getElementById('rPass').value.trim();
+
+        if(!phone || pass.length < 6) return alert("Sahi details daalo!");
+
+        const userRef = ref(db, 'users/' + phone);
+        const snap = await get(userRef);
+
+        if(snap.exists()) {
+            alert("Number already registered!");
+        } else {
+            await set(userRef, {
+                phone: phone,
+                password: pass,
+                wallet: 0,
+                kycStatus: "Pending",
+                totalDeposit: 0,
+                date: new Date().toLocaleDateString()
+            });
+            alert("Success! Now Login.");
+            toggleAuth('login');
+        }
+    };
+
+    // LOGIN LOGIC
+    window.handleLogin = async () => {
+        const phone = document.getElementById('lPhone').value.trim();
+        const pass = document.getElementById('lPass').value.trim();
+
+        const userRef = ref(db, 'users/' + phone);
+        const snap = await get(userRef);
+
+        if(snap.exists()) {
+            const data = snap.val();
+            if(data.password === pass) {
+                localStorage.setItem("userPhone", phone);
+                alert("Welcome Back!");
+                window.location.href = "dashboard.html"; // Yahan apne dashboard ka link dalo
             } else {
-                // If not logged in, go to Login
-                window.location.href = "login.html";
+                alert("Wrong Password!");
             }
-        }, 2500); // 2.5 seconds wait for splash screen effect
-    </script>
+        } else {
+            alert("Account not found! Register first.");
+        }
+    };
+</script>
 
 </body>
 </html>
