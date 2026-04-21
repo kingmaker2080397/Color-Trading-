@@ -37,5 +37,93 @@
         
         .btn { 
             background: linear-gradient(135deg, #fbbf24, #d97706); color: #070b14; padding: 18px; 
-            border: none; border-radius: 1
+            border: none; border-radius: 15px; cursor: pointer; 
+            font-weight: 800; width: 100%; font-size: 16px; transition: 0.3s;
+            box-shadow: 0 5px 15px rgba(251, 191, 36, 0.3);
+        }
+        .btn:active { transform: scale(0.98); box-shadow: none; }
+        
+        .reward-info {
+            margin-top: 25px; background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.2);
+            padding: 15px; border-radius: 15px; font-size: 13px; color: #22c55e; line-height: 1.5;
+        }
+
+        .share-text { font-size: 11px; color: #475569; margin-top: 15px; }
+    </style>
+</head>
+<body>
+
+    <div style="margin-top: 10px;">
+        <h2 style="color: var(--gold); margin: 0; font-size: 26px;">Affiliate Program</h2>
+        <p style="color: #94a3b8; font-size: 12px; margin-top: 5px;">Invite friends & Earn 10% Commission</p>
+    </div>
+
+    <div class="invite-box">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <b id="totalRef">0</b>
+                <span>My Team</span>
+            </div>
+            <div class="stat-card">
+                <b id="commEarned">$ 0.00</b>
+                <span>Total Bonus</span>
+            </div>
+        </div>
+
+        <div class="code-container">
+            <span class="code-label">YOUR EXCLUSIVE CODE</span>
+            <div class="code" id="myId">------</div>
+        </div>
+        
+        <button class="btn" onclick="copyLink()">📋 COPY PROMO LINK</button>
+        
+        <div class="reward-info">
+            <b>How it works:</b><br>
+            Share your link. When your friends register and recharge, you get an instant 10% bonus added to your wallet.
+        </div>
+
+        <div class="share-text">Link contains your unique referral signature</div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCh-1xi3jkIj5hUsmbm3GFGfT_AlWmxYkk",
+            databaseURL: "https://maker-trading-official-default-rtdb.firebaseio.com/"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const phone = localStorage.getItem("userPhone");
+
+        if(!phone) window.location.href = "login.html";
+
+        document.getElementById('myId').innerText = phone;
+
+        // Fetch User Referral Stats from Firebase
+        onValue(ref(db, 'users/' + phone), (snap) => {
+            if(snap.exists()) {
+                const data = snap.val();
+                document.getElementById('totalRef').innerText = data.referralCount || "0";
+                // Fixed to $ to match your other pages
+                document.getElementById('commEarned').innerText = "$ " + (data.referralIncome || 0).toFixed(2);
+            }
+        });
+
+        window.copyLink = function() {
+            // Updated link logic to match your GitHub repository structure
+            const currentUrl = window.location.href;
+            const baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/'));
+            const inviteLink = baseUrl + "/register.html?invite=" + phone;
             
+            navigator.clipboard.writeText(inviteLink).then(() => {
+                alert("Link Copied!\nShare this with your friends to build your team.");
+            }).catch(err => {
+                // Fallback
+                alert("Link: " + inviteLink);
+            });
+        }
+    </script>
+</body>
+</html>
