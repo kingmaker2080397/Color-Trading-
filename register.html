@@ -12,65 +12,83 @@
             background: var(--bg); 
             display: flex; justify-content: center; align-items: center; 
             height: 100vh; margin: 0; color: white;
+            background: radial-gradient(circle at bottom, #1e3a8a 0%, var(--bg) 100%);
         }
         .card { 
-            background: var(--card); padding: 30px; border-radius: 20px; 
-            width: 340px; box-shadow: 0 15px 35px rgba(0,0,0,0.5); 
-            text-align: center; border-bottom: 4px solid var(--gold);
+            background: var(--card); padding: 40px 30px; border-radius: 25px; 
+            width: 340px; box-shadow: 0 20px 50px rgba(0,0,0,0.6); 
+            text-align: center; border: 1px solid rgba(255,255,255,0.05);
+            border-bottom: 4px solid var(--gold);
         }
-        h2 { color: var(--gold); margin-bottom: 20px; }
+        h2 { color: var(--gold); margin-bottom: 5px; font-weight: 700; letter-spacing: 1px; }
+        .sub-t { color: #94a3b8; font-size: 12px; margin-bottom: 30px; text-transform: uppercase; }
+        
+        .input-box { position: relative; margin-bottom: 15px; }
         input { 
-            width: 100%; padding: 14px; margin: 10px 0; 
-            border: 1px solid #334155; border-radius: 12px; 
+            width: 100%; padding: 15px; border: 1px solid #334155; border-radius: 15px; 
             box-sizing: border-box; background: #0f172a; color: white; outline: none;
+            transition: 0.3s; font-size: 14px;
         }
-        input:focus { border-color: var(--gold); }
+        input:focus { border-color: var(--gold); box-shadow: 0 0 10px rgba(251, 191, 36, 0.1); }
+        input::placeholder { color: #475569; }
+        
         button { 
-            width: 100%; padding: 14px; background: var(--gold); 
-            color: #070b14; border: none; border-radius: 12px; 
-            cursor: pointer; font-weight: bold; font-size: 16px; margin-top: 15px;
+            width: 100%; padding: 16px; background: var(--gold); 
+            color: #070b14; border: none; border-radius: 15px; 
+            cursor: pointer; font-weight: 800; font-size: 16px; margin-top: 15px;
+            text-transform: uppercase; transition: 0.3s;
         }
-        button:disabled { background: #475569; }
-        p { color: #94a3b8; font-size: 14px; margin-top: 20px; }
-        a { color: var(--gold); text-decoration: none; font-weight: bold; }
+        button:active { transform: scale(0.97); }
+        button:disabled { background: #475569; opacity: 0.7; }
+        
+        .footer { color: #94a3b8; font-size: 13px; margin-top: 25px; }
+        .footer a { color: var(--gold); text-decoration: none; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <div class="card">
-        <h2>👑 JOIN MAKER</h2>
-        <p style="margin-top: -15px; margin-bottom: 20px; color: #94a3b8;">Start your trading journey today</p>
+        <h2>MAKER GOLD</h2>
+        <div class="sub-t">Create Your Trading Account</div>
         
-        <input type="number" id="regPhone" placeholder="Mobile Number">
-        <input type="password" id="regPass" placeholder="Set Password">
-        <input type="text" id="inviteCode" placeholder="Invite Code (Optional)">
+        <div class="input-box">
+            <input type="tel" id="regPhone" placeholder="Mobile Number" maxlength="10">
+        </div>
+        <div class="input-box">
+            <input type="password" id="regPass" placeholder="Set Password (Min 6 chars)">
+        </div>
+        <div class="input-box">
+            <input type="text" id="inviteCode" placeholder="Invite Code (Optional)">
+        </div>
         
-        <button id="regBtn">CREATE ACCOUNT</button>
+        <button id="regBtn">GET STARTED</button>
         
-        <p>Already a member? <a href="index.html">Login Now</a></p>
+        <div class="footer">
+            Already have an account? <br>
+            <a href="login.html">Login to Trade</a>
+        </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, set, get, update, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCh-1xi3jkIj5hUsmbm3GFGfT_AlWmxYkk",
-            authDomain: "maker-trading-official.firebaseapp.com",
-            databaseURL: "https://maker-trading-official-default-rtdb.firebaseio.com/",
-            projectId: "maker-trading-official",
-            appId: "1:262205995192:web:d7255379855a0fc9489c4d"
+            databaseURL: "https://maker-trading-official-default-rtdb.firebaseio.com/"
         };
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // --- AUTO INVITE DETECTION ---
+        // --- URL SE INVITE CODE DHUNDNA ---
         window.onload = () => {
             const urlParams = new URLSearchParams(window.location.search);
             const invite = urlParams.get('invite');
             if(invite) {
-                document.getElementById('inviteCode').value = invite;
-                document.getElementById('inviteCode').readOnly = true; // Taake user isse change na kare
+                const inviteField = document.getElementById('inviteCode');
+                inviteField.value = invite;
+                inviteField.style.borderColor = "#22c55e"; // Green border for valid detection
+                inviteField.readOnly = true;
             }
         };
 
@@ -80,44 +98,56 @@
             const invite = document.getElementById('inviteCode').value.trim();
             const btn = document.getElementById('regBtn');
 
-            if(phone.length < 10) { alert("Invalid Mobile Number!"); return; }
-            if(pass.length < 4) { alert("Password must be at least 4 characters!"); return; }
+            if(phone.length < 10) return alert("Please enter a valid 10-digit number.");
+            if(pass.length < 6) return alert("Password should be at least 6 characters.");
 
             btn.disabled = true;
-            btn.innerText = "Creating Account...";
+            btn.innerText = "Processing...";
 
             try {
-                const snapshot = await get(ref(db, 'users/' + phone));
+                const userRef = ref(db, 'users/' + phone);
+                const snapshot = await get(userRef);
                 
                 if (snapshot.exists()) {
                     alert("This number is already registered!");
-                    btn.disabled = false;
-                    btn.innerText = "CREATE ACCOUNT";
+                    resetBtn();
                 } else {
-                    // Save new user data
-                    await set(ref(db, 'users/' + phone), {
+                    // 1. Naya user create karna
+                    await set(userRef, {
                         mobile: phone,
                         password: pass,
-                        wallet: 0, // Initial balance
+                        wallet: 0, 
                         kycStatus: "Not Verified",
                         referredBy: invite || "Direct",
                         referralCount: 0,
                         referralIncome: 0,
-                        regDate: new Date().toISOString()
+                        regDate: new Date().toLocaleString()
                     });
 
-                    // Agar kisi ne refer kiya hai toh uske referralCount ko update karne ka logic admin panel sambhalega
+                    // 2. Referral Logic (Agar invite code hai toh upline ka count badhao)
+                    if(invite && invite !== "" && invite !== phone) {
+                        const uplineRef = ref(db, 'users/' + invite + '/referralCount');
+                        // Transaction use kar rahe hain taaki count sahi se update ho
+                        await runTransaction(uplineRef, (currentCount) => {
+                            return (currentCount || 0) + 1;
+                        });
+                    }
                     
-                    alert("Registration Successful! Please Login.");
-                    window.location.href = "index.html";
+                    alert("Account Created! Welcome to Maker Gold.");
+                    window.location.href = "login.html";
                 }
             } catch (error) {
                 console.error(error);
-                alert("Network Error! Please try again.");
-                btn.disabled = false;
-                btn.innerText = "CREATE ACCOUNT";
+                alert("Something went wrong. Please check your connection.");
+                resetBtn();
             }
         };
+
+        function resetBtn() {
+            const btn = document.getElementById('regBtn');
+            btn.disabled = false;
+            btn.innerText = "GET STARTED";
+        }
     </script>
 </body>
 </html>
