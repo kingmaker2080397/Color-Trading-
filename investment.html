@@ -2,69 +2,153 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stake Assets - Maker Gold</title>
+    <title>Investment - Maker Gold</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <style>
         :root { --bg: #070b14; --card: #1e293b; --gold: #fbbf24; --blue: #3b82f6; }
-        body { background: var(--bg); color: white; font-family: 'Poppins', sans-serif; padding: 15px; }
-        .wallet-card { background: linear-gradient(135deg, #1e3a8a, #1e293b); padding: 20px; border-radius: 20px; border: 1px solid var(--blue); margin-bottom: 20px; text-align: center; }
-        .input-group { background: var(--card); padding: 15px; border-radius: 15px; margin-top: 15px; }
-        input { width: 100%; background: transparent; border: none; border-bottom: 2px solid var(--blue); color: white; padding: 10px; font-size: 18px; outline: none; margin-top: 10px; }
-        .btn-stake { width: 100%; background: var(--gold); color: black; padding: 15px; border-radius: 15px; border: none; font-weight: bold; margin-top: 20px; cursor: pointer; }
+        body { background: var(--bg); color: white; font-family: 'Poppins', sans-serif; padding: 15px; margin: 0; padding-bottom: 80px; }
+        
+        .header { padding: 20px 0; display: flex; align-items: center; justify-content: space-between; }
+        .back-btn { font-size: 20px; text-decoration: none; color: white; }
+
+        .balance-card { 
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e293b 100%); 
+            padding: 25px; border-radius: 20px; border: 1px solid rgba(59, 130, 246, 0.3); 
+            margin-bottom: 20px; text-align: center;
+        }
+
+        .input-section { background: var(--card); padding: 20px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); }
+        .input-group { background: #0f172a; padding: 12px; border-radius: 12px; border: 1px solid #334155; margin: 15px 0; }
+        input { width: 100%; background: transparent; border: none; color: var(--gold); font-size: 22px; font-weight: bold; outline: none; text-align: center; }
+        
+        .btn-invest { 
+            width: 100%; background: var(--gold); color: black; padding: 16px; 
+            border-radius: 12px; border: none; font-weight: bold; font-size: 16px; 
+            cursor: pointer; transition: 0.2s;
+        }
+        .btn-invest:active { transform: scale(0.98); }
+
+        h3 { font-size: 14px; color: var(--gold); margin-top: 25px; text-transform: uppercase; letter-spacing: 1px; }
+        
+        .inv-item { 
+            background: var(--card); padding: 15px; border-radius: 15px; 
+            margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;
+            border-left: 4px solid var(--gold);
+        }
+        .inv-info div { font-size: 13px; font-weight: bold; }
+        .inv-info small { font-size: 10px; color: #94a3b8; }
+        .status-tag { font-size: 10px; background: rgba(34, 197, 94, 0.2); color: #22c55e; padding: 4px 10px; border-radius: 10px; }
     </style>
 </head>
 <body>
 
-    <div class="wallet-card">
-        <p style="margin:0; font-size:12px; color:#94a3b8;">AVAILABLE WALLET BALANCE</p>
-        <h1 id="userBal">$ 0.00</h1>
+    <div class="header">
+        <a href="home.html" class="back-btn">←</a>
+        <h2 style="margin:0; font-size: 18px;">Investment Portal</h2>
+        <div style="width:20px;"></div>
     </div>
 
-    <div class="input-group">
-        <label style="font-size: 14px; color: var(--gold);">Enter Staking Amount ($)</label>
-        <input type="number" id="stakeAmt" placeholder="Min $10">
-        <p style="font-size: 11px; color: #94a3b8; margin-top: 10px;">Daily Return: 0.5% - 1.2% (Auto-Compounding)</p>
+    <div class="balance-card">
+        <p style="margin:0; font-size:11px; color:#94a3b8;">WALLET BALANCE</p>
+        <h1 id="userBal" style="margin:5px 0; font-size: 32px;">$ 0.00</h1>
     </div>
 
-    <button class="btn-stake" onclick="startStake()">STAKE NOW</button>
+    <div class="input-section">
+        <label style="font-size: 12px; color: #94a3b8;">Amount to Invest ($)</label>
+        <div class="input-group">
+            <input type="number" id="invAmt" placeholder="Min 10.00">
+        </div>
+        <p style="font-size: 10px; color: #94a3b8; text-align: center; margin-bottom: 15px;">
+            Daily Profit: <span style="color: #22c55e;">1.2%</span> | Term: <span style="color: #22c55e;">Flexible</span>
+        </p>
+        <button class="btn-invest" id="investBtn" onclick="processInvestment()">START INVESTING</button>
+    </div>
+
+    <h3>My Active Portfolio</h3>
+    <div id="investmentList">
+        <p style="font-size: 12px; color: #475569; text-align: center;">Scanning your assets...</p>
+    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, onValue, update, get, push } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        const firebaseConfig = { apiKey: "AIzaSyCh-1xi3jkIj5hUsmbm3GFGfT_AlWmxYkk", databaseURL: "https://maker-trading-official-default-rtdb.firebaseio.com/" };
+        const firebaseConfig = { 
+            apiKey: "AIzaSyCh-1xi3jkIj5hUsmbm3GFGfT_AlWmxYkk", 
+            databaseURL: "https://maker-trading-official-default-rtdb.firebaseio.com/" 
+        };
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const phone = localStorage.getItem("userPhone");
 
-        // Wallet Balance Load Karo
+        // 1. Balance Load
         onValue(ref(db, `users/${phone}/wallet`), (snap) => {
             const bal = snap.val() || 0;
-            document.getElementById('userBal').innerText = "$ " + bal.toFixed(2);
+            document.getElementById('userBal').innerText = "$ " + parseFloat(bal).toFixed(2);
         });
 
-        window.startStake = async () => {
-            const amt = parseFloat(document.getElementById('stakeAmt').value);
-            const userSnap = await get(ref(db, `users/${phone}`));
+        // 2. Load Active Investments
+        onValue(ref(db, `user_investments/${phone}`), (snap) => {
+            const listDiv = document.getElementById('investmentList');
+            listDiv.innerHTML = "";
+            
+            if(!snap.exists()) {
+                listDiv.innerHTML = "<p style='font-size:12px; color:#475569; text-align:center;'>No active investments found.</p>";
+                return;
+            }
+
+            snap.forEach(child => {
+                const data = child.val();
+                listDiv.innerHTML += `
+                    <div class="inv-item">
+                        <div class="inv-info">
+                            <div>Standard Plan: $${data.amount}</div>
+                            <small>${new Date(data.timestamp).toLocaleDateString()}</small>
+                        </div>
+                        <div class="status-tag">${data.status}</div>
+                    </div>
+                `;
+            });
+        });
+
+        // 3. Process New Investment
+        window.processInvestment = async () => {
+            const amt = parseFloat(document.getElementById('invAmt').value);
+            const btn = document.getElementById('investBtn');
+
+            if (!phone) return alert("Please Login!");
+            if (isNaN(amt) || amt < 10) return alert("Minimum investment is $10");
+
+            const userRef = ref(db, `users/${phone}`);
+            const userSnap = await get(userRef);
             const currentBal = userSnap.val().wallet || 0;
 
-            if (amt < 10) return alert("Minimum stake is $10");
-            if (amt > currentBal) return alert("Insufficient balance in wallet!");
+            if (amt > currentBal) return alert("Insufficient Balance!");
 
-            // Deduct from Wallet & Add to Investment
-            const newBal = currentBal - amt;
-            await update(ref(db, `users/${phone}`), { wallet: newBal });
-            
-            const invRef = ref(db, `user_investments/${phone}`);
-            await push(invRef, {
-                amount: amt,
-                planName: "Standard Stake",
-                dailyProfit: 0.8,
-                status: "Locked",
-                timestamp: Date.now()
-            });
+            btn.disabled = true;
+            btn.innerText = "Processing...";
 
-            alert("Staking Successful! Your $ " + amt + " is now active.");
-            location.href = "dashboard.html";
+            try {
+                // Wallet update
+                await update(userRef, { wallet: currentBal - amt });
+
+                // Investment add (Sync with Admin Panel)
+                await push(ref(db, `user_investments/${phone}`), {
+                    amount: amt,
+                    status: "Locked",
+                    timestamp: Date.now(),
+                    dailyProfitRate: 0.012 // 1.2%
+                });
+
+                alert("Investment Started Successfully!");
+                document.getElementById('invAmt').value = "";
+                btn.disabled = false;
+                btn.innerText = "START INVESTING";
+
+            } catch (e) {
+                alert("Error! Please try again.");
+                btn.disabled = false;
+            }
         };
     </script>
 </body>
