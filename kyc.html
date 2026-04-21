@@ -2,37 +2,77 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KYC Verification - Maker Gold</title>
+    <title>Identity - Maker Gold</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        body { background: #070b14; color: white; font-family: 'Poppins', sans-serif; padding: 20px; text-align: center; }
-        .card { background: #1e293b; padding: 25px; border-radius: 20px; border: 1px solid #fbbf24; max-width: 400px; margin: auto; }
-        input { width: 100%; padding: 14px; margin: 10px 0; border-radius: 12px; border: 1px solid #334155; background: #0f172a; color: white; box-sizing: border-box; }
-        .btn { width: 100%; padding: 15px; background: #fbbf24; color: #070b14; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; }
-        #preview { width: 100%; max-height: 200px; object-fit: contain; margin: 15px 0; border-radius: 10px; display: none; border: 1px dashed #fbbf24; }
-        .status-msg { display: none; padding: 20px; background: rgba(251, 191, 36, 0.1); border-radius: 15px; border: 1px solid #fbbf24; color: #fbbf24; }
+        :root { --gold: #fbbf24; --bg: #070b14; --card: #1e293b; }
+        body { background: var(--bg); color: white; font-family: 'Poppins', sans-serif; padding: 20px; text-align: center; margin: 0; }
+        
+        .card { 
+            background: var(--card); padding: 30px 20px; border-radius: 25px; 
+            border: 1px solid rgba(251, 191, 36, 0.2); max-width: 400px; margin: 20px auto;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+        }
+        
+        input { 
+            width: 100%; padding: 15px; margin: 12px 0; border-radius: 12px; 
+            border: 1px solid #334155; background: #0f172a; color: white; 
+            box-sizing: border-box; outline: none; transition: 0.3s;
+        }
+        input:focus { border-color: var(--gold); }
+        
+        .btn { 
+            width: 100%; padding: 16px; background: var(--gold); color: #070b14; 
+            border: none; border-radius: 12px; font-weight: 800; cursor: pointer; 
+            font-size: 15px; margin-top: 10px; text-transform: uppercase;
+        }
+        .btn:disabled { background: #475569; cursor: not-allowed; }
+
+        #preview { 
+            width: 100%; height: 180px; object-fit: cover; margin: 15px 0; 
+            border-radius: 15px; display: none; border: 2px dashed var(--gold); 
+        }
+
+        .status-box { 
+            display: none; padding: 40px 20px; background: var(--card); 
+            border-radius: 25px; border: 1px solid var(--gold); margin-top: 50px;
+        }
+        .icon-circle { 
+            width: 80px; height: 80px; background: rgba(251, 191, 36, 0.1); 
+            border-radius: 50%; display: flex; align-items: center; 
+            justify-content: center; margin: 0 auto 20px; font-size: 40px;
+        }
     </style>
 </head>
 <body>
 
     <div id="kycForm" class="card">
-        <h2 style="color:#fbbf24;">🆔 Identity Verification</h2>
-        <p style="font-size: 13px; color: #94a3b8;">Upload your ID Card to enable withdrawals</p>
+        <h2 style="color:var(--gold); margin-bottom: 5px;">KYC Verification</h2>
+        <p style="font-size: 12px; color: #94a3b8; margin-bottom: 25px;">Verify your identity to unlock withdrawals</p>
         
-        <input type="text" id="fullName" placeholder="Full Name (As per ID)">
-        <input type="text" id="idNum" placeholder="ID Card Number">
+        <input type="text" id="fullName" placeholder="Legal Full Name">
+        <input type="text" id="idNum" placeholder="ID / Aadhaar / Passport Number">
         
-        <div style="text-align: left; font-size: 12px; color: #fbbf24; margin-left: 5px;">Upload ID Card Front Photo:</div>
-        <input type="file" id="idFile" accept="image/*" onchange="previewImg(event)">
+        <div style="text-align: left; font-size: 11px; color: var(--gold); margin: 10px 0 5px 5px; font-weight: 600;">
+            FRONT SIDE OF ID CARD
+        </div>
+        
+        <div style="position:relative;">
+            <input type="file" id="idFile" accept="image/*" onchange="previewImg(event)" style="padding-top: 10px;">
+        </div>
+        
         <img id="preview">
 
-        <button class="btn" id="subBtn" onclick="submitKYC()">UPLOAD & SUBMIT</button>
+        <button class="btn" id="subBtn" onclick="submitKYC()">Submit Documents</button>
     </div>
 
-    <div id="pendingBox" class="status-msg">
-        <h1 style="font-size: 50px;">⏳</h1>
-        <h3>KYC PENDING</h3>
-        <p>Admin is reviewing your documents. Please wait 24-48 hours.</p>
+    <div id="statusArea" class="status-box">
+        <div class="icon-circle" id="statIcon">⏳</div>
+        <h3 id="statTitle" style="color:var(--gold); margin:0;">Under Review</h3>
+        <p id="statDesc" style="font-size: 13px; color: #94a3b8; line-height: 1.6; padding: 0 20px;">
+            Your documents are being verified by our security team. This usually takes 24 hours.
+        </p>
+        <button class="btn" style="width:auto; padding: 10px 30px;" onclick="location.href='home.html'">Back Home</button>
     </div>
 
     <script type="module">
@@ -47,11 +87,21 @@
         const db = getDatabase(app);
         const phone = localStorage.getItem("userPhone");
 
-        // Check current status
+        if(!phone) location.href = "login.html";
+
+        // Real-time Status Sync
         onValue(ref(db, 'users/' + phone), (snap) => {
-            if(snap.val() && snap.val().kycStatus === "Pending") {
+            const user = snap.val();
+            if(user && user.kycStatus) {
                 document.getElementById('kycForm').style.display = 'none';
-                document.getElementById('pendingBox').style.display = 'block';
+                document.getElementById('statusArea').style.display = 'block';
+
+                if(user.kycStatus === "Approved") {
+                    document.getElementById('statIcon').innerText = "✅";
+                    document.getElementById('statTitle').innerText = "Verified Account";
+                    document.getElementById('statTitle').style.color = "#22c55e";
+                    document.getElementById('statDesc').innerText = "Your identity is verified. You can now withdraw your funds.";
+                }
             }
         });
 
@@ -70,42 +120,46 @@
 
         window.submitKYC = async () => {
             const file = document.getElementById('idFile').files[0];
-            const name = document.getElementById('fullName').value;
-            const idNo = document.getElementById('idNum').value;
+            const name = document.getElementById('fullName').value.trim();
+            const idNo = document.getElementById('idNum').value.trim();
             const btn = document.getElementById('subBtn');
 
-            if(!file || !name || !idNo) return alert("Please fill all details!");
+            if(!file || !name || !idNo) return alert("Please complete all fields!");
 
             btn.disabled = true;
-            btn.innerText = "Uploading to Server...";
+            btn.innerText = "Processing Image...";
 
-            // ImgBB Upload
             const formData = new FormData();
             formData.append("image", file);
             
             try {
+                // Using your ImgBB Key
                 const res = await fetch("https://api.imgbb.com/1/upload?key=8730f0f37b6703c530e137682f9d6b7b", {
                     method: "POST",
                     body: formData
                 });
                 const data = await res.json();
+                
+                if(!data.success) throw new Error("Upload Failed");
+                
                 const url = data.data.url;
 
-                // Save to Firebase
-                await update(ref(db, 'kyc_requests/' + phone), {
-                    phone: phone, name: name, idNumber: idNo, photoUrl: url, time: Date.now()
-                });
-                await update(ref(db, 'users/' + phone), { kycStatus: "Pending" });
+                // Update Firebase
+                const updates = {};
+                updates['kyc_requests/' + phone] = {
+                    phone: phone, name: name, idNumber: idNo, photoUrl: url, time: Date.now(), status: "Pending"
+                };
+                updates['users/' + phone + '/kycStatus'] = "Pending";
 
-                alert("Submitted! Wait for approval.");
-                location.reload();
+                await update(ref(db), updates);
+                alert("Documents Uploaded Successfully!");
+
             } catch (err) {
-                alert("Upload failed! Try again.");
+                alert("Upload error! Please check your internet.");
                 btn.disabled = false;
-                btn.innerText = "UPLOAD & SUBMIT";
+                btn.innerText = "Submit Documents";
             }
         };
     </script>
 </body>
-    </html>
-    
+</html>
