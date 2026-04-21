@@ -4,15 +4,28 @@
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Maker Gold - Home</title>
     <style>
-        :root { --primary: #3b82f6; --bg: #070b14; --card: #1e293b; --gold: #fbbf24; }
-        body { margin: 0; font-family: sans-serif; background: var(--bg); color: white; }
-        .ticker { background: rgba(34,197,94,0.1); color: #22c55e; padding: 10px; font-size: 12px; font-weight: bold; border-bottom: 1px solid #22c55e; overflow: hidden; white-space: nowrap; }
+        :root { --primary: #3b82f6; --bg: #070b14; --card: #1e293b; --gold: #fbbf24; --green: #22c55e; }
+        body { margin: 0; font-family: sans-serif; background: var(--bg); color: white; padding-bottom: 80px; }
+        .ticker { background: rgba(34,197,94,0.1); color: var(--green); padding: 10px; font-size: 12px; font-weight: bold; border-bottom: 1px solid var(--green); overflow: hidden; white-space: nowrap; }
         .header { padding: 40px 20px; text-align: center; background: linear-gradient(180deg, #1e40af, var(--bg)); }
         .bal-card { background: var(--card); width: 85%; margin: -40px auto 20px; padding: 25px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; border-bottom: 3px solid var(--gold); }
+        
+        /* New Crypto List Style */
+        .section-title { padding: 0 20px; font-size: 14px; color: var(--gold); margin-bottom: 10px; display: flex; justify-content: space-between; }
+        .crypto-list { padding: 0 20px; margin-bottom: 20px; }
+        .coin-card { background: var(--card); padding: 12px 15px; border-radius: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.05); }
+        .coin-info { display: flex; align-items: center; gap: 10px; }
+        .coin-name { font-weight: bold; font-size: 14px; }
+        .coin-price { text-align: right; }
+        .price-up { color: var(--green); font-size: 14px; font-weight: bold; }
+
         .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 20px; }
-        .menu-item { background: var(--card); padding: 20px; border-radius: 20px; text-align: center; border: 1px solid rgba(255,255,255,0.05); }
-        .footer { position: fixed; bottom: 0; width: 100%; background: #0f172a; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #1e293b; }
+        .menu-item { background: var(--card); padding: 20px; border-radius: 20px; text-align: center; border: 1px solid rgba(255,255,255,0.05); text-decoration: none; color: white; cursor: pointer; }
+        
+        .footer { position: fixed; bottom: 0; width: 100%; background: #0f172a; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #1e293b; z-index: 100; }
         .nav-link { color: #94a3b8; text-decoration: none; font-size: 11px; text-align: center; }
+        
+        .trade-btn { background: var(--green); color: white; border: none; padding: 5px 12px; border-radius: 5px; font-size: 11px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -27,14 +40,22 @@
     <div class="bal-card">
         <small style="color: #94a3b8;">TOTAL BALANCE</small>
         <h2 id="uBal" style="color: var(--gold); margin: 10px 0; font-size: 30px;">₹ 0.00</h2>
-        <button onclick="location.href='deposit.html'" style="background: var(--gold); border: none; padding: 8px 25px; border-radius: 20px; font-weight: bold;">RECHARGE</button>
+        <button onclick="location.href='deposit.html'" style="background: var(--gold); border: none; padding: 8px 25px; border-radius: 20px; font-weight: bold; cursor: pointer;">RECHARGE</button>
+    </div>
+
+    <div class="section-title">
+        <span>LIVE MARKET (5-10 MIN TRADE)</span>
+        <span style="color: #94a3b8; font-size: 10px;">Real-time</span>
+    </div>
+    <div class="crypto-list" id="cryptoList">
+        <div style="text-align: center; color: #94a3b8;">Connecting to Market...</div>
     </div>
 
     <div class="menu-grid">
         <div class="menu-item" onclick="location.href='Game.html'">🎮<br><b>Win Go</b></div>
-        <div class="menu-item" onclick="location.href='investment.html'">📈<br><b>Staking</b></div>
+        <div class="menu-item" onclick="location.href='crypto_trade.html'">📊<br><b>Live Trade</b></div>
         <div class="menu-item" onclick="location.href='promotion.html'">🎁<br><b>Invite</b></div>
-        <div class="menu-item" onclick="location.href='support.html'">🎧<br><b>Support</b></div>
+        <div class="menu-item" onclick="location.href='https://t.me/your_handle'">🎧<br><b>Support</b></div>
     </div>
 
     <div class="footer">
@@ -53,16 +74,49 @@
         const db = getDatabase(app);
         const phone = localStorage.getItem("userPhone");
 
-        onValue(ref(db, 'users/' + phone), (snap) => {
-            if(snap.exists()) document.getElementById('uBal').innerText = "₹ " + snap.val().wallet.toFixed(2);
-        });
+        // Balance Sync
+        if(phone) {
+            onValue(ref(db, 'users/' + phone), (snap) => {
+                if(snap.exists()) document.getElementById('uBal').innerText = "₹ " + snap.val().wallet.toFixed(2);
+            });
+        }
+
+        // Real-time Crypto Rates (Binance API)
+        const coins = ['BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'SOLUSDT', 'ADAUSDT', 'XRPUSDT', 'DOTUSDT', 'DOGEUSDT', 'MATICUSDT', 'TRXUSDT'];
+        
+        async function fetchPrices() {
+            try {
+                const res = await fetch(`https://api.binance.com/api/v3/ticker/price`);
+                const data = await res.json();
+                const filtered = data.filter(c => coins.includes(c.symbol));
+                
+                let html = "";
+                filtered.forEach(coin => {
+                    let symbol = coin.symbol.replace('USDT', '');
+                    html += `
+                    <div class="coin-card" onclick="location.href='crypto_trade.html?coin=${symbol}'">
+                        <div class="coin-info">
+                            <img src="https://cryptologos.cc/logos/thumbs/${symbol.toLowerCase()}.png?v=024" onerror="this.src='https://via.placeholder.com/20'" width="20">
+                            <span class="coin-name">${symbol}/INR</span>
+                        </div>
+                        <div class="coin-price">
+                            <div class="price-up">₹ ${(parseFloat(coin.price) * 83.5).toFixed(2)}</div>
+                            <button class="trade-btn">Trade</button>
+                        </div>
+                    </div>`;
+                });
+                document.getElementById('cryptoList').innerHTML = html;
+            } catch (e) { console.log("Price fetch error"); }
+        }
+        setInterval(fetchPrices, 3000);
+        fetchPrices();
 
         // Fake Payouts
-        const names = ["Zeeshan", "Ahmed", "Priya", "Rahul", "Saniya"];
+        const names = ["Zeeshan", "Ahmed", "Priya", "Rahul", "Saniya", "Vikram", "Anjali"];
         let txt = "";
-        for(let i=0; i<10; i++) txt += `⚡ User ${names[Math.floor(Math.random()*5)]}*** withdrew ₹${(Math.random()*5000).toFixed(0)} | `;
+        for(let i=0; i<10; i++) txt += `⚡ User ${names[Math.floor(Math.random()*names.length)]}*** withdrew ₹${(Math.random()*5000 + 500).toFixed(0)} | `;
         document.getElementById('tickerText').innerText = txt;
     </script>
 </body>
-            </html>
-                                                                 
+    </html>
+    
