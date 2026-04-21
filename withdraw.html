@@ -1,51 +1,105 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Withdrawal - Maker Gold</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #ef4444; --bg: #0f172a; --card: #1e293b; --gold: #fbbf24; }
-        body { margin: 0; font-family: 'Poppins', sans-serif; background: var(--bg); color: white; text-align: center; }
-        .header { padding: 30px; font-size: 24px; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .main-card { background: var(--card); margin: 20px; padding: 30px; border-radius: 30px; border: 2px solid rgba(239, 68, 68, 0.3); }
-        .bal-box { background: rgba(15, 23, 42, 0.6); padding: 20px; border-radius: 15px; margin-bottom: 25px; }
-        .bal-amount { font-size: 35px; color: var(--gold); font-weight: bold; margin-top: 5px; }
-        input { width: 100%; padding: 15px; margin-bottom: 15px; border-radius: 12px; border: 1px solid #334155; background: #0f172a; color: white; box-sizing: border-box; font-size: 14px; outline: none; }
+        :root { --primary: #ef4444; --bg: #070b14; --card: #1e293b; --gold: #fbbf24; }
+        body { margin: 0; font-family: 'Poppins', sans-serif; background: var(--bg); color: white; text-align: center; padding-bottom: 40px; }
+        
+        .header { padding: 30px; font-size: 22px; font-weight: bold; display: flex; align-items: center; justify-content: space-between; padding: 25px 20px; }
+        .back-btn { text-decoration: none; color: var(--gold); font-size: 24px; }
+
+        .main-card { 
+            background: var(--card); margin: 0 20px; padding: 30px 20px; border-radius: 30px; 
+            border: 1px solid rgba(239, 68, 68, 0.2); box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        
+        .bal-box { 
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); 
+            padding: 25px; border-radius: 20px; margin-bottom: 25px; border: 1px solid rgba(255,255,255,0.05);
+        }
+        .bal-amount { font-size: 38px; color: var(--gold); font-weight: 700; margin-top: 5px; }
+        
+        .input-group { text-align: left; margin-bottom: 15px; }
+        label { font-size: 11px; color: #94a3b8; margin-left: 5px; text-transform: uppercase; letter-spacing: 1px; }
+
+        input { 
+            width: 100%; padding: 16px; margin-top: 5px; border-radius: 12px; 
+            border: 1px solid #334155; background: #0f172a; color: white; 
+            box-sizing: border-box; font-size: 15px; outline: none; transition: 0.3s;
+        }
         input:focus { border-color: var(--primary); }
-        .btn-submit { width: 100%; padding: 18px; background: var(--primary); border: none; border-radius: 15px; color: white; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.3s; margin-top: 10px; }
-        .btn-submit:active { transform: scale(0.98); opacity: 0.9; }
-        .note-box { text-align: left; font-size: 12px; color: #94a3b8; margin-top: 25px; line-height: 1.8; }
+        input:read-only { opacity: 0.6; cursor: not-allowed; }
+
+        .btn-submit { 
+            width: 100%; padding: 18px; background: var(--primary); border: none; 
+            border-radius: 15px; color: white; font-weight: 800; font-size: 16px; 
+            cursor: pointer; transition: 0.3s; margin-top: 10px; letter-spacing: 1px;
+            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.3);
+        }
+        .btn-submit:active { transform: scale(0.97); }
+        .btn-submit:disabled { background: #475569; box-shadow: none; }
+
+        .status-tag { 
+            display: inline-block; font-size: 10px; padding: 4px 12px; 
+            border-radius: 10px; margin-bottom: 10px; font-weight: bold;
+        }
+        .kyc-pending { background: rgba(251, 191, 36, 0.1); color: var(--gold); border: 1px solid var(--gold); }
+
+        .note-box { 
+            text-align: left; font-size: 11px; color: #94a3b8; margin: 25px 20px 0; 
+            line-height: 1.8; background: rgba(255,255,255,0.02); padding: 15px; border-radius: 15px;
+        }
     </style>
 </head>
 <body>
 
-    <div class="header">🏧 Withdrawal</div>
+    <div class="header">
+        <a href="profile.html" class="back-btn">❮</a>
+        <span>WITHDRAWAL</span>
+        <div style="width:24px;"></div>
+    </div>
 
     <div class="main-card">
+        <div id="kycStatusTag" class="status-tag kyc-pending">Checking KYC Status...</div>
+        
         <div class="bal-box">
-            <div style="font-size: 12px; color: #94a3b8;">AVAILABLE FOR WITHDRAWAL</div>
-            <div class="bal-amount" id="displayBal">₹ 0.00</div>
+            <div style="font-size: 11px; color: #94a3b8; letter-spacing: 1px;">WITHDRAWABLE BALANCE</div>
+            <div class="bal-amount" id="displayBal">$ 0.00</div>
         </div>
 
-        <input type="number" id="wAmount" placeholder="Enter Amount (Min ₹500)">
-        <input type="text" id="wAccount" placeholder="EasyPaisa/JazzCash Number" readonly>
-        <input type="text" id="wName" placeholder="Account Title Name" readonly>
-
-        <button class="btn-submit" onclick="processWithdraw()">SUBMIT REQUEST</button>
-
-        <div class="note-box">
-            📌 <b>Note:</b><br>
-            - Minimum withdrawal is <b>₹500</b>.<br>
-            - Withdrawal Fee: <b>5%</b> will be deducted.<br>
-            - Processing Time: <b>1-12 Hours</b>.<br>
-            - Ensure your Account Title Name is correct.
+        <div class="input-group">
+            <label>Amount ($)</label>
+            <input type="number" id="wAmount" placeholder="Min $5.00">
         </div>
+
+        <div class="input-group">
+            <label>Payout Account (JazzCash/EasyPaisa/Bank)</label>
+            <input type="text" id="wAccount" placeholder="Wallet Number" readonly>
+        </div>
+
+        <div class="input-group">
+            <label>Account Holder Name</label>
+            <input type="text" id="wName" placeholder="Title Name" readonly>
+        </div>
+
+        <button class="btn-submit" id="withdrawBtn" onclick="processWithdraw()">SUBMIT WITHDRAWAL</button>
+    </div>
+
+    <div class="note-box">
+        <b>💡 Withdrawal Rules:</b><br>
+        • Minimum withdrawal amount is <b>$5.00</b>.<br>
+        • Admin Fee: <b>5%</b> service charge applies.<br>
+        • Arrival Time: <b>1 to 24 hours</b> depending on bank traffic.<br>
+        • <b>Note:</b> You must have an <b>Approved KYC</b> to withdraw.
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, onValue, update, push, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, onValue, update, push, set, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         const firebaseConfig = { 
             apiKey: "AIzaSyCh-1xi3jkIj5hUsmbm3GFGfT_AlWmxYkk", 
@@ -56,58 +110,90 @@
         const phone = localStorage.getItem("userPhone");
 
         let currentBalance = 0;
+        let kycStatus = "Not Verified";
 
-        // --- BALANCE FETCH LOGIC ---
-        if (phone) {
-            onValue(ref(db, 'users/' + phone), (snapshot) => {
-                const data = snapshot.val();
-                if (data) {
-                    // Balance update kar rahe hain
-                    currentBalance = data.wallet || 0;
-                    document.getElementById('displayBal').innerText = "₹ " + currentBalance.toFixed(2);
-                    
-                    // KYC se saved details auto-fill kar rahe hain
-                    document.getElementById('wAccount').value = data.withdrawalDetail || "Complete KYC First";
-                    document.getElementById('wName').value = data.realName || "Name Not Set";
-                }
-            });
-        } else {
-            window.location.href = 'Login.html';
+        if (!phone) {
+            window.location.href = 'login.html';
         }
 
-        window.processWithdraw = () => {
-            const amount = parseFloat(document.getElementById('wAmount').value);
-            const account = document.getElementById('wAccount').value;
+        // --- FETCH USER DATA & KYC ---
+        onValue(ref(db, 'users/' + phone), (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                currentBalance = data.wallet || 0;
+                kycStatus = data.kycStatus || "Not Verified";
+                
+                document.getElementById('displayBal').innerText = "$ " + currentBalance.toFixed(2);
+                
+                // Fetching from KYC data if available
+                document.getElementById('wAccount').value = data.idNumber || "Set in KYC";
+                document.getElementById('wName').value = data.name || "Set in KYC";
 
-            if (!amount || amount < 500) {
-                alert("Minimum withdrawal limit is ₹500");
-                return;
+                const tag = document.getElementById('kycStatusTag');
+                if(kycStatus === "Approved") {
+                    tag.innerText = "Verified Account ✅";
+                    tag.style.color = "#22c55e";
+                    tag.style.borderColor = "#22c55e";
+                    tag.style.background = "rgba(34, 197, 94, 0.1)";
+                } else {
+                    tag.innerText = "KYC Required ⚠️";
+                }
+            }
+        });
+
+        window.processWithdraw = async () => {
+            const amount = parseFloat(document.getElementById('wAmount').value);
+            const btn = document.getElementById('withdrawBtn');
+
+            // --- VALIDATIONS ---
+            if (kycStatus !== "Approved") {
+                return alert("Access Denied: Your KYC must be Approved before withdrawal.");
+            }
+            if (!amount || amount < 5) {
+                return alert("Minimum withdrawal is $5.00");
             }
             if (amount > currentBalance) {
-                alert("Insufficient balance!");
-                return;
-            }
-            if (account === "Complete KYC First") {
-                alert("Please complete your KYC/Payment setup in Profile first.");
-                return;
+                return alert("Insufficient funds in your wallet.");
             }
 
-            // Wallet se amount kaatna aur request bhejna
-            const remainingBal = currentBalance - amount;
-            update(ref(db, 'users/' + phone), { wallet: remainingBal });
+            btn.disabled = true;
+            btn.innerText = "Securing Request...";
 
-            const withdrawRef = push(ref(db, 'withdrawals'));
-            set(withdrawRef, {
-                user: phone,
-                amount: amount,
-                address: account,
-                status: "Pending",
-                time: Date.now()
-            }).then(() => {
-                alert("Withdrawal Request Submitted Successfully!");
+            try {
+                // Update Balance
+                const newBal = currentBalance - amount;
+                await update(ref(db, 'users/' + phone), { wallet: newBal });
+
+                // Create Admin Request
+                const reqRef = push(ref(db, 'withdraw_requests'));
+                await set(reqRef, {
+                    phone: phone,
+                    amount: amount,
+                    payoutAccount: document.getElementById('wAccount').value,
+                    accountName: document.getElementById('wName').value,
+                    status: "Pending",
+                    timestamp: Date.now()
+                });
+
+                // Add to Personal History
+                await push(ref(db, 'user_history/' + phone), {
+                    periodId: "WTH-" + Math.floor(Math.random()*1000),
+                    choice: "Withdrawal",
+                    amount: amount,
+                    status: "LOSS", // Loss indicates money leaving wallet
+                    time: Date.now()
+                });
+
+                alert("Withdrawal Requested! Please wait 1-24 hours.");
                 window.location.href = 'profile.html';
-            });
+
+            } catch (e) {
+                alert("Request Failed. Try again later.");
+                btn.disabled = false;
+                btn.innerText = "SUBMIT WITHDRAWAL";
+            }
         };
     </script>
 </body>
-</html>
+    </html>
+        
