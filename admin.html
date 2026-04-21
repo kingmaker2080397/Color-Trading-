@@ -2,192 +2,90 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Maker Gold | Master Admin</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <title>MASTER ADMIN - MAKER GOLD</title>
     <style>
-        :root {
-            --bg: #0f172a; --surface: #1e293b; --accent: #fbbf24; 
-            --success: #22c55e; --danger: #ef4444; --text-main: #f8fafc; --text-dim: #94a3b8;
-        }
-        body { background-color: var(--bg); color: var(--text-main); font-family: 'Inter', sans-serif; margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; }
-        .container { width: 100%; max-width: 600px; }
-        header { text-align: center; margin-bottom: 20px; padding: 20px; }
-        header h1 { color: var(--accent); font-size: 22px; letter-spacing: 2px; text-transform: uppercase; margin: 0; }
-        
-        .section { background: var(--surface); border-radius: 16px; padding: 20px; margin-bottom: 20px; border: 1px solid rgba(255, 255, 255, 0.05); }
-        h2 { font-size: 13px; font-weight: 600; color: var(--accent); margin-top: 0; margin-bottom: 15px; text-transform: uppercase; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; }
-        
-        .timer-box { background: rgba(0,0,0,0.3); border-radius: 12px; padding: 15px; text-align: center; border: 1px dashed var(--accent); margin-bottom: 15px; }
-        .timer-val { font-size: 40px; font-weight: 700; color: var(--accent); }
-        
-        input, select { width: 100%; padding: 12px; background: #0f172a; border: 1px solid #334155; border-radius: 8px; color: white; margin-bottom: 10px; box-sizing: border-box; }
-        
-        .btn-grid { display: flex; gap: 10px; margin-top: 5px; }
-        .btn { cursor: pointer; border: none; border-radius: 8px; padding: 12px; font-weight: 600; font-size: 12px; text-transform: uppercase; transition: 0.2s; }
-        .btn-green { background: var(--success); color: white; flex: 1; }
-        .btn-red { background: var(--danger); color: white; flex: 1; }
-        .btn-gold { background: var(--accent); color: #000; width: 100%; font-weight: bold; }
-        
-        .req-box { background: #161e2e; border: 1px solid #334155; padding: 15px; border-radius: 12px; margin-bottom: 12px; }
-        .status-bar { font-size: 11px; text-align: center; padding: 8px; border-radius: 5px; margin-top: 5px; background: rgba(251, 191, 36, 0.1); color: var(--accent); font-weight: bold; }
-        .coin-badge { background: #334155; padding: 2px 8px; border-radius: 4px; font-size: 10px; }
+        body { background: #070b14; color: white; font-family: sans-serif; padding: 20px; }
+        .card { background: #1e293b; padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #334155; }
+        input, select, button { width: 100%; padding: 12px; margin: 5px 0; border-radius: 8px; border: none; }
+        button { font-weight: bold; cursor: pointer; }
+        .btn-appr { background: #22c55e; color: white; }
+        .btn-rejt { background: #ef4444; color: white; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 10px; border-bottom: 1px solid #334155; text-align: left; font-size: 12px; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <header>
-        <h1>MAKER GOLD ADMIN</h1>
-        <div id="connectionStatus" style="font-size: 10px; color: var(--success);">● SYSTEM ONLINE</div>
-    </header>
+    <h1>🚀 MASTER CONTROL PANEL</h1>
 
-    <div class="section">
-        <h2>🎮 Market Manipulation (Win Go & Crypto)</h2>
-        <div class="timer-box">
-            <div style="font-size: 11px; color: var(--text-dim);">NEXT SETTLEMENT IN</div>
-            <div class="timer-val" id="timerDisp">60s</div>
-            <div id="modeLabel" class="status-bar">MODE: ANALYZING MARKET</div>
-        </div>
-        
-        <p style="font-size: 11px; color: var(--text-dim); margin-bottom: 5px;">Force Result for Next Round:</p>
-        <div class="btn-grid">
-            <button class="btn btn-green" onclick="forceNext('Green', 'High')">📈 FORCE UP / GREEN</button>
-            <button class="btn btn-red" onclick="forceNext('Red', 'Low')">📉 FORCE DOWN / RED</button>
-        </div>
+    <div class="card">
+        <h2>🎯 TRADE MANIPULATION</h2>
+        <select id="gameFix">
+            <option value="none">AUTO MODE</option>
+            <option value="Big">FORCE BIG</option>
+            <option value="Small">FORCE SMALL</option>
+        </select>
+        <button class="btn-rejt" onclick="fixGame()">FIX NEXT RESULT</button>
     </div>
 
-    <div class="section">
-        <h2>⚙️ System Gateways</h2>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-            <input type="text" id="methodTitle" placeholder="Method Name">
-            <input type="number" id="feeInput" value="5" placeholder="Fee %">
-        </div>
-        <input type="text" id="methodAddr" placeholder="Wallet Address / UPI ID">
-        <button class="btn btn-gold" onclick="updateSystemInfo()">SAVE GLOBAL SETTINGS</button>
+    <div class="card">
+        <h2>📋 KYC APPROVALS</h2>
+        <table id="kycTable">
+            <thead><tr><th>Phone</th><th>Name</th><th>Action</th></tr></thead>
+            <tbody></tbody>
+        </table>
     </div>
 
-    <div class="section">
-        <h2>📥 Pending Deposits</h2>
-        <div id="depList" style="font-size: 12px;">Loading requests...</div>
+    <div class="card">
+        <h2>🏧 WITHDRAWALS</h2>
+        <table id="withdrawTable">
+            <thead><tr><th>User</th><th>Amount</th><th>Action</th></tr></thead>
+            <tbody></tbody>
+        </table>
     </div>
 
-    <div class="section">
-        <h2>📤 Withdrawal Requests</h2>
-        <div id="withList" style="font-size: 12px;">Loading requests...</div>
-    </div>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, set, update, onValue, remove, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-</div>
+        const firebaseConfig = { apiKey: "AIzaSyCh-1xi3jkIj5hUsmbm3GFGfT_AlWmxYkk", databaseURL: "https://maker-trading-official-default-rtdb.firebaseio.com/" };
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
 
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, update, onValue, get, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        window.fixGame = () => {
+            const val = document.getElementById('gameFix').value;
+            if(val === "none") remove(ref(db, 'game_control/next_fix'));
+            else set(ref(db, 'game_control/next_fix'), val);
+            alert("Trade Control Applied!");
+        };
 
-    const firebaseConfig = { 
-        apiKey: "AIzaSyCh-1xi3jkIj5hUsmbm3GFGfT_AlWmxYkk", 
-        databaseURL: "https://maker-trading-official-default-rtdb.firebaseio.com/" 
-    };
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-
-    let timeLeft = 60;
-    let forcedColor = "AUTO";
-    let forcedTrade = "AUTO";
-
-    // Timer & Game Control
-    setInterval(() => {
-        timeLeft--;
-        if (timeLeft <= 0) {
-            const finalColor = (forcedColor === "AUTO") ? (['Red', 'Green'][Math.floor(Math.random()*2)]) : forcedColor;
-            const finalTrade = (forcedTrade === "AUTO") ? (['High', 'Low'][Math.floor(Math.random()*2)]) : forcedTrade;
-
-            update(ref(db, 'game_state'), {
-                lastResult: finalColor,
-                lastCryptoResult: finalTrade,
-                timer: 60,
-                activePeriod: new Date().getTime().toString().slice(-6),
-                forcedResult: "AUTO"
+        onValue(ref(db, 'kyc_requests'), (snap) => {
+            const tbody = document.querySelector("#kycTable tbody");
+            tbody.innerHTML = "";
+            snap.forEach(child => {
+                const d = child.val();
+                tbody.innerHTML += `<tr><td>${d.phone}</td><td>${d.name}</td>
+                <td><button class="btn-appr" onclick="manageKYC('${d.phone}', 'Approved')">Approve</button></td></tr>`;
             });
-            timeLeft = 60; 
-            forcedColor = "AUTO"; forcedTrade = "AUTO";
-            document.getElementById('modeLabel').innerText = "MODE: ANALYZING MARKET";
-        } else {
-            update(ref(db, 'game_state'), { timer: timeLeft });
-        }
-        document.getElementById('timerDisp').innerText = timeLeft + "s";
-    }, 1000);
-
-    window.forceNext = (color, trade) => { 
-        forcedColor = color; 
-        forcedTrade = trade;
-        document.getElementById('modeLabel').innerText = `TARGET: ${color} / ${trade}`;
-        update(ref(db, 'game_state'), { forcedResult: color, forcedTrade: trade });
-    };
-
-    // Deposit Sync
-    onValue(ref(db, 'deposit_requests'), (snap) => {
-        const cont = document.getElementById('depList');
-        cont.innerHTML = "";
-        if(!snap.exists()) { cont.innerHTML = "No pending deposits."; return; }
-        snap.forEach(child => {
-            const d = child.val();
-            cont.innerHTML += `
-                <div class="req-box">
-                    <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                        <span class="coin-badge">DEPOSIT</span>
-                        <span style="color:var(--accent); font-weight:bold;">₹${d.amount}</span>
-                    </div>
-                    <div style="font-size:13px; margin-bottom:10px;">User: ${d.phone}<br>TXID: ${d.trx}</div>
-                    <div class="btn-grid">
-                        <button class="btn btn-green" onclick="approveDep('${d.phone}', ${d.amount}, '${child.key}')">Approve</button>
-                        <button class="btn btn-red" onclick="rejectReq('deposit_requests', '${child.key}')">Reject</button>
-                    </div>
-                </div>`;
         });
-    });
 
-    // Withdrawal Sync
-    onValue(ref(db, 'withdraw_requests'), (snap) => {
-        const cont = document.getElementById('withList');
-        cont.innerHTML = "";
-        if(!snap.exists()) { cont.innerHTML = "No pending withdrawals."; return; }
-        const feeP = document.getElementById('feeInput').value;
-        snap.forEach(child => {
-            const w = child.val();
-            const net = (w.amount - (w.amount * (feeP/100))).toFixed(2);
-            cont.innerHTML += `
-                <div class="req-box">
-                    <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                        <span class="coin-badge" style="background:var(--danger);">WITHDRAW</span>
-                        <span style="font-weight:bold;">₹${w.amount}</span>
-                    </div>
-                    <div style="font-size:12px; color:var(--text-dim);">Pay User: <b>₹${net}</b> (After ${feeP}% Fee)</div>
-                    <div style="font-size:13px; margin-top:5px;">User: ${w.phone}</div>
-                    <div class="btn-grid" style="margin-top:10px;">
-                        <button class="btn btn-green" onclick="rejectReq('withdraw_requests', '${child.key}')">Mark as Paid</button>
-                        <button class="btn btn-red" onclick="rejectReq('withdraw_requests', '${child.key}')">Cancel</button>
-                    </div>
-                </div>`;
+        window.manageKYC = (ph, stat) => {
+            update(ref(db, 'users/' + ph), { kycStatus: stat });
+            remove(ref(db, 'kyc_requests/' + ph));
+            alert("KYC Approved!");
+        };
+
+        onValue(ref(db, 'withdraw_requests'), (snap) => {
+            const tbody = document.querySelector("#withdrawTable tbody");
+            tbody.innerHTML = "";
+            snap.forEach(child => {
+                const d = child.val();
+                tbody.innerHTML += `<tr><td>${d.phone}</td><td>${d.finalPayout}</td>
+                <td><button class="btn-appr" onclick="doneW('${child.key}')">Paid</button></td></tr>`;
+            });
         });
-    });
 
-    window.approveDep = async (ph, amt, key) => {
-        const s = await get(ref(db, `users/${ph}/wallet`));
-        await update(ref(db, `users/${ph}`), { wallet: (s.val() || 0) + parseFloat(amt) });
-        await remove(ref(db, `deposit_requests/${key}`));
-        alert("Deposit Added to Wallet!");
-    };
-
-    window.updateSystemInfo = () => {
-        update(ref(db, 'admin_settings/config'), { 
-            name: document.getElementById('methodTitle').value, 
-            address: document.getElementById('methodAddr').value,
-            fee: document.getElementById('feeInput').value
-        });
-        alert("System Updated!");
-    };
-
-    window.rejectReq = async (p, k) => { if(confirm("Are you sure?")) await remove(ref(db, `${p}/${k}`)); };
-</script>
+        window.doneW = (id) => { remove(ref(db, 'withdraw_requests/' + id)); alert("Paid!"); };
+    </script>
 </body>
 </html>
