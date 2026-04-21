@@ -1,122 +1,139 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Maker Gold - Home</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAKER GOLD - Professional Trading</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #3b82f6; --bg: #070b14; --card: #1e293b; --gold: #fbbf24; --green: #22c55e; }
-        body { margin: 0; font-family: sans-serif; background: var(--bg); color: white; padding-bottom: 80px; }
-        .ticker { background: rgba(34,197,94,0.1); color: var(--green); padding: 10px; font-size: 12px; font-weight: bold; border-bottom: 1px solid var(--green); overflow: hidden; white-space: nowrap; }
-        .header { padding: 40px 20px; text-align: center; background: linear-gradient(180deg, #1e40af, var(--bg)); }
-        .bal-card { background: var(--card); width: 85%; margin: -40px auto 20px; padding: 25px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; border-bottom: 3px solid var(--gold); }
+        :root { --primary: #1e3a8a; --gold: #fbbf24; --bg: #070b14; --card: #1e293b; }
+        body { margin: 0; font-family: 'Poppins', sans-serif; background: var(--bg); color: white; padding-bottom: 80px; }
         
-        /* New Crypto List Style */
-        .section-title { padding: 0 20px; font-size: 14px; color: var(--gold); margin-bottom: 10px; display: flex; justify-content: space-between; }
-        .crypto-list { padding: 0 20px; margin-bottom: 20px; }
-        .coin-card { background: var(--card); padding: 12px 15px; border-radius: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.05); }
-        .coin-info { display: flex; align-items: center; gap: 10px; }
-        .coin-name { font-weight: bold; font-size: 14px; }
-        .coin-price { text-align: right; }
-        .price-up { color: var(--green); font-size: 14px; font-weight: bold; }
+        /* Top Navigation Bar */
+        .top-nav { background: #111827; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #374151; }
+        .logo-txt { font-weight: 600; font-size: 18px; color: white; }
+        .user-badge { color: #22c55e; font-size: 12px; font-weight: bold; }
 
-        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 20px; }
-        .menu-item { background: var(--card); padding: 20px; border-radius: 20px; text-align: center; border: 1px solid rgba(255,255,255,0.05); text-decoration: none; color: white; cursor: pointer; }
+        /* Balance Card */
+        .balance-card { 
+            background: linear-gradient(180deg, #1e3a8a 0%, #0f172a 100%); 
+            margin: 20px; padding: 40px 20px; border-radius: 30px; text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); border-bottom: 5px solid var(--gold);
+        }
+        .bal-label { font-size: 12px; color: #94a3b8; letter-spacing: 2px; margin-bottom: 10px; }
+        .bal-amt { font-size: 36px; color: var(--gold); font-weight: 700; margin-bottom: 20px; }
         
-        .footer { position: fixed; bottom: 0; width: 100%; background: #0f172a; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #1e293b; z-index: 100; }
-        .nav-link { color: #94a3b8; text-decoration: none; font-size: 11px; text-align: center; }
+        .recharge-btn { 
+            background: var(--gold); color: #070b14; padding: 12px 40px; border-radius: 30px; 
+            border: none; font-weight: bold; cursor: pointer; text-transform: uppercase;
+        }
+
+        /* Market Section */
+        .market-header { padding: 0 20px; display: flex; justify-content: space-between; align-items: center; }
+        .market-title { color: var(--gold); font-size: 14px; font-weight: 600; }
         
-        .trade-btn { background: var(--green); color: white; border: none; padding: 5px 12px; border-radius: 5px; font-size: 11px; cursor: pointer; }
+        .asset-card { 
+            background: var(--card); margin: 10px 20px; padding: 18px; border-radius: 20px;
+            display: flex; justify-content: space-between; align-items: center;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .asset-info b { display: block; font-size: 16px; }
+        .asset-price { color: #22c55e; text-align: right; }
+        .trade-btn { background: #22c55e; color: white; padding: 6px 15px; border-radius: 8px; font-size: 12px; margin-top: 5px; display: inline-block; text-decoration: none; }
+
+        /* Bottom Nav Bar */
+        .bottom-nav { 
+            position: fixed; bottom: 0; width: 100%; background: #111827; 
+            display: flex; justify-content: space-around; padding: 12px 0;
+            border-top: 1px solid #374151;
+        }
+        .nav-item { color: #94a3b8; text-decoration: none; font-size: 11px; text-align: center; }
+        .nav-item.active { color: var(--gold); }
+        .nav-icon { font-size: 20px; display: block; }
     </style>
 </head>
 <body>
 
-    <div class="ticker"><marquee id="tickerText">⚡ Loading withdrawals...</marquee></div>
-
-    <div class="header">
-        <h1>MAKER GOLD</h1>
-        <p style="color: #94a3b8; font-size: 11px;">PROFESSIONAL TRADING PLATFORM</p>
+    <div class="top-nav">
+        <span class="logo-txt">pro_investment_Trading</span>
+        <span class="user-badge">⚡ User <span id="userName">Rahul</span></span>
     </div>
 
-    <div class="bal-card">
-        <small style="color: #94a3b8;">TOTAL BALANCE</small>
-        <h2 id="uBal" style="color: var(--gold); margin: 10px 0; font-size: 30px;">₹ 0.00</h2>
-        <button onclick="location.href='deposit.html'" style="background: var(--gold); border: none; padding: 8px 25px; border-radius: 20px; font-weight: bold; cursor: pointer;">RECHARGE</button>
+    <div class="balance-card">
+        <h2 style="margin: 0; font-size: 28px; letter-spacing: 1px;">MAKER GOLD</h2>
+        <p style="font-size: 10px; color: #94a3b8; margin-bottom: 30px;">PROFESSIONAL TRADING PLATFORM</p>
+        
+        <div class="bal-label">TOTAL BALANCE</div>
+        <div class="bal-amt" id="uBal">₹ 0.00</div>
+        
+        <button class="recharge-btn" onclick="location.href='deposit.html'">RECHARGE</button>
     </div>
 
-    <div class="section-title">
-        <span>LIVE MARKET (5-10 MIN TRADE)</span>
-        <span style="color: #94a3b8; font-size: 10px;">Real-time</span>
-    </div>
-    <div class="crypto-list" id="cryptoList">
-        <div style="text-align: center; color: #94a3b8;">Connecting to Market...</div>
+    <div class="market-header">
+        <div class="market-title">LIVE MARKET (5-10 MIN TRADE)</div>
+        <span style="font-size: 11px; color: #475569;">Real-time</span>
     </div>
 
-    <div class="menu-grid">
-        <div class="menu-item" onclick="location.href='Game.html'">🎮<br><b>Win Go</b></div>
-        <div class="menu-item" onclick="location.href='crypto_trade.html'">📊<br><b>Live Trade</b></div>
-        <div class="menu-item" onclick="location.href='promotion.html'">🎁<br><b>Invite</b></div>
-        <div class="menu-item" onclick="location.href='https://t.me/your_handle'">🎧<br><b>Support</b></div>
+    <div class="asset-card">
+        <div class="asset-info"><b>BTC/INR</b></div>
+        <div class="asset-price">
+            <b>₹ 6386795.60</b>
+            <a href="trade.html" class="trade-btn">Trade</a>
+        </div>
     </div>
 
-    <div class="footer">
-        <a href="home.html" style="color:var(--gold);" class="nav-link">🏠<br>Home</a>
-        <a href="Game.html" class="nav-link">🎮<br>Win Go</a>
-        <a href="promotion.html" class="nav-link">🎁<br>Invite</a>
-        <a href="profile.html" class="nav-link">👤<br>Mine</a>
+    <div class="asset-card">
+        <div class="asset-info"><b>ETH/INR</b></div>
+        <div class="asset-price">
+            <b>₹ 193935.43</b>
+            <a href="trade.html" class="trade-btn">Trade</a>
+        </div>
+    </div>
+
+    <div class="asset-card">
+        <div class="asset-info"><b>BNB/INR</b></div>
+        <div class="asset-price">
+            <b>₹ 52895.58</b>
+            <a href="trade.html" class="trade-btn">Trade</a>
+        </div>
+    </div>
+
+    <div class="bottom-nav">
+        <a href="home.html" class="nav-item active"><span class="nav-icon">🏠</span>Home</a>
+        <a href="trade.html" class="nav-item"><span class="nav-icon">🎮</span>Win Go</a>
+        <a href="promotion.html" class="nav-item"><span class="nav-icon">🎁</span>Invite</a>
+        <a href="profile.html" class="nav-item"><span class="nav-icon">👤</span>Mine</a>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        const firebaseConfig = { apiKey: "AIzaSyCh-1xi3jkIj5hUsmbm3GFGfT_AlWmxYkk", databaseURL: "https://maker-trading-official-default-rtdb.firebaseio.com/" };
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-        const phone = localStorage.getItem("userPhone");
+        const firebaseConfig = {
+            apiKey: "AIzaSyCh-1xi3jkIj5hUsmbm3GFGfT_AlWmxYkk",
+            databaseURL: "https://maker-trading-official-default-rtdb.firebaseio.com/"
+        };
 
-        // Balance Sync
-        if(phone) {
-            onValue(ref(db, 'users/' + phone), (snap) => {
-                if(snap.exists()) document.getElementById('uBal').innerText = "₹ " + snap.val().wallet.toFixed(2);
-            });
-        }
+        // Error handling ke liye try-catch
+        try {
+            const app = initializeApp(firebaseConfig);
+            const db = getDatabase(app);
+            const phone = localStorage.getItem("userPhone");
 
-        // Real-time Crypto Rates (Binance API)
-        const coins = ['BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'SOLUSDT', 'ADAUSDT', 'XRPUSDT', 'DOTUSDT', 'DOGEUSDT', 'MATICUSDT', 'TRXUSDT'];
-        
-        async function fetchPrices() {
-            try {
-                const res = await fetch(`https://api.binance.com/api/v3/ticker/price`);
-                const data = await res.json();
-                const filtered = data.filter(c => coins.includes(c.symbol));
-                
-                let html = "";
-                filtered.forEach(coin => {
-                    let symbol = coin.symbol.replace('USDT', '');
-                    html += `
-                    <div class="coin-card" onclick="location.href='crypto_trade.html?coin=${symbol}'">
-                        <div class="coin-info">
-                            <img src="https://cryptologos.cc/logos/thumbs/${symbol.toLowerCase()}.png?v=024" onerror="this.src='https://via.placeholder.com/20'" width="20">
-                            <span class="coin-name">${symbol}/INR</span>
-                        </div>
-                        <div class="coin-price">
-                            <div class="price-up">₹ ${(parseFloat(coin.price) * 83.5).toFixed(2)}</div>
-                            <button class="trade-btn">Trade</button>
-                        </div>
-                    </div>`;
+            if(!phone) {
+                window.location.href = "login.html";
+            } else {
+                onValue(ref(db, 'users/' + phone), (snapshot) => {
+                    if(snapshot.exists()) {
+                        const data = snapshot.val();
+                        document.getElementById('uBal').innerText = "₹ " + (data.wallet || 0).toFixed(2);
+                        document.getElementById('userName').innerText = phone.slice(-4); // Last 4 digits of phone
+                    }
                 });
-                document.getElementById('cryptoList').innerHTML = html;
-            } catch (e) { console.log("Price fetch error"); }
+            }
+        } catch (error) {
+            console.error("Firebase Error:", error);
         }
-        setInterval(fetchPrices, 3000);
-        fetchPrices();
-
-        // Fake Payouts
-        const names = ["Zeeshan", "Ahmed", "Priya", "Rahul", "Saniya", "Vikram", "Anjali"];
-        let txt = "";
-        for(let i=0; i<10; i++) txt += `⚡ User ${names[Math.floor(Math.random()*names.length)]}*** withdrew ₹${(Math.random()*5000 + 500).toFixed(0)} | `;
-        document.getElementById('tickerText').innerText = txt;
     </script>
 </body>
-    </html>
-    
+</html>
