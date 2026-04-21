@@ -7,111 +7,35 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #1e3a8a; --gold: #fbbf24; --bg: #070b14; --card: #1e293b; }
-        body { font-family: 'Poppins', sans-serif; background: var(--bg); color: white; padding: 20px; text-align: center; margin: 0; }
+        body { font-family: 'Poppins', sans-serif; background: var(--bg); color: white; padding: 20px; text-align: center; margin: 0; padding-bottom: 50px; }
         
         .invite-box { 
             background: var(--card); padding: 35px 20px; border-radius: 25px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid rgba(251, 191, 36, 0.3);
-            margin-top: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6); border: 1px solid rgba(251, 191, 36, 0.2);
+            margin-top: 20px; position: relative; overflow: hidden;
+        }
+
+        /* Decorative Background */
+        .invite-box::before {
+            content: '🎁'; position: absolute; top: -10px; right: -10px; font-size: 80px; opacity: 0.1; transform: rotate(20deg);
         }
         
         .stats-grid { 
             display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 25px 0;
         }
         .stat-card { 
-            background: rgba(255,255,255,0.05); padding: 15px; border-radius: 15px; border: 1px solid #334155;
+            background: rgba(15, 23, 42, 0.6); padding: 15px; border-radius: 20px; border: 1px solid #334155;
         }
-        .stat-card b { display: block; font-size: 20px; color: var(--gold); }
-        .stat-card span { font-size: 11px; color: #94a3b8; text-transform: uppercase; }
+        .stat-card b { display: block; font-size: 22px; color: var(--gold); }
+        .stat-card span { font-size: 10px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; }
 
-        .code { 
-            font-size: 26px; font-weight: bold; color: var(--gold); 
-            margin: 20px 0; letter-spacing: 3px; padding: 15px;
-            background: #0f172a; border-radius: 12px; border: 1px dashed var(--gold);
+        .code-container {
+            background: #0f172a; padding: 20px; border-radius: 20px; border: 1px dashed var(--gold); margin: 20px 0;
         }
+        .code-label { font-size: 12px; color: #94a3b8; margin-bottom: 10px; display: block; }
+        .code { font-size: 28px; font-weight: bold; color: var(--gold); letter-spacing: 4px; }
         
         .btn { 
-            background: var(--gold); color: #070b14; padding: 16px 40px; 
-            border: none; border-radius: 30px; cursor: pointer; 
-            font-weight: bold; width: 100%; font-size: 16px; transition: 0.3s;
-        }
-        .btn:active { transform: scale(0.95); }
-        
-        .instruction { font-size: 13px; color: #94a3b8; line-height: 1.6; margin-top: 20px; }
-    </style>
-</head>
-<body>
-
-    <h2 style="color: var(--gold); margin-bottom: 5px;">🎁 REFER & EARN</h2>
-    <p style="color: #94a3b8; font-size: 14px;">Build your team and earn forever</p>
-
-    <div class="invite-box">
-        <div class="stats-grid">
-            <div class="stat-card">
-                <b id="totalRef">0</b>
-                <span>Total Invites</span>
-            </div>
-            <div class="stat-card">
-                <b id="commEarned">₹ 0.00</b>
-                <span>Commission</span>
-            </div>
-        </div>
-
-        <p style="margin-bottom: 10px; font-size: 14px;">Your Invitation Code</p>
-        <div class="code" id="myId">------</div>
-        
-        <button class="btn" onclick="copyLink()">COPY INVITE LINK</button>
-        
-        <div class="instruction">
-            Invite your friends. When they recharge, you get <b>10% commission</b> instantly in your wallet!
-        </div>
-    </div>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyCh-1xi3jkIj5hUsmbm3GFGfT_AlWmxYkk",
-            authDomain: "maker-trading-official.firebaseapp.com",
-            databaseURL: "https://maker-trading-official-default-rtdb.firebaseio.com/",
-            projectId: "maker-trading-official",
-            appId: "1:262205995192:web:d7255379855a0fc9489c4d"
-        };
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-        const phone = localStorage.getItem("userPhone");
-
-        if(!phone) window.location.href = "login.html";
-
-        document.getElementById('myId').innerText = phone;
-
-        // Fetch User Referral Stats
-        onValue(ref(db, 'users/' + phone), (snap) => {
-            if(snap.exists()) {
-                const data = snap.val();
-                document.getElementById('totalRef').innerText = data.referralCount || "0";
-                document.getElementById('commEarned').innerText = "₹ " + (data.referralIncome || 0).toFixed(2);
-            }
-        });
-
-        window.copyLink = function() {
-            // Updated link to point to registration with invite parameter
-            const link = "https://kingmaker2080397.github.io/Color-Trading-/register.html?invite=" + phone;
+            background: linear-gradient(135deg, #fbbf24, #d97706); color: #070b14; padding: 18px; 
+            border: none; border-radius: 1
             
-            navigator.clipboard.writeText(link).then(() => {
-                alert("Invite Link Copied Successfully!\n\n" + link);
-            }).catch(err => {
-                // Fallback for older browsers
-                const input = document.createElement('input');
-                input.value = link;
-                document.body.appendChild(input);
-                input.select();
-                document.execCommand('copy');
-                document.body.removeChild(input);
-                alert("Link Copied!");
-            });
-        }
-    </script>
-</body>
-</html>
