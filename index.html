@@ -3,140 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Maker Trading Gold</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <title>Maker Gold | Welcome</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
     <style>
+        :root { --bg: #070b14; --gold: #fbbf24; }
+        
         body { 
-            font-family: 'Poppins', sans-serif; 
-            background: #070b14; 
+            margin: 0; 
+            padding: 0; 
+            background: var(--bg); 
             display: flex; 
+            flex-direction: column; 
             justify-content: center; 
             align-items: center; 
             height: 100vh; 
-            margin: 0; 
-            color: white;
+            overflow: hidden;
+            font-family: 'Poppins', sans-serif;
         }
-        .card { 
-            background: #1e293b; 
-            padding: 30px; 
-            border-radius: 20px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
-            width: 340px; 
+
+        /* Splash Animation */
+        .logo-container {
             text-align: center;
-            border-bottom: 4px solid #fbbf24;
+            animation: zoomIn 1.2s ease-out forwards;
         }
-        h2 { color: #fbbf24; margin-bottom: 20px; font-weight: 600; }
-        input { 
-            width: 100%; 
-            padding: 14px; 
-            margin: 10px 0; 
-            border: 1px solid #334155; 
-            border-radius: 12px; 
-            box-sizing: border-box; 
-            background: #0f172a; 
-            color: white;
-            outline: none;
-            transition: 0.3s;
+
+        .logo-icon {
+            font-size: 80px;
+            margin-bottom: 10px;
+            filter: drop-shadow(0 0 20px rgba(251, 191, 36, 0.4));
         }
-        input:focus { border-color: #fbbf24; }
-        button { 
-            width: 100%; 
-            padding: 14px; 
-            background: #fbbf24; 
-            color: #070b14; 
-            border: none; 
-            border-radius: 12px; 
-            cursor: pointer; 
-            font-weight: bold; 
-            margin-top: 15px;
-            font-size: 16px;
-            transition: 0.3s;
+
+        .logo-text {
+            color: var(--gold);
+            font-size: 24px;
+            letter-spacing: 5px;
+            font-weight: 700;
+            text-transform: uppercase;
         }
-        button:disabled { background: #475569; cursor: not-allowed; }
-        p { color: #94a3b8; margin-top: 20px; font-size: 14px; }
-        a { color: #fbbf24; text-decoration: none; font-weight: bold; }
+
+        /* Loading Spinner */
+        .loader {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top: 3px solid var(--gold);
+            border-radius: 50%;
+            margin-top: 30px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes zoomIn {
+            from { transform: scale(0.5); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .version {
+            position: absolute;
+            bottom: 20px;
+            color: rgba(255,255,255,0.3);
+            font-size: 10px;
+            letter-spacing: 1px;
+        }
     </style>
 </head>
 <body>
-    <div class="card">
-        <h2>👑 MAKER GOLD</h2>
-        <p style="margin-top: -15px; margin-bottom: 20px;">Welcome Back! Login to Trade</p>
-        
-        <input type="number" id="loginPhone" placeholder="Mobile Number">
-        <input type="password" id="loginPass" placeholder="Password">
-        
-        <button id="loginBtn">LOGIN NOW</button>
-        
-        <p>Don't have an account? <br><a href="register.html">Register New Account</a></p>
+
+    <div class="logo-container">
+        <div class="logo-icon">👑</div>
+        <div class="logo-text">Maker Gold</div>
+        <div class="loader"></div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    <div class="version">SECURED BY MAKER V2.0</div>
 
-        // Same Config as your other pages
-        const firebaseConfig = {
-            apiKey: "AIzaSyCh-1xi3jkIj5hUsmbm3GFGfT_AlWmxYkk",
-            authDomain: "maker-trading-official.firebaseapp.com",
-            databaseURL: "https://maker-trading-official-default-rtdb.firebaseio.com/",
-            projectId: "maker-trading-official",
-            appId: "1:262205995192:web:d7255379855a0fc9489c4d"
-        };
-        
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
+    <script>
+        // Redirect Logic
+        setTimeout(() => {
+            const userPhone = localStorage.getItem("userPhone");
 
-        const loginBtn = document.getElementById('loginBtn');
-
-        loginBtn.onclick = async function() {
-            const phone = document.getElementById('loginPhone').value.trim();
-            const pass = document.getElementById('loginPass').value.trim();
-
-            // Simple Validations
-            if (phone.length < 10) {
-                alert("Please enter a valid mobile number.");
-                return;
+            // Check if user is logged in
+            if (userPhone) {
+                // If logged in, go to Home
+                window.location.href = "home.html";
+            } else {
+                // If not logged in, go to Login
+                window.location.href = "login.html";
             }
-            if (pass === "") {
-                alert("Please enter password.");
-                return;
-            }
-
-            // Disable button and show loading
-            loginBtn.disabled = true;
-            loginBtn.innerText = "Verifying...";
-
-            try {
-                const userRef = ref(db, 'users/' + phone);
-                const snapshot = await get(userRef);
-
-                if (snapshot.exists()) {
-                    const userData = snapshot.val();
-                    
-                    if (userData.password === pass) {
-                        // Success! Save session
-                        localStorage.setItem("userPhone", phone);
-                        localStorage.setItem("userName", userData.name || "User");
-                        
-                        alert("Login Successful!");
-                        window.location.href = "home.html";
-                    } else {
-                        alert("Incorrect Password!");
-                        loginBtn.disabled = false;
-                        loginBtn.innerText = "LOGIN NOW";
-                    }
-                } else {
-                    alert("Account not found! Please register first.");
-                    loginBtn.disabled = false;
-                    loginBtn.innerText = "LOGIN NOW";
-                }
-            } catch (error) {
-                console.error(error);
-                alert("Connection error! Please check your internet.");
-                loginBtn.disabled = false;
-                loginBtn.innerText = "LOGIN NOW";
-            }
-        };
+        }, 2500); // 2.5 seconds wait for splash screen effect
     </script>
+
 </body>
 </html>
