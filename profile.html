@@ -7,67 +7,89 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #1e3a8a; --gold: #fbbf24; --bg: #070b14; --card: #1e293b; }
-        body { margin: 0; font-family: 'Poppins', sans-serif; background: var(--bg); color: white; padding-bottom: 30px; }
+        body { margin: 0; font-family: 'Poppins', sans-serif; background: var(--bg); color: white; padding-bottom: 100px; }
         
         .top-sec { 
-            background: linear-gradient(180deg, var(--primary), #0f172a); 
-            color: white; padding: 50px 20px; text-align: center; 
-            border-radius: 0 0 35px 35px; box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+            background: linear-gradient(180deg, #1e3a8a 0%, #070b14 100%); 
+            color: white; padding: 60px 20px 40px; text-align: center; 
+            border-radius: 0 0 40px 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            position: relative;
         }
-        .profile-icon { font-size: 70px; margin-bottom: 10px; filter: drop-shadow(0 0 10px rgba(255,255,255,0.2)); }
+        
+        .profile-pic-area {
+            width: 90px; height: 90px; background: var(--card); 
+            border-radius: 50%; margin: 0 auto 15px; 
+            display: flex; align-items: center; justify-content: center;
+            border: 2px solid var(--gold); font-size: 45px;
+            box-shadow: 0 0 20px rgba(251, 191, 36, 0.3);
+        }
         
         .status-badge { 
-            display: inline-block; padding: 5px 15px; border-radius: 20px; 
-            font-size: 12px; font-weight: bold; margin-bottom: 15px;
+            display: inline-block; padding: 6px 16px; border-radius: 20px; 
+            font-size: 11px; font-weight: bold; text-transform: uppercase;
+            letter-spacing: 1px;
         }
-        .verified-bg { background: rgba(34, 197, 94, 0.2); color: #22c55e; border: 1px solid #22c55e; }
-        .pending-bg { background: rgba(251, 191, 36, 0.2); color: #fbbf24; border: 1px solid #fbbf24; }
+        .verified-bg { background: rgba(34, 197, 94, 0.15); color: #22c55e; border: 1px solid #22c55e; }
+        .pending-bg { background: rgba(251, 191, 36, 0.15); color: #fbbf24; border: 1px solid #fbbf24; }
+        .rejected-bg { background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid #ef4444; }
 
-        .menu-container { margin-top: -20px; padding: 0 15px; }
+        .balance-display { margin-top: 25px; }
+        .balance-label { font-size: 11px; color: #94a3b8; letter-spacing: 2px; }
+        .balance-amt { color: var(--gold); font-size: 36px; font-weight: 600; margin: 5px 0; }
+
+        .menu-container { margin-top: -20px; padding: 0 20px; }
         .menu-item { 
-            background: var(--card); padding: 18px; margin-bottom: 12px; 
-            border-radius: 15px; display: flex; justify-content: space-between; 
-            cursor: pointer; transition: 0.3s; border: 1px solid rgba(255,255,255,0.05);
+            background: var(--card); padding: 18px; margin-bottom: 15px; 
+            border-radius: 18px; display: flex; justify-content: space-between; 
+            cursor: pointer; transition: 0.3s; border: 1px solid rgba(255,255,255,0.03);
+            align-items: center;
         }
-        .menu-item:active { transform: scale(0.97); background: #2d3a4f; }
-        .menu-item span:first-child { font-weight: 500; display: flex; align-items: center; gap: 10px; }
+        .menu-item:active { transform: scale(0.96); background: #24334a; }
+        .menu-item .label { font-size: 15px; font-weight: 500; display: flex; align-items: center; gap: 15px; }
+        .menu-item .icon { color: #475569; font-size: 14px; }
         
-        .logout { 
+        .logout-btn { 
             color: #ef4444; font-weight: bold; text-align: center; 
-            margin-top: 40px; cursor: pointer; padding: 15px;
-            border: 1px solid #ef4444; border-radius: 15px; margin: 30px 15px 0;
+            margin: 40px 20px 0; padding: 18px;
+            background: rgba(239, 68, 68, 0.05);
+            border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 18px; 
+            cursor: pointer; transition: 0.3s;
         }
+        .logout-btn:active { background: rgba(239, 68, 68, 0.1); }
     </style>
 </head>
 <body>
 
     <div class="top-sec">
-        <div class="profile-icon">👤</div>
-        <h3 id="uPhone" style="margin: 5px 0;">+92 0000000000</h3>
-        <div id="kycBadge" class="status-badge pending-bg">Checking KYC...</div>
-        <div style="font-size: 12px; color: #94a3b8; margin-top: 10px;">TOTAL BALANCE</div>
-        <h2 id="uBal" style="margin: 0; color: var(--gold); font-size: 32px;">₹ 0.00</h2>
+        <div class="profile-pic-area">👤</div>
+        <h3 id="uPhone" style="margin: 5px 0; letter-spacing: 1px;">+91 ---</h3>
+        <div id="kycBadge" class="status-badge pending-bg">Checking Status...</div>
+        
+        <div class="balance-display">
+            <div class="balance-label">AVAILABLE BALANCE</div>
+            <h2 id="uBal" class="balance-amt">$ 0.00</h2>
+        </div>
     </div>
 
     <div class="menu-container">
         <div class="menu-item" onclick="location.href='deposit.html'">
-            <span>💰 Wallet / Recharge</span> <span>❯</span>
+            <div class="label"><span>💰</span> Deposit Funds</div> <div class="icon">❯</div>
         </div>
         <div class="menu-item" onclick="location.href='withdraw.html'">
-            <span>🏧 Withdraw Money</span> <span>❯</span>
+            <div class="label"><span>🏧</span> Withdraw Cash</div> <div class="icon">❯</div>
         </div>
         <div class="menu-item" onclick="location.href='records.html'">
-            <span>📜 Betting History</span> <span>❯</span>
+            <div class="label"><span>📜</span> Trading History</div> <div class="icon">❯</div>
         </div>
         <div class="menu-item" onclick="location.href='kyc.html'">
-            <span>🆔 KYC Verification</span> <span>❯</span>
+            <div class="label"><span>🆔</span> Identity (KYC)</div> <div class="icon">❯</div>
         </div>
         <div class="menu-item" onclick="location.href='promotion.html'">
-            <span>🎁 Refer & Earn</span> <span>❯</span>
+            <div class="label"><span>🎁</span> Refer & Earn</div> <div class="icon">❯</div>
         </div>
     </div>
     
-    <div class="logout" onclick="logout()">LOGOUT ACCOUNT</div>
+    <div class="logout-btn" onclick="logout()">LOGOUT SESSION</div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -75,10 +97,7 @@
 
         const firebaseConfig = {
             apiKey: "AIzaSyCh-1xi3jkIj5hUsmbm3GFGfT_AlWmxYkk",
-            authDomain: "maker-trading-official.firebaseapp.com",
-            databaseURL: "https://maker-trading-official-default-rtdb.firebaseio.com/",
-            projectId: "maker-trading-official",
-            appId: "1:262205995192:web:d7255379855a0fc9489c4d"
+            databaseURL: "https://maker-trading-official-default-rtdb.firebaseio.com/"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -96,27 +115,30 @@
             if(snapshot.exists()){
                 const data = snapshot.val();
                 
-                // Update Balance
+                // Update Balance (Syncing with $ symbol used in Stake/Investment)
                 const walletBal = parseFloat(data.wallet || 0);
-                document.getElementById('uBal').innerText = "₹ " + walletBal.toFixed(2);
+                document.getElementById('uBal').innerText = "$ " + walletBal.toFixed(2);
                 
-                // Update KYC Badge
+                // Update KYC Badge (Syncing with KYC.html statuses)
                 const badge = document.getElementById('kycBadge');
-                if(data.kycStatus === "Verified") {
+                if(data.kycStatus === "Approved") {
                     badge.innerText = "Verified ✅";
                     badge.className = "status-badge verified-bg";
                 } else if(data.kycStatus === "Pending") {
-                    badge.innerText = "KYC Pending ⏳";
+                    badge.innerText = "Pending ⏳";
                     badge.className = "status-badge pending-bg";
+                } else if(data.kycStatus === "Rejected") {
+                    badge.innerText = "Rejected ❌";
+                    badge.className = "status-badge rejected-bg";
                 } else {
-                    badge.innerText = "Unverified ❌";
+                    badge.innerText = "Not Verified";
                     badge.className = "status-badge pending-bg";
                 }
             }
         });
 
         window.logout = function() {
-            if(confirm("Are you sure you want to logout?")) {
+            if(confirm("Do you want to logout?")) {
                 localStorage.clear();
                 window.location.href = "login.html";
             }
