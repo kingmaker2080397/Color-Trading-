@@ -3,84 +3,115 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Support - Maker Gold</title>
+    <title>Customer Care - Maker Gold</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #0088cc; --gold: #fbbf24; --bg: #070b14; --card: #1e293b; }
+        :root { --primary: #0088cc; --gold: #fbbf24; --bg: #070b14; --card: #1e293b; --glass: rgba(255,255,255,0.03); }
         body { 
             font-family: 'Poppins', sans-serif; background: var(--bg); color: white; 
-            text-align: center; margin: 0; padding: 20px; 
+            text-align: center; margin: 0; padding: 20px; padding-bottom: 50px;
         }
-        .support-header { margin-top: 30px; }
-        .icon-circle { 
-            width: 100px; height: 100px; background: rgba(0, 136, 204, 0.1); 
-            border-radius: 50%; display: flex; align-items: center; justify-content: center; 
-            margin: 0 auto 20px; font-size: 50px; border: 2px solid var(--primary);
-        }
-        .support-card { 
-            background: var(--card); padding: 30px 20px; border-radius: 25px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); margin-bottom: 30px;
-        }
-        .btn-telegram { 
-            display: inline-block; background: var(--primary); color: white; 
-            padding: 16px 40px; text-decoration: none; border-radius: 30px; 
-            font-weight: bold; font-size: 16px; transition: 0.3s; width: 80%;
-            box-shadow: 0 4px 15px rgba(0, 136, 204, 0.4);
-        }
-        .btn-telegram:active { transform: scale(0.95); }
-
-        .faq-section { text-align: left; margin-top: 40px; }
-        .faq-item { 
-            background: rgba(255,255,255,0.05); padding: 15px; 
-            border-radius: 12px; margin-bottom: 10px; border-left: 3px solid var(--gold);
-        }
-        .faq-item h4 { margin: 0 0 5px 0; font-size: 14px; color: var(--gold); }
-        .faq-item p { margin: 0; font-size: 12px; color: #94a3b8; }
         
-        .footer-note { font-size: 11px; color: #475569; margin-top: 40px; }
+        /* Header Style */
+        .header { margin-top: 20px; padding: 20px; }
+        .icon-box { 
+            width: 80px; height: 80px; background: linear-gradient(135deg, var(--primary), #005580); 
+            border-radius: 22px; display: flex; align-items: center; justify-content: center; 
+            margin: 0 auto 15px; font-size: 40px; box-shadow: 0 10px 20px rgba(0, 136, 204, 0.3);
+        }
+
+        /* Support Options */
+        .support-card { 
+            background: var(--card); padding: 25px; border-radius: 25px; 
+            border: 1px solid rgba(255,255,255,0.05); margin-bottom: 20px;
+            text-align: center; position: relative; overflow: hidden;
+        }
+        .support-card::after {
+            content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--primary);
+        }
+
+        .btn-telegram { 
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            background: var(--primary); color: white; padding: 16px; 
+            text-decoration: none; border-radius: 15px; font-weight: bold; 
+            font-size: 15px; transition: 0.3s; margin-top: 15px;
+        }
+        .btn-outline {
+            background: transparent; border: 1px solid var(--primary); color: var(--primary);
+        }
+        .btn-telegram:active { transform: scale(0.97); }
+
+        /* FAQ Styling */
+        .faq-section { text-align: left; margin-top: 30px; }
+        .faq-title { font-size: 14px; color: var(--gold); margin-bottom: 15px; padding-left: 5px; text-transform: uppercase; letter-spacing: 1px; }
+        
+        .faq-item { 
+            background: var(--glass); padding: 18px; border-radius: 15px; 
+            margin-bottom: 12px; border: 1px solid rgba(255,255,255,0.05);
+        }
+        .faq-item h4 { margin: 0 0 8px 0; font-size: 14px; color: #f8fafc; font-weight: 600; }
+        .faq-item p { margin: 0; font-size: 12px; color: #94a3b8; line-height: 1.6; }
+        
+        .live-indicator {
+            display: inline-flex; align-items: center; gap: 6px; font-size: 11px;
+            background: rgba(34, 197, 94, 0.1); color: #22c55e; padding: 4px 12px;
+            border-radius: 20px; margin-bottom: 10px;
+        }
+        .dot { width: 6px; height: 6px; background: #22c55e; border-radius: 50%; animation: pulse 1.5s infinite; }
+        
+        @keyframes pulse {
+            0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; }
+        }
     </style>
 </head>
 <body>
 
-    <div class="support-header">
-        <div class="icon-circle">🎧</div>
-        <h2 style="margin-bottom: 10px;">Need Any Help?</h2>
-        <p style="color: #94a3b8; font-size: 14px; padding: 0 20px;">
-            Our support team is available 24/7 to assist you with any issues.
+    <div class="header">
+        <div class="icon-box">💬</div>
+        <div class="live-indicator"><span class="dot"></span> Support is Online</div>
+        <h2 style="margin: 5px 0;">Help Center</h2>
+        <p style="color: #94a3b8; font-size: 13px; padding: 0 10px;">
+            Experiencing issues? Our team typically responds in under 5 minutes.
         </p>
     </div>
 
     <div class="support-card">
-        <h3 style="margin-top: 0;">Direct Support</h3>
-        <p style="font-size: 13px; color: #cbd5e1; margin-bottom: 25px;">
-            For Deposit, Withdrawal or Login issues, contact us on Telegram.
-        </p>
+        <h3 style="margin: 0; font-size: 18px;">Official Channel</h3>
+        <p style="font-size: 12px; color: #94a3b8; margin: 8px 0;">Join for latest updates, signals & maintenance news.</p>
+        <a href="https://t.me/Maker_Trading" target="_blank" class="btn-telegram btn-outline">
+            📢 Join Channel
+        </a>
+    </div>
+
+    <div class="support-card" style="border-bottom: 4px solid var(--primary);">
+        <h3 style="margin: 0; font-size: 18px;">Personal Assistant</h3>
+        <p style="font-size: 12px; color: #94a3b8; margin: 8px 0;">Chat 1-on-1 for Deposit & Withdrawal queries.</p>
         <a href="https://t.me/Maker_Trading" target="_blank" class="btn-telegram">
-            Message on Telegram
+            ✈️ Contact Live Chat
         </a>
     </div>
 
     <div class="faq-section">
-        <h3 style="padding-left: 5px;">Common FAQs</h3>
+        <div class="faq-title">Quick Solutions</div>
         
         <div class="faq-item">
-            <h4>How long does deposit take?</h4>
-            <p>Deposits are usually approved within 10-30 minutes after verification.</p>
+            <h4>Withdrawal status is 'Pending'?</h4>
+            <p>Our team verifies every withdrawal manually for security. It usually takes 1-6 hours to reflect in your account.</p>
         </div>
 
         <div class="faq-item">
-            <h4>Withdrawal not received?</h4>
-            <p>Standard withdrawal time is 1-12 hours. Please ensure your KYC is verified.</p>
+            <h4>Deposit not added to wallet?</h4>
+            <p>Please ensure you've uploaded the correct screenshot with UTR number. Verification takes 10-20 minutes.</p>
         </div>
 
         <div class="faq-item">
-            <h4>Is my data secure?</h4>
-            <p>Yes, Maker Gold uses end-to-end encryption for all transactions.</p>
+            <h4>KYC verification failed?</h4>
+            <p>Make sure the ID photo is clear and matches your profile name. You can re-upload in the KYC section.</p>
         </div>
     </div>
 
-    <p class="footer-note">
-        Average response time: <span style="color: var(--gold);">5 Minutes</span>
+    <p style="font-size: 11px; color: #475569; margin-top: 40px;">
+        Maker Gold Security V2.0 • Encryption Enabled
     </p>
 
 </body>
