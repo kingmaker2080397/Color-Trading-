@@ -6,77 +6,84 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #3b82f6; --bg: #070b14; --card: #1e293b; --gold: #fbbf24; }
-        body { margin: 0; font-family: 'Poppins', sans-serif; background: var(--bg); color: white; padding: 20px; text-align: center; }
+        body { margin: 0; font-family: 'Poppins', sans-serif; background: var(--bg); color: white; padding: 20px; text-align: center; padding-bottom: 50px; }
         
         .method-card { 
-            background: var(--card); padding: 15px; border-radius: 20px; border: 1px solid #334155; 
-            margin-bottom: 15px; cursor: pointer; display: flex; align-items: center; justify-content: space-between;
+            background: var(--card); padding: 18px; border-radius: 20px; border: 1px solid #334155; 
+            margin-bottom: 12px; cursor: pointer; display: flex; align-items: center; justify-content: space-between;
             transition: 0.3s;
         }
-        .method-card.active { border-color: var(--primary); background: rgba(59, 130, 246, 0.1); }
-        .method-card.disabled { opacity: 0.5; cursor: not-allowed; }
+        .method-card.active { border-color: var(--gold); background: rgba(251, 191, 36, 0.05); transform: scale(1.02); }
+        .method-card.disabled { opacity: 0.4; cursor: not-allowed; grayscale: 1; }
         
         .details-box { 
-            display: none; background: #0f172a; padding: 20px; border-radius: 20px; 
-            border: 1px dashed var(--gold); margin: 20px 0; 
+            display: none; background: #0f172a; padding: 25px; border-radius: 20px; 
+            border: 1px dashed var(--gold); margin: 20px 0; animation: fadeIn 0.5s;
         }
+        @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
         
-        input { width: 100%; padding: 15px; margin: 10px 0; border-radius: 12px; border: 1px solid #334155; background: #0f172a; color: white; box-sizing: border-box; }
-        .btn { width: 100%; padding: 18px; background: linear-gradient(135deg, #22c55e, #16a34a); color: white; border: none; border-radius: 15px; font-weight: bold; cursor: pointer; box-shadow: 0 5px 0 #15803d; margin-top: 15px; }
-        .btn:active { transform: translateY(3px); box-shadow: none; }
+        input { width: 100%; padding: 16px; margin: 10px 0; border-radius: 12px; border: 1px solid #334155; background: #0f172a; color: white; box-sizing: border-box; outline: none; font-size: 15px; }
+        input:focus { border-color: var(--gold); }
+        
+        .btn { width: 100%; padding: 18px; background: var(--gold); color: #000; border: none; border-radius: 15px; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 15px; transition: 0.2s; }
+        .btn:active { transform: scale(0.98); }
 
-        #gamePop { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 10000; }
-        .pop-content { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #1e293b; width: 280px; padding: 30px; border-radius: 30px; border: 2px solid var(--gold); text-align: center; }
+        #gamePop { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 10000; backdrop-filter: blur(5px); }
+        .pop-content { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #1e293b; width: 80%; max-width: 300px; padding: 35px; border-radius: 30px; border: 1px solid var(--gold); text-align: center; }
         
-        .status-badge { font-size: 10px; padding: 4px 8px; border-radius: 5px; background: #ef4444; color: white; }
-        .online-badge { background: #22c55e; }
+        .status-badge { font-size: 9px; padding: 3px 8px; border-radius: 4px; background: #475569; color: white; text-transform: uppercase; }
+        .online-badge { background: #16a34a; }
+        .copy-tag { font-size: 11px; color: var(--gold); background: rgba(251, 191, 36, 0.1); padding: 5px 12px; border-radius: 10px; margin-top: 10px; display: inline-block; }
     </style>
 </head>
 <body>
 
     <div id="gamePop">
         <div class="pop-content">
-            <h1 style="font-size: 60px; margin:0;">✅</h1>
-            <h2 id="popTitle" style="color: #22c55e;">SUBMITTED</h2>
-            <p id="popMsg">Your deposit is under verification.</p>
-            <button onclick="location.href='home.html'" style="background:#22c55e; border:none; padding:10px 40px; border-radius:20px; color:white; font-weight:bold; cursor:pointer; margin-top:15px;">OK</button>
+            <div style="font-size: 60px;">⏳</div>
+            <h2 id="popTitle" style="color: var(--gold); margin: 10px 0;">PENDING</h2>
+            <p id="popMsg" style="color:#94a3b8; font-size: 13px;">Transaction submitted. Please wait 10-30 minutes for manual verification.</p>
+            <button onclick="location.href='home.html'" style="background:var(--gold); border:none; padding:12px 40px; border-radius:15px; color:#000; font-weight:bold; cursor:pointer; width:100%;">BACK TO HOME</button>
         </div>
     </div>
 
-    <h2>Select Payment Method</h2>
-    <p style="color:#94a3b8; font-size:12px; margin-bottom:20px;">Choose a method to see payment details</p>
+    <div style="text-align: left; margin-bottom: 25px;">
+        <h2 style="margin:0;">Add Money</h2>
+        <p style="color:#94a3b8; font-size:12px; margin:5px 0;">Select a payment gateway below</p>
+    </div>
 
     <div id="ep_card" class="method-card" onclick="selectMethod('ep')">
         <div style="display:flex; align-items:center;">
-            <div style="font-size:25px; margin-right:15px;">📱</div>
-            <div style="text-align:left;"><b>Easypaisa</b><br><small id="ep_status">Checking...</small></div>
+            <div style="font-size:25px; margin-right:15px;">🅿️</div>
+            <div style="text-align:left;"><b>Easypaisa / Mobile</b><br><small id="ep_status">Checking...</small></div>
         </div>
     </div>
 
     <div id="jc_card" class="method-card" onclick="selectMethod('jc')">
         <div style="display:flex; align-items:center;">
             <div style="font-size:25px; margin-right:15px;">📲</div>
-            <div style="text-align:left;"><b>JazzCash</b><br><small id="jc_status">Checking...</small></div>
+            <div style="text-align:left;"><b>JazzCash / UPI</b><br><small id="jc_status">Checking...</small></div>
         </div>
     </div>
 
     <div id="usdt_card" class="method-card" onclick="selectMethod('usdt')">
         <div style="display:flex; align-items:center;">
-            <div style="font-size:25px; margin-right:15px;">💎</div>
-            <div style="text-align:left;"><b>USDT (TRC20)</b><br><small id="usdt_status">Checking...</small></div>
+            <div style="font-size:25px; margin-right:15px;">🪙</div>
+            <div style="text-align:left;"><b>USDT (TRC20) / Crypto</b><br><small id="usdt_status">Checking...</small></div>
         </div>
     </div>
 
     <div id="detailsArea" class="details-box">
-        <p style="font-size:12px; color:#94a3b8; margin:0;">Pay to this account/address:</p>
-        <h3 id="paymentDetail" style="color:var(--gold); margin:15px 0; word-break:break-all;">---</h3>
-        <button onclick="copyDetail()" style="background:none; border:none; color:var(--primary); font-weight:bold; cursor:pointer;">COPY DETAIL</button>
+        <p style="font-size:11px; color:#94a3b8; margin:0;">SEND EXACT AMOUNT TO:</p>
+        <h3 id="paymentDetail" style="color:var(--gold); margin:15px 0; word-break:break-all; font-size: 20px;">---</h3>
+        <div class="copy-tag" onclick="copyDetail()" style="cursor: pointer;">📋 Click to Copy Address</div>
     </div>
 
     <div id="formArea" style="display:none;">
         <input type="number" id="depAmt" placeholder="Enter Amount (₹)">
-        <input type="text" id="depTID" placeholder="Transaction ID / TRX ID">
-        <button class="btn" onclick="submitDeposit()">SUBMIT DEPOSIT</button>
+        <input type="text" id="depTID" placeholder="Transaction ID (TRX ID)">
+        <p style="font-size: 10px; color: #ef4444; margin: 5px 0;">* Wrong Transaction ID may lead to account ban.</p>
+        <button class="btn" id="subBtn" onclick="submitDeposit()">SUBMIT REQUEST</button>
     </div>
 
     <script type="module">
@@ -91,62 +98,64 @@
         let paymentData = {};
         let selectedType = "";
 
-        // Get Live Payment Data from Admin
-        onValue(ref(db, 'admin_settings/payments'), (snap) => {
-            paymentData = snap.val() || {};
-            updateMethodUI('ep', paymentData.easypaisa);
-            updateMethodUI('jc', paymentData.jazzcash);
-            updateMethodUI('usdt', paymentData.usdt);
+        // Get Live Payment Data from Admin (Corrected path to admin_settings/config as per your admin.html)
+        onValue(ref(db, 'admin_settings/config'), (snap) => {
+            const data = snap.val() || {};
+            // If admin is using single method update, we adapt or use defaults
+            paymentData = {
+                easypaisa: data.address || "0300xxxxxxx",
+                jazzcash: data.address || "0300xxxxxxx",
+                usdt: data.address || "Txxxxxxxxxxxxxxx"
+            };
+            
+            ['ep', 'jc', 'usdt'].forEach(m => {
+                document.getElementById(m + '_status').innerHTML = '<span class="status-badge online-badge">Online</span>';
+            });
         });
 
-        function updateMethodUI(type, value) {
-            const card = document.getElementById(type + '_card');
-            const status = document.getElementById(type + '_status');
-            if(!value || value === "Coming Soon") {
-                status.innerHTML = '<span class="status-badge">Coming Soon</span>';
-                card.classList.add('disabled');
-            } else {
-                status.innerHTML = '<span class="status-badge online-badge">Online</span>';
-                card.classList.remove('disabled');
-            }
-        }
-
         window.selectMethod = (type) => {
-            const val = paymentData[type === 'ep' ? 'easypaisa' : type === 'jc' ? 'jazzcash' : 'usdt'];
-            if(!val || val === "Coming Soon") return;
-
             selectedType = type;
             document.querySelectorAll('.method-card').forEach(c => c.classList.remove('active'));
             document.getElementById(type + '_card').classList.add('active');
             
             document.getElementById('detailsArea').style.display = 'block';
             document.getElementById('formArea').style.display = 'block';
-            document.getElementById('paymentDetail').innerText = val;
+            document.getElementById('paymentDetail').innerText = paymentData[type === 'ep' ? 'easypaisa' : type === 'jc' ? 'jazzcash' : 'usdt'];
         };
 
         window.copyDetail = () => {
             navigator.clipboard.writeText(document.getElementById('paymentDetail').innerText);
-            alert("Payment Detail Copied!");
+            alert("Copied to clipboard!");
         };
 
         window.submitDeposit = () => {
             const amt = document.getElementById('depAmt').value;
             const tid = document.getElementById('depTID').value;
+            const subBtn = document.getElementById('subBtn');
 
-            if(!amt || !tid) return alert("Please fill all details!");
+            if(!amt || !tid) return alert("Please enter Amount and Transaction ID!");
 
-            const newDep = push(ref(db, 'deposits'));
+            subBtn.innerText = "SUBMITTING...";
+            subBtn.disabled = true;
+
+            // Updated to 'deposit_requests' to match your Admin Panel logic
+            const newDep = push(ref(db, 'deposit_requests'));
             set(newDep, {
-                user: phone,
+                phone: phone,
                 amount: parseFloat(amt),
-                tid: tid,
+                trx: tid, // 'trx' matches admin panel variable
                 method: selectedType,
                 status: "Pending",
-                time: Date.now()
+                timestamp: Date.now()
             }).then(() => {
                 document.getElementById('gamePop').style.display = 'block';
+            }).catch(e => {
+                alert("Error submitting request.");
+                subBtn.disabled = false;
+                subBtn.innerText = "SUBMIT REQUEST";
             });
         };
     </script>
 </body>
 </html>
+
