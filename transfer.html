@@ -3,52 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MAKER GOLD - Instant Transfer</title>
+    <title>Transfer - Maker Gold</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #3b82f6; --bg: #070b14; --card: #1e293b; --gold: #fbbf24; }
         body { background: var(--bg); color: white; font-family: 'Poppins', sans-serif; padding: 20px; text-align: center; margin: 0; }
         
+        .header { padding: 20px 0; display: flex; align-items: center; justify-content: space-between; }
+        .back-btn { text-decoration: none; color: var(--gold); font-size: 20px; }
+
         .box { 
-            background: var(--card); padding: 35px 25px; border-radius: 25px; 
-            border: 1px solid var(--primary); box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-            margin-top: 20px;
+            background: var(--card); padding: 30px 20px; border-radius: 25px; 
+            border: 1px solid rgba(59, 130, 246, 0.2); box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            margin-top: 10px;
         }
         
-        .balance-preview { margin-bottom: 20px; color: var(--gold); font-size: 14px; }
+        .wallet-display { background: rgba(251, 191, 36, 0.05); padding: 15px; border-radius: 15px; border: 1px dashed var(--gold); margin-bottom: 20px; }
+        .wallet-display span { display: block; font-size: 10px; color: #94a3b8; letter-spacing: 1px; }
+        .wallet-display b { font-size: 24px; color: var(--gold); }
+        
+        .input-group { text-align: left; margin-bottom: 15px; }
+        label { font-size: 11px; color: #94a3b8; margin-left: 5px; }
         
         input { 
-            width: 100%; padding: 16px; margin: 12px 0; border-radius: 12px; 
+            width: 100%; padding: 16px; margin-top: 5px; border-radius: 12px; 
             border: 1px solid #334155; background: #0f172a; color: white; 
-            box-sizing: border-box; font-size: 16px; outline: none;
+            box-sizing: border-box; font-size: 16px; outline: none; transition: 0.3s;
         }
-        input:focus { border-color: var(--gold); }
+        input:focus { border-color: var(--primary); }
+
+        #receiverName { font-size: 11px; color: #22c55e; margin-top: 5px; display: none; font-weight: bold; }
 
         .btn { 
-            width: 100%; padding: 16px; background: var(--primary); border: none; 
-            border-radius: 12px; color: white; font-weight: bold; 
-            cursor: pointer; font-size: 16px; transition: 0.3s; margin-top: 10px;
+            width: 100%; padding: 18px; background: var(--primary); border: none; 
+            border-radius: 15px; color: white; font-weight: 800; 
+            cursor: pointer; font-size: 15px; transition: 0.3s; margin-top: 10px;
+            letter-spacing: 1px; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
         }
-        .btn:disabled { background: #475569; cursor: not-allowed; }
+        .btn:active { transform: scale(0.97); }
+        .btn:disabled { background: #475569; box-shadow: none; }
         
-        .note { font-size: 12px; color: #94a3b8; margin-top: 20px; line-height: 1.5; }
+        .warning-note { font-size: 10px; color: #ef4444; margin-top: 20px; background: rgba(239, 68, 68, 0.05); padding: 10px; border-radius: 10px; }
     </style>
 </head>
 <body>
 
-    <h2 style="margin-top: 20px;">🔗 Instant Transfer</h2>
-    <p style="color: #94a3b8; font-size: 14px;">Send money to other Maker Gold users</p>
+    <div class="header">
+        <a href="home.html" class="back-btn">❮</a>
+        <h3 style="margin: 0; letter-spacing: 1px;">P2P TRANSFER</h3>
+        <div style="width: 20px;"></div>
+    </div>
 
     <div class="box">
-        <div class="balance-preview">Your Balance: <span id="myWallet">₹ 0.00</span></div>
+        <div class="wallet-display">
+            <span>YOUR CURRENT BALANCE</span>
+            <b id="myWallet">$ 0.00</b>
+        </div>
         
-        <input type="number" id="recPhone" placeholder="Receiver Mobile Number">
-        <input type="number" id="transAmt" placeholder="Amount (Minimum ₹100)">
+        <div class="input-group">
+            <label>RECEIVER'S MOBILE NUMBER</label>
+            <input type="number" id="recPhone" placeholder="Enter phone number" oninput="verifyUser()">
+            <div id="receiverName">● Verified Receiver Found</div>
+        </div>
+
+        <div class="input-group">
+            <label>AMOUNT TO SEND ($)</label>
+            <input type="number" id="transAmt" placeholder="Min $10.00">
+        </div>
         
-        <button id="sendBtn" class="btn" onclick="sendNow()">SEND NOW</button>
+        <button id="sendBtn" class="btn" onclick="sendNow()">CONFIRM TRANSFER</button>
         
-        <div class="note">
-            ⚠️ <b>Note:</b> Transfers are permanent and cannot be reversed. Please double-check the receiver's number.
+        <div class="warning-note">
+            🛡️ <b>Security Alert:</b> Funds are moved instantly. This action is irreversible. Ensure the receiver's identity.
         </div>
     </div>
 
@@ -58,10 +84,7 @@
 
         const firebaseConfig = { 
             apiKey: "AIzaSyCh-1xi3jkIj5hUsmbm3GFGfT_AlWmxYkk",
-            authDomain: "maker-trading-official.firebaseapp.com",
-            databaseURL: "https://maker-trading-official-default-rtdb.firebaseio.com/",
-            projectId: "maker-trading-official",
-            appId: "1:262205995192:web:d7255379855a0fc9489c4d"
+            databaseURL: "https://maker-trading-official-default-rtdb.firebaseio.com/" 
         };
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
@@ -69,32 +92,52 @@
 
         if(!myPhone) window.location.href = "login.html";
 
-        // Real-time Balance Show
-        onValue(ref(db, 'users/' + myPhone), (snap) => {
-            if(snap.exists()) {
-                document.getElementById('myWallet').innerText = "₹ " + (snap.val().wallet || 0).toFixed(2);
-            }
+        // 1. Balance Sync
+        onValue(ref(db, 'users/' + myPhone + '/wallet'), (snap) => {
+            const bal = snap.val() || 0;
+            document.getElementById('myWallet').innerText = "$ " + parseFloat(bal).toFixed(2);
         });
 
+        // 2. Auto-Verify Receiver
+        window.verifyUser = async () => {
+            const rPhone = document.getElementById('recPhone').value.trim();
+            const nameLabel = document.getElementById('receiverName');
+            
+            if(rPhone.length >= 10) {
+                const snap = await get(ref(db, 'users/' + rPhone));
+                if(snap.exists()) {
+                    nameLabel.style.display = "block";
+                    nameLabel.innerText = "✓ Account Verified (" + rPhone + ")";
+                    nameLabel.style.color = "#22c55e";
+                } else {
+                    nameLabel.style.display = "block";
+                    nameLabel.innerText = "✗ Account not found";
+                    nameLabel.style.color = "#ef4444";
+                }
+            } else {
+                nameLabel.style.display = "none";
+            }
+        };
+
+        // 3. Transfer Logic
         window.sendNow = async () => {
             const rPhone = document.getElementById('recPhone').value.trim();
             const amt = parseFloat(document.getElementById('transAmt').value);
             const btn = document.getElementById('sendBtn');
             
-            if(rPhone === myPhone) { alert("You cannot send money to yourself!"); return; }
-            if(isNaN(amt) || amt < 100) { alert("Minimum transfer amount is ₹100"); return; }
+            if(rPhone === myPhone) return alert("Error: Self-transfer not allowed!");
+            if(isNaN(amt) || amt < 10) return alert("Minimum transfer is $10");
 
             btn.disabled = true;
-            btn.innerText = "Processing...";
+            btn.innerText = "Securing Transaction...";
 
             try {
                 const mySnap = await get(ref(db, 'users/' + myPhone));
                 const rSnap = await get(ref(db, 'users/' + rPhone));
 
                 if (!rSnap.exists()) {
-                    alert("Receiver account not found!");
-                    btn.disabled = false;
-                    btn.innerText = "SEND NOW";
+                    alert("Receiver not found in Maker Gold network!");
+                    resetBtn();
                     return;
                 }
 
@@ -102,40 +145,43 @@
                 const rBalance = parseFloat(rSnap.val().wallet || 0);
 
                 if (myBalance >= amt) {
-                    // Update Balances
                     const updates = {};
                     updates['users/' + myPhone + '/wallet'] = myBalance - amt;
                     updates['users/' + rPhone + '/wallet'] = rBalance + amt;
 
-                    // Add History Records
-                    const transID = push(ref(db, 'transfers')).key;
-                    const log = {
-                        sender: myPhone,
-                        receiver: rPhone,
+                    // History Log
+                    const logData = {
                         amount: amt,
                         timestamp: Date.now(),
-                        type: "User Transfer"
+                        type: "Transfer",
+                        date: new Date().toLocaleDateString()
                     };
 
-                    await update(ref(db, '/'), updates);
-                    // Optional: Save logs for records.html
-                    await push(ref(db, 'user_history/' + myPhone), { ...log, status: "SENT" });
-                    await push(ref(db, 'user_history/' + rPhone), { ...log, status: "RECEIVED" });
+                    await update(ref(db), updates);
+                    
+                    // Specific History for records.html
+                    await push(ref(db, 'user_history/' + myPhone), { ...logData, choice: "Transfer OUT", status: "LOSS", periodId: "TRF-" + rPhone.slice(-4) });
+                    await push(ref(db, 'user_history/' + rPhone), { ...logData, choice: "Transfer IN", status: "WIN", periodId: "TRF-" + myPhone.slice(-4) });
 
-                    alert("Successfully Transferred ₹" + amt + " to " + rPhone);
+                    alert("Transaction Successful! $" + amt + " sent to " + rPhone);
                     document.getElementById('transAmt').value = "";
                     document.getElementById('recPhone').value = "";
+                    document.getElementById('receiverName').style.display = "none";
                 } else {
-                    alert("Insufficient Balance!");
+                    alert("Insufficient Wallet Balance!");
                 }
             } catch (error) {
-                console.error(error);
-                alert("Transfer failed! Please check your connection.");
+                alert("Network timeout. Please check your connection.");
             } finally {
-                btn.disabled = false;
-                btn.innerText = "SEND NOW";
+                resetBtn();
             }
         };
+
+        function resetBtn() {
+            const btn = document.getElementById('sendBtn');
+            btn.disabled = false;
+            btn.innerText = "CONFIRM TRANSFER";
+        }
     </script>
 </body>
 </html>
